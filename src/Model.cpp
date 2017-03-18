@@ -227,8 +227,8 @@ Model::posToCat(glm::vec3 pos)
             std::cout << "Distance: (" << distance << ")\n\n";
             cat_index = _graph[*vertex_iter].index;
             cat = _wikidb.getCategory(cat_index);
-            //TODO missing operator 
-            // std::cout << cat << std::endl;
+            //TODO missing operator
+            std::cout << cat << std::endl;
         }
 
     }

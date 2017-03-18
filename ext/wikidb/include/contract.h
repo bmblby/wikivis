@@ -7,6 +7,7 @@
 #define WIKIDB_CONTRACT_H_
 
 #include <vector>
+// #include <string>
 #include <fastdb.h>
 #include "SimPair.h"
 
@@ -16,7 +17,7 @@ class Category;
 
 class Page {
  public:
-    void info() const;
+    std::string info() const;
     std::vector<Category> getParents() const;
 
     // Menber
@@ -32,7 +33,7 @@ class Page {
 
 class Article : public Page {
  public:
-    void info() const;
+    std::string info() const;
     std::vector<SimPair> getComparisons() const;
 
     //member
@@ -45,6 +46,7 @@ class Article : public Page {
 
 class Category : public Page {
  public:
+    std::string info() const;
     dbArray< dbReference<Page> > children;
 
     // get revision ids of children
@@ -52,5 +54,19 @@ class Category : public Page {
 
     TYPE_DESCRIPTOR((SUPERCLASS(Page), RELATION(children, parents)));
 };
+
+inline
+std::ostream& operator<<(std::ostream& os, Category& cat)
+{
+    os << cat.info();
+    return os;
+}
+
+inline
+std::ostream& operator<<(std::ostream& os, Article& art)
+{
+    os << art.info();
+    return os;
+}
 
 #endif  // WIKIDB_CONTRACT_H_

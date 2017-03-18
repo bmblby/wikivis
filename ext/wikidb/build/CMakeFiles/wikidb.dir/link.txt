@@ -1,2 +1,0 @@
-/usr/bin/ar cq libwikidb.a  CMakeFiles/wikidb.dir/src/contract.cpp.o CMakeFiles/wikidb.dir/src/wikidb.cpp.o CMakeFiles/wikidb.dir/src/SimPair.cpp.o
-/usr/bin/ranlib libwikidb.a

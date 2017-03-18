@@ -1,4 +1,0 @@
-/home/vofa2169/Desktop/Bachelor/visualTextAnalysis.new/trunk/ext/wikidb/build/CMakeFiles/db_test.dir
-/home/vofa2169/Desktop/Bachelor/visualTextAnalysis.new/trunk/ext/wikidb/build/CMakeFiles/wikidb_test.dir
-/home/vofa2169/Desktop/Bachelor/visualTextAnalysis.new/trunk/ext/wikidb/build/CMakeFiles/createdb.dir
-/home/vofa2169/Desktop/Bachelor/visualTextAnalysis.new/trunk/ext/wikidb/build/CMakeFiles/wikidb.dir

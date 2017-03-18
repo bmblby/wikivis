@@ -10,26 +10,26 @@
 // Generic Print Function
 
 // TODO(giuli) print func for categories
-void
+std::string
 Page::info() const {
-    std::cout << "Index: " << this->index << std::endl;
-    std::cout << "Revid: " << this->revid << std::endl;
-    std::cout << "Title: " << this->title << std::endl;
-    std::cout << "Parents: ";
+    std::string message =
+    + "Index: " + std::to_string(this->index) + "\n";
+    + "Revid: " + std::to_string(this->revid) + "\n";
+    + "Title: " + (std::string)this->title + "\n";
+    + "Parents: ";
 
     if (this->parents.length() > 0) {
-        std::cout << std::endl;
+        message += "\n";
         for (std::size_t i =0; i < this->parents.length(); ++i) {
-                dbCursor<Category> parentCursor;
-                parentCursor.at(this->parents[i]);
-                std::cout << "\tRevid: " << parentCursor->revid
-                            << " Title: "<< parentCursor->title << std::endl;
+                dbCursor<Category> cur;
+                cur.at(this->parents[i]);
+                message += "\tRevid: " + std::to_string(cur->revid)
+                            + " Title: "+ cur->title + "\n";
         }
     } else {
-        std::cout << "No Parents" << std::endl;
+        message += "No Parents\n";
       }
-
-    std::cout << std::endl;
+    return message + "\n";
 }
 
 std::vector<Category>
@@ -44,7 +44,6 @@ Page::getParents() const {
             parents[i] = *parCur.get();
         }
     }
-
     return parents;
 }
 
@@ -61,16 +60,55 @@ Category::getChildren() const {
             children[i] = childCur->revid;
         }
     }
-
     return children;
 }
 
-void
-Article::info() const {
-    this->Page::info();
-    std::cout << "words: " << this->words << std::endl;
+std::string
+Category::info() const {
+    std::string final = this->Page::info();
 
-    std::cout << "Comparisons" << std::endl;
+    auto children_revids = this->getChildren();
+    if (children_revids.size() > 0) {
+        int art_num(0), cat_num(0);
+        std::string message;
+        for(auto revid : children_revids) {
+            dbCursor<Category> Cursor;
+            dbQuery q;
+            q = "revid=", revid;
+            Cursor.select(q);
+            if(Cursor.isEmpty())
+            {
+                art_num++;
+                dbCursor<Article> Cursor;
+                dbQuery q;
+                q = "revid=", revid;
+                Cursor.select(q);
+                Page p = *Cursor.get();
+                message += "\tA Revid: " + std::to_string(p.revid) + " "
+                          + "title: " + p.title + "\n";
+            }
+            else {
+                cat_num++;
+                Page p = *Cursor.get();
+                message += "\tC Revid: " + std::to_string(p.revid) + " "
+                          + "title: " + p.title + "\n";
+            }
+        }
+        final += std::to_string(cat_num) + " Sub categories and "
+                  + std::to_string(art_num) + " Sub articles:\n"
+                  + message + "\n";
+        return final;
+    } else {
+          return "No Sub-/ Categories or Articles found!\n\n";
+      }
+}
+
+std::string
+Article::info() const {
+    std::string message = this->Page::info();
+    message += "words: " + std::to_string(this->words) + "\n";
+
+    message += "Comparisons\n";
     if (this->comparisons.length() > 0) {
         for (std::size_t i = 0; i < this->comparisons.length(); ++i) {
             uint32_t sp = this->comparisons[i];
@@ -84,14 +122,14 @@ Article::info() const {
             q = "index=", index;
             compCursor.select(q);
 
-            std::cout << "\tRevid: " << compCursor->revid
-                      << " Index: " << index
-                      << " SimValue: " << sim << std::endl;
+            message += "\tRevid: " +    std::to_string(compCursor->revid)
+                      + " Index: " +    std::to_string(index)
+                      + " SimValue: " + std::to_string(sim) + "\n";
             }
     } else {
-          std::cout << "No Comparisons" << std::endl;
+          return message += "No Comparisons\n\n";
       }
-    std::cout << std::endl;
+    return message + "\n";
 }
 
 std::vector<SimPair>
