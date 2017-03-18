@@ -1,3 +1,4 @@
-build
+build/
 ext/glfw-3.3.0
-ext/wikidb/build
+*.o
+bin/

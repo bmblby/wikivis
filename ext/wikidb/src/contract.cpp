@@ -13,9 +13,9 @@
 std::string
 Page::info() const {
     std::string message =
-    + "Index: " + std::to_string(this->index) + "\n";
-    + "Revid: " + std::to_string(this->revid) + "\n";
-    + "Title: " + (std::string)this->title + "\n";
+    + "Index: " + std::to_string(this->index) + "\n"
+    + "Revid: " + std::to_string(this->revid) + "\n"
+    + "Title: " + (std::string)this->title + "\n"
     + "Parents: ";
 
     if (this->parents.length() > 0) {
@@ -29,7 +29,7 @@ Page::info() const {
     } else {
         message += "No Parents\n";
       }
-    return message + "\n";
+    return message;
 }
 
 std::vector<Category>
@@ -96,10 +96,10 @@ Category::info() const {
         }
         final += std::to_string(cat_num) + " Sub categories and "
                   + std::to_string(art_num) + " Sub articles:\n"
-                  + message + "\n";
+                  + message;
         return final;
     } else {
-          return "No Sub-/ Categories or Articles found!\n\n";
+          return "No Sub-/ Categories or Articles found!\n";
       }
 }
 
@@ -129,7 +129,7 @@ Article::info() const {
     } else {
           return message += "No Comparisons\n\n";
       }
-    return message + "\n";
+    return message;
 }
 
 std::vector<SimPair>
