@@ -22,6 +22,7 @@ find_library(FASTDB_LIBRARY NAMES libfastdb.a)
 set(FASTDB_LIBRARY_WHOLE -Wl,-whole-archive ${FASTDB_LIBRARY} -Wl,-no-whole-archive)
 
 # our compiler options:
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/lib)
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 set(CMAKE_BUILD_TYPE Debug)
 

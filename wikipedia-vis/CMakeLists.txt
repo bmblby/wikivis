@@ -39,12 +39,6 @@ set(GLFW_INSTALL OFF CACHE STRING "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE STRING "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE STRING "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE STRING "" FORCE)
-#mark_as_advanced(GLFW_BUILD_DOCS GLFW_BUILD_EXAMPLES GLFW_BUILD_TESTS
-# GLFW_DOCUMENT_INTERNALS GLFW_INSTALL
-# )
-# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw-3.3.0)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw-3.3.0/include)
-# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui/ext/glfw)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui/ext/glfw/include)
 
 #nanogui
