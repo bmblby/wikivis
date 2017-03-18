@@ -59,12 +59,12 @@ include_directories(${CMAKE_SOURCE_DIR}/ext/nanogui/ext/eigen)
 include_directories(${CMAKE_SOURCE_DIR}/ext/nanogui/ext/nanovg/src)
 
 # gloost
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/gloost)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/gloost)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/gloost/contrib/tinyxml2/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/gloost/src)
 
 # wikidb
-# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/wikidb)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/wikidb)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/wikidb/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/wikidb/contrib/include/fastdb)
 

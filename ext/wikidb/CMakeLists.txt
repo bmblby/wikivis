@@ -35,7 +35,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
 SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -pg")
 # SET(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -pg")
 
-add_library(wikidb ${wikidb_sources})
+add_library(wikidb STATIC ${wikidb_sources})
 target_link_libraries(wikidb
   ${FASTDB_LIBRARY})
 
@@ -67,9 +67,3 @@ target_link_libraries(wikidb_test
 	${CMAKE_THREAD_LIBS_INIT})
 
 GTEST_ADD_TESTS(wikidb_test "" ${TEST_SRC_FILES})
-
-#
-# include_directories(${Boost_INCLUDE_DIR})
-# include_directories("${PROJECT_SOURCE_DIR}/include")
-# add_executable(extractdb extractdb.cpp)
-# target_link_libraries(extractdb ${Boost_LIBRARIES} wikidb ${CMAKE_THREAD_LIBS_INIT})
