@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++11  -g -pg   -pg CMakeFiles/db_test.dir/tests/wikidbtest.cpp.o  -o db_test -rdynamic libwikidb.a -lpthread ../contrib/lib/libfastdb.a 

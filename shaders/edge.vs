@@ -1,0 +1,28 @@
+#version 330 core
+
+///////////////////////////////////////////////////////////////////
+// attribute layout definitions
+
+layout (location = 0 ) in vec3 in_position;
+layout (location = 1 ) in vec4 in_color;
+
+///////////////////////////////////////////////////////////////////
+// uniforms
+
+uniform mat4 Projection;
+uniform mat4 View;
+uniform mat4 Model;
+
+///////////////////////////////////////////////////////////////////
+// output
+
+out vec4 color;
+
+///////////////////////////////////////////////////////////////////
+// implementation
+
+void main()
+{
+  color = in_color;
+  gl_Position = Projection * View * Model * vec4(in_position, 1.0);
+}
