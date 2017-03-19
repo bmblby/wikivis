@@ -202,11 +202,10 @@ void resizefun(GLFWwindow* window, int width, int height)
 
 void mousebuttonfun(GLFWwindow* window, int button, int action, int mods)
 {
-  guip->mousebuttonfun(button, action, mods);
-
   double xpos = 0, ypos = 0;
-  // retrieve latest cursor position
   glfwGetCursorPos(window, &xpos, &ypos);
+  if(guip->contains(xpos, ypos))
+    guip->mousebuttonfun(button, action, mods);
 
   if (action)
     ctrl_ptr->mousePress(xpos, ypos, button, mods);

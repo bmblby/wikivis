@@ -18,10 +18,8 @@ Gui::Gui(GLFWwindow* window, Ctrl* ctrl):
 bool
 Gui::contains(double x, double y)
 {
-    // TODO write function returning mouse iover widget windows
     Eigen::Vector2i pos((int)x, (int)y);
     if(_window->contains(pos)) {
-        // _window->
         std::cout << "Position: " << pos << " is inside gui!";
         return true;
     }
