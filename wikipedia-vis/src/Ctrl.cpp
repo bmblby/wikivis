@@ -37,7 +37,6 @@ Ctrl::mouseMove(int x, int y, int state)
 {
     _mouse_state.setPosition((float) x, (float) y);
 
-    //TODO implement Panning
     if(_mouse_state.getButtonState(GLOOST_MOUSESTATE_BUTTON0) ) {
         gloost::Point3 lastPos = _mouse_state.getLastMouseDownPosition();
         glm::vec3 vec(x - lastPos[0], y - lastPos[1], 0.0f);

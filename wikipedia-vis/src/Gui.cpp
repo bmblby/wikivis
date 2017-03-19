@@ -16,21 +16,24 @@ Gui::Gui(GLFWwindow* window, Ctrl* ctrl):
 }
 
 bool
-Gui::mouse_in_gui(double x, double y)
+Gui::contains(double x, double y)
 {
     // TODO write function returning mouse iover widget windows
-    if(_window != nullptr) {
+    Eigen::Vector2i pos((int)x, (int)y);
+    if(_window->contains(pos)) {
         // _window->
+        std::cout << "Position: " << pos << " is inside gui!";
         return true;
     }
-    else
-        return true;
+    else {
+        std::cout << "Position: " << pos << " is NOT inside gui!";
+        return false;
+    }
 }
 
 void
 Gui::search_box(glm::vec3 pos, int width, int height)
 {
-    // TODO write searchbar widget
     _window = _gui->addWindow(Eigen::Vector2i(0, 0),
         "Search Category");
     _window->setPosition(Eigen::Vector2i(pos[0], pos[1]));
@@ -47,6 +50,7 @@ Gui::search_box(glm::vec3 pos, int width, int height)
     // textbox->keyboardEvent()
     std::cout << textbox->value();
 
+    //TODO write callback to query wikidb for inserted category
     Button* b = new Button(_window, "Go!");
     b->setCallback([=] {
         std::cout << textbox->value();
