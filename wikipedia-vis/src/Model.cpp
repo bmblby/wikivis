@@ -35,7 +35,7 @@ Model::insert_into_graph(Category const& cat, std::vector<Category> children, Gr
 }
 
 void
-Model::build_graph(std::string cat_title, Graph& g, int depth)
+Model::build_graph(Graph& g, std::string cat_title, int depth)
 {
   Category cat = _wikidb.getCategoryByName(cat_title);
 
@@ -43,7 +43,7 @@ Model::build_graph(std::string cat_title, Graph& g, int depth)
     depth--;
     std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
     for(auto const& it : children) {
-      build_graph(std::string(it.title), g, depth);
+      build_graph(g, std::string(it.title), depth);
     }
     insert_into_graph(cat, children, g);
   }
@@ -121,7 +121,7 @@ Model::layout_random()
 
 // template<typename PositionMap>
 // void
-// Model::write_layout_to_graph(PositionMap position)
+// Model::write_layout(iositionMap position)
 // {
 //     typename boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
 //     for (boost::tie(vi, vi_end) = vertices(_graph); vi != vi_end; ++vi) {
@@ -130,6 +130,17 @@ Model::layout_random()
 //         _graph[vertex].position[1] = position[vertex][1];
 //     }
 // }
+
+bool
+Model::find(std::string const& name, Category& cat) const
+{
+    if(_wikidb.categoryExists(name)) {
+        cat = _wikidb.getCategoryByName(name);
+        return true;
+    }
+    else
+        return false;
+}
 
 
 std::vector<std::pair<glm::vec3, std::array<float, 4> > >

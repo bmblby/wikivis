@@ -58,16 +58,20 @@ using Graph = boost::adjacency_list<
       void insert_into_graph(Category const&, std::vector<Category>, Graph&);
 
 //      template <Graph>
-      void build_graph(std::string cat_title, Graph& g, int depth);
+      void build_graph(Graph& g,
+            std::string cat_title = "Computer science",
+            int depth = 1);
 
       void layout_circular(double const& radius);
       void layout_FR();
       void layout_random();
-
-      void write_layout_to_graph(
+      void write_layout(
         boost::property_map<Graph, Point CatProp::*>::type pos_map
       );
 
+      bool find(std::string const& name, Category& cat) const;
+
+      //getter
       std::vector<std::pair< glm::vec3,
                              std::array<float, 4> > >
       get_nodes() const;

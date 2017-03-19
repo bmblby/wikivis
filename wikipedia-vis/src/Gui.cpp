@@ -51,13 +51,9 @@ Gui::search_box(glm::vec3 pos, int width, int height)
     //TODO write callback to query wikidb for inserted category
     Button* b = new Button(_window, "Go!");
     b->setCallback([=] {
-        std::cout << textbox->value();
-        // _ctrl-
+        std::cout << " " << textbox->value() << "\n";
+        _ctrl->find(textbox->value());
     } );
-
-    // std::string strvar = "Computer Science";
-    // bool enalbe = true;
-    // _gui->addVariable("search: ", strvar);
 
     _screen->performLayout();
 }

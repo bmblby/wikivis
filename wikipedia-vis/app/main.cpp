@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
   std::string category_name = "Computer science";
   Category computer_science = wikidb.getCategoryByName(category_name);
 
-  model.build_graph(category_name, g, 1);
+  model.build_graph(g);
   model.layout_FR();
   // model.layout_circular(2.00);
 

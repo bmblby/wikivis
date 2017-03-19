@@ -27,6 +27,8 @@ class Ctrl
     // key input
     void keyPress(int key, int mods);
     void keyRelease(int key, int mods);
+    void find(std::string const& name);
+    
 
   protected:
     Model& _model;

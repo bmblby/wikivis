@@ -25,10 +25,11 @@ class WikiDB {
     void insertArticle(uint32_t revid, std::string const& title);
     void insertCategory(uint32_t revid, std::string const& title);
 
-    void bulkInsertArticle(std::vector<std::pair<uint32_t, std::pair<std::string, uint32_t> > >
-            const& articles);
+    void bulkInsertArticle(std::vector<std::pair<uint32_t,
+                        std::pair<std::string, uint32_t> > >
+                        const& articles);
     void bulkInsertCategory(std::vector<std::pair<uint32_t, std::string> >
-            const& categories);
+                        const& categories);
 
     void updateArticleParents(uint32_t revid, std::string const& parent);
     void updateCategoryParents(uint32_t revid, std::string const& parent);
@@ -37,7 +38,6 @@ class WikiDB {
             std::vector<std::string> const& parents);
     void bulkUpdateCategoryParents(uint32_t revid,
             std::vector<std::string> const& parents);
-
     void bulkUpdateComparisons(uint32_t revid,
             std::vector<uint32_t> const& comparisons);
 

@@ -125,4 +125,13 @@ Ctrl::keyRelease(int key, int mods)
   }
 }
 
+void
+Ctrl::find(std::string const& name)
+{
+    Category cat;
+    if(_model.find(name, cat))
+        std::cout << "Found cat: " << cat.title << "\n";
+    // _model.build_graph(_model._graph, (std::string)cat.title);
+}
+
 } // namespace vta
