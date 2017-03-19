@@ -17,7 +17,7 @@ class Gui
     // class constructor
     Gui(GLFWwindow* window, Ctrl* ctrl);
 
-    bool mouse_in_gui(double x, double y);
+    bool contains(double x, double y);
     void search_box(glm::vec3 pos, int width, int height);
     void display();
 

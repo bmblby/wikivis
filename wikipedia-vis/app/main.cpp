@@ -197,11 +197,10 @@ void resizefun(GLFWwindow* window, int width, int height)
 
 void mousebuttonfun(GLFWwindow* window, int button, int action, int mods)
 {
-  guip->mousebuttonfun(button, action, mods);
-
   double xpos = 0, ypos = 0;
-  // retrieve latest cursor position
   glfwGetCursorPos(window, &xpos, &ypos);
+  if(guip->contains(xpos, ypos))
+    guip->mousebuttonfun(button, action, mods);
 
   if (action)
     ctrl_ptr->mousePress(xpos, ypos, button, mods);
@@ -218,12 +217,12 @@ void scrollfun(GLFWwindow* window, double xoffset, double yoffset)
 
 void cursorposfun(GLFWwindow* window, double xpos, double ypos)
 {
-  // if(guip->mouse_in_gui(xpos, ypos))
+  if(guip->contains(xpos, ypos))
     guip->cursorfun(xpos, ypos);
-  // else {
+  else {
     int state_left = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
     ctrl_ptr->mouseMove(xpos, ypos, state_left);
-  // }
+  }
 }
 
 void keyfun(GLFWwindow* window, int key, int scancode, int action, int mods)

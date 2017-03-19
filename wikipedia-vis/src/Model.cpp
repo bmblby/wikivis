@@ -75,7 +75,6 @@ Model::layout_circular(double const& radius)
 void
 Model::layout_FR()
 {
-    //TODO use fruchterman reihngold for layouting
     using Topology = boost::circle_topology<boost::mt19937>;
     using Position = Topology::point_type;
 
@@ -227,7 +226,6 @@ Model::posToCat(glm::vec3 pos)
             std::cout << "Distance: (" << distance << ")\n\n";
             cat_index = _graph[*vertex_iter].index;
             cat = _wikidb.getCategory(cat_index);
-            //TODO missing operator
             std::cout << cat << std::endl;
         }
 
