@@ -1,14 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-// gl
 #include <GL/glew.h>
-
-// glfw
 #include <GLFW/glfw3.h>
 
 // cpp includes
-#include <string>
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 
 #include <nanogui/nanogui.h>
