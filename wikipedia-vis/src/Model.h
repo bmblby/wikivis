@@ -64,6 +64,7 @@ using Graph = boost::adjacency_list<
       PosMap layout_FR();
       PosMap layout_random();
       void write_layout(PosMap pos_map);
+      bool dump_graph(Graph& g, std::string filename) const;
 
       bool find(std::string const& name, Category& cat) const;
 

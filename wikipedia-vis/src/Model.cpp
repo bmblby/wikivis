@@ -112,6 +112,20 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
 }
 
 bool
+Model::dump_graph(Graph& g, std::string filename) const
+{
+  // Dump graph in dot format for debugging
+  auto name_map = boost::get(&vta::CatProp::title, g);
+  boost::default_writer dw;
+  std::ofstream file(filename);
+  if(file.is_open()) {
+    boost::write_graphviz(file, g,
+        boost::make_label_writer(name_map),
+        dw, dw, get(&vta::CatProp::index, g));
+  }
+}
+
+bool
 Model::find(std::string const& name, Category& cat) const
 {
     if(_wikidb.categoryExists(name)) {

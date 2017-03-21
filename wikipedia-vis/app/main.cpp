@@ -124,17 +124,8 @@ int main(int argc, char *argv[])
 
   // dump graph
   auto pos_map = get(&vta::CatProp::position, model._graph);
-  dump_graph_layout("test_graph", model._graph, pos_map);
-
-  // Dump graph in dot format for debugging
-  // auto name_map = boost::get(&vta::CatProp::title, g);
-  // boost::default_writer dw;
-  // std::ofstream file("graph.dot");
-  // if(file.is_open()) {
-  //   boost::write_graphviz(file, g,
-  //       boost::make_label_writer(name_map),
-  //       dw, dw, get(&vta::CatProp::index, g));
-  // }
+  model.dump_graph(model._graph, "test_dump");
+  // dump_graph_layout("test_graph", model._graph, pos_map);
 
   vta::Renderer renderer(model, main_window_width, main_window_height);    // new renderer instance
   renderer_ptr = &renderer;
