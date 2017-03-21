@@ -4,6 +4,7 @@
 namespace vta
 {
 
+using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
 ////////////////////////////////////////////////////////////////////////////////
 
 Model::Model(WikiDB& wikidb)
@@ -16,9 +17,9 @@ Model::Model(WikiDB& wikidb)
 void
 Model::insert_into_graph(Category const& cat, std::vector<Category> children, Graph& g)
 {
-  typedef  boost::graph_traits<Graph>::vertex_descriptor Vertex;
-  typedef  boost::graph_traits<Graph>::edge_descriptor Edge;
-  typedef std::pair<Edge, bool> EdgePair;
+  using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
+  using Edge = boost::graph_traits<Graph>::edge_descriptor;
+  using EdgePair = std::pair<Edge, bool>;
 
   Vertex v0 = add_vertex(g);
   g[v0].index = cat.index;
@@ -34,6 +35,7 @@ Model::insert_into_graph(Category const& cat, std::vector<Category> children, Gr
   _graph = g;
 }
 
+//TODO change build behavior function should return graph
 void
 Model::build_graph(Graph& g, std::string cat_title, int depth)
 {
@@ -53,32 +55,24 @@ Model::build_graph(Graph& g, std::string cat_title, int depth)
   }
 }
 
-void
+
+boost::property_map<Graph, Point CatProp::*>::type
 Model::layout_circular(double const& radius)
 {
     auto pos_map = get(&CatProp::position, _graph);
     boost::circle_graph_layout(_graph, pos_map, radius);
 
-    typename boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = vertices(_graph); vi != vi_end; ++vi) {
-        boost::graph_traits<Graph>::vertex_descriptor vertex = *vi;
-        _graph[vertex].position[0] = pos_map[vertex][0];
-        _graph[vertex].position[1] = pos_map[vertex][1];
-
-        //debug vertices and edges
-        // std::cout << "Point: (" << _graph[vertex].position[0]
-        //           << ", "       << _graph[vertex].position[1]
-        //           << ")" << std::endl;
-    }
+    return pos_map;
 }
 
-void
+PosMap
 Model::layout_FR()
 {
     using Topology = boost::circle_topology<boost::mt19937>;
     using Position = Topology::point_type;
 
-    auto pos_map = get(&CatProp::position, _graph);
+    boost::property_map<Graph, Point CatProp::*>::type
+    pos_map = get(&CatProp::position, _graph);
     Topology topo;
 
     boost::random_graph_layout(
@@ -91,26 +85,24 @@ Model::layout_FR()
         _graph,
         pos_map,
         topo
-        // boost::attractive_force([](Graph::edge_descriptor, double k, double d, Graph const&) { return (d*d)/k; })
     );
-
-    //write layout to _graph
-    typename boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
-    for (boost::tie(vi, vi_end) = vertices(_graph); vi != vi_end; ++vi) {
-        boost::graph_traits<Graph>::vertex_descriptor vertex = *vi;
-        _graph[vertex].position[0] = pos_map[vertex][0];
-        _graph[vertex].position[1] = pos_map[vertex][1];
-    }
+    return pos_map;
 }
 
-void
+
+boost::property_map<Graph, Point CatProp::*>::type
 Model::layout_random()
 {
     auto pos_map = get(&CatProp::position, _graph);
     boost::square_topology<boost::mt19937> topo;
     boost::random_graph_layout(_graph, pos_map, topo);
 
-    //write layout to _graph
+    return pos_map;
+}
+
+void
+Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
+{
     typename boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = vertices(_graph); vi != vi_end; ++vi) {
         boost::graph_traits<Graph>::vertex_descriptor vertex = *vi;
@@ -118,18 +110,6 @@ Model::layout_random()
         _graph[vertex].position[1] = pos_map[vertex][1];
     }
 }
-
-// template<typename PositionMap>
-// void
-// Model::write_layout(iositionMap position)
-// {
-//     typename boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
-//     for (boost::tie(vi, vi_end) = vertices(_graph); vi != vi_end; ++vi) {
-//         boost::graph_traits<Graph>::vertex_descriptor vertex = *vi;
-//         _graph[vertex].position[0] = position[vertex][0];
-//         _graph[vertex].position[1] = position[vertex][1];
-//     }
-// }
 
 bool
 Model::find(std::string const& name, Category& cat) const
@@ -229,11 +209,13 @@ Model::posToCat(glm::vec3 pos)
     Category cat;
     for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {
         auto vertex_iter = vp.first;
-        Point p = get(pos_map, *vertex_iter);
-            auto distance = glm::distance(pos, glm::vec3(p[0], p[1], 0.0f));
+        auto point = get(pos_map, *vertex_iter);
+            auto distance = glm::distance(pos,
+                        glm::vec3(point[0], point[1], 0.0f));
         if(distance < 0.101f) {
             std::cout << "mouse Position: (" <<  pos[0] << ", " << pos[1] << ")\n";
-            std::cout << "Vertex Position: (" <<  p[0] << ", " << p[1] << ")\n";
+            std::cout << "Vertex Position: ("
+                    <<  point[0] << ", " << point[1] << ")\n";
             std::cout << "Distance: (" << distance << ")\n\n";
             cat_index = _graph[*vertex_iter].index;
             cat = _wikidb.getCategory(cat_index);

@@ -25,13 +25,13 @@ namespace vta
 using Point = boost::square_topology<>::point_type;
 struct CatProp {
     CatProp(): color({.8, .1, .0, .5}) {}
-  uint32_t index;
-  uint32_t revid;
-  std::string title;
+    uint32_t index;
+    uint32_t revid;
+    std::string title;
 
-  //Layout properties
-  Point position;
-  std::array<float, 4> color;
+    //Layout properties
+    Point position;
+    std::array<float, 4> color;
 };
 
 struct EdgeProp {
@@ -54,20 +54,16 @@ using Graph = boost::adjacency_list<
       // class constructor
       Model(WikiDB&);
 
-//      template <Graph>
       void insert_into_graph(Category const&, std::vector<Category>, Graph&);
-
-//      template <Graph>
       void build_graph(Graph& g,
             std::string cat_title = "Computer science",
             int depth = 1);
 
-      void layout_circular(double const& radius);
-      void layout_FR();
-      void layout_random();
-      void write_layout(
-        boost::property_map<Graph, Point CatProp::*>::type pos_map
-      );
+      using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
+      PosMap layout_circular(double const& radius);
+      PosMap layout_FR();
+      PosMap layout_random();
+      void write_layout(PosMap pos_map);
 
       bool find(std::string const& name, Category& cat) const;
 

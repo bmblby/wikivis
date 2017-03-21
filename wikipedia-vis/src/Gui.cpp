@@ -20,11 +20,9 @@ Gui::contains(double x, double y)
 {
     Eigen::Vector2i pos((int)x, (int)y);
     if(_window->contains(pos)) {
-        std::cout << "Position: " << pos << " is inside gui!";
         return true;
     }
     else {
-        std::cout << "Position: " << pos << " is NOT inside gui!";
         return false;
     }
 }

@@ -109,8 +109,6 @@ int main(int argc, char *argv[])
 
  // build database
   WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
-  // Category one = wikidb.getCategory(1);
-  // one.info();
 
   // Graph init
   vta::Graph g;
@@ -119,8 +117,10 @@ int main(int argc, char *argv[])
   Category computer_science = wikidb.getCategoryByName(category_name);
 
   model.build_graph(g);
-  model.layout_FR();
-  // model.layout_circular(2.00);
+  auto fr_map = model.layout_FR();
+  auto circle_map = model.layout_circular(1.00);
+
+  model.write_layout(fr_map);
 
   // dump graph
   auto pos_map = get(&vta::CatProp::position, model._graph);
@@ -248,6 +248,7 @@ void glfw_errorfun(int error, const char* description)
 
 //////////////////////////////////////////////////////////////////////////////
 
+//TODO include dumop function into modele class
 template<typename Graph, typename PositionMap>
 void dump_graph_layout(std::string name, const Graph& g, PositionMap position)
 {
