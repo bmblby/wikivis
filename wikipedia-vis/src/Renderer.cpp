@@ -391,17 +391,9 @@ Renderer::hover(glm::vec3 pos)
     glm::vec3 screen_pos(pos[0], _height -pos[1], win_z);
     // std::cout << "screen space position: (" << glm::to_string(screen_pos) << ")\n";
 
-    // debug test one point (computer scientists) transformation
-    // glm::vec3 test(-0.819271f, 0.274764f, 0.0f);
-    // glm::vec3 project = glm::project(test, _viewMatrix * _modelMatrix, _projectionMatrix, glm::vec4(0.0f, 0.0f, _width, _height));
-    // std::cout << glm::to_string(project) << "\n";
-    // glm::vec3 unproject = glm::unProject(project, _viewMatrix * _modelMatrix, _projectionMatrix, glm::vec4(0.0f, 0.0f, _width, _height));
-    // std::cout << glm::to_string(unproject) << "\n";
-
     //unproject screen space
     glm::vec3 vec = glm::unProject(screen_pos, _viewMatrix * _modelMatrix, _projectionMatrix, glm::vec4(0.0f, 0.0f, _width, _height));
-    // std::cout << "glm::unprojecto mouse position: " << glm::to_string(vec) << "\n\n";
-
+    // std::cout << "glm::unprojec to mouse position: " << glm::to_string(vec) << "\n\n";
     Category cat = _model.posToCat(vec);
 }
 
@@ -461,8 +453,7 @@ Renderer::translate(glm::vec3 vec)
     vec = vec * (_mousespeed * 0.5);
     _modelMatrix = glm::translate(_modelMatrix, vec);
     //debug
-    std::cout << "translate vector: "
-            << glm::to_string(vec)<< "\n ";
+    std::cout << "translate vector: " << glm::to_string(vec)<< "\n ";
 
 }
 
