@@ -99,8 +99,9 @@ Category::info() const {
                   + message;
         return final;
     } else {
-          return "No Sub-/ Categories or Articles found!\n";
+          final += "\nNo subcategories or subarticles found!\n";
       }
+    return final;
 }
 
 std::string
