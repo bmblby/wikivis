@@ -80,16 +80,16 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
 bool
 Renderer::initialize()
 {
-  std::string edge_v = "../../shaders/edge.vs";
-  std::string edge_f = "../../shaders/edge.fs";
+  std::string edge_v = "../../shaders/edge.vert";
+  std::string edge_f = "../../shaders/edge.frag";
 
   // create shader program and attach all components
   _edgeShader = gloost::gl::ShaderProgram::create();
   _edgeShader->attachShaderFile(GLOOST_SHADERPROGRAM_VERTEX_SHADER, edge_v);
   _edgeShader->attachShaderFile(GLOOST_SHADERPROGRAM_FRAGMENT_SHADER, edge_f);
 
-  std::string node_v = "../../shaders/node.vs";
-  std::string node_f = "../../shaders/node.fs";
+  std::string node_v = "../../shaders/node.vert";
+  std::string node_f = "../../shaders/node.frag";
   std::string node_g = "../../shaders/node.gs";
 
   // create shader program and attach all components

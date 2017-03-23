@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 
   model.build_graph(g);
   auto fr_map = model.layout_FR();
-  auto circle_map = model.layout_circular(1.00);
+  // auto circle_map = model.layout_circular(1.00);
 
   model.write_layout(fr_map);
 
