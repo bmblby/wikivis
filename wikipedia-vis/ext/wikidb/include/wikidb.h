@@ -61,8 +61,8 @@ class WikiDB {
 
     std::vector<SimPair> getComparisons(uint32_t idx) const;
 
-    bool articleExists(uint32_t revid) const;
-    bool categoryExists(uint32_t revid) const;
+    bool articleExists(uint32_t number) const;
+    bool categoryExists(uint32_t number) const;
     bool articleExists(std::string title) const;
     bool categoryExists(std::string title) const;
 

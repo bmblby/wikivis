@@ -6,12 +6,15 @@
 
 int main()
 {
-    WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
-    Article one = wikidb.getArticle(1);
+    WikiDB db("/dev/shm/wiki-vis-data/pages");
+    Article one = db.getArticle(1);
+    std::cout << db.articleExists(one.index) << std::endl
+    << db.articleExists(one.revid) << std::endl;
     std::cout << one.info();
 
-    Category one_c = wikidb.getCategory(1);
-    std::cout << one_c;
-
+    Category two = db.getCategory(1);
+    std::cout << db.categoryExists(two.index) << std::endl
+    << db.categoryExists(two.revid) << std::endl;
+    std::cout << two;
 
 }

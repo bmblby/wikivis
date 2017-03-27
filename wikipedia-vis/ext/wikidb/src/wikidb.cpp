@@ -36,19 +36,29 @@ WikiDB::~WikiDB() {
 }
 
 bool
-WikiDB::articleExists(uint32_t revid) const {
+WikiDB::articleExists(uint32_t number) const {
     dbCursor<Article> articleCursor;
     dbQuery q;
-    q = "revid=", revid;
-    return(articleCursor.select(q) > 0);
+    q = "revid=", number;
+    if(articleCursor.select(q) > 0) {
+        return true;
+    } else {
+        q = "index=", number;
+        return articleCursor.select(q) > 0;
+    }
 }
 
 bool
-WikiDB::categoryExists(uint32_t revid) const {
+WikiDB::categoryExists(uint32_t number) const {
     dbCursor<Category> categoryCursor;
     dbQuery q;
-    q = "revid=", revid;
-    return(categoryCursor.select(q) > 0);
+    q = "revid=", number;
+    if(categoryCursor.select(q) > 0) {
+        return true;
+    } else {
+        q = "index=", number;
+        return(categoryCursor.select(q) > 0);
+    }
 }
 
 bool
