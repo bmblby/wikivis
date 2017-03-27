@@ -59,9 +59,8 @@ using Graph = boost::adjacency_list<
 
       Graph graph(Category const& cat, int depth = 2);
       Graph build(Graph& g, Category const& cat, int depth = 1);
-      void insert_into_graph(Category const&, std::vector<Category>, Graph& g);
-      void recursive_build(Graph& g, Category const& cat, int depth = 1);
-
+    //   void insert_into_graph(Category const&, std::vector<Category>, Graph& g);
+    //   void recursive_build(Graph& g, Category const& cat, int depth = 1);
 
       using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
       PosMap layout_circular(double const& radius);
@@ -70,7 +69,7 @@ using Graph = boost::adjacency_list<
       void write_layout(PosMap pos_map);
       bool dump_graph(Graph& g, std::string filename) const;
 
-      bool find(std::string const& name, Category& cat) const;
+      bool find(std::string const& cat, Category& category) const;
 
       //getter
       std::vector<std::pair< glm::vec3,

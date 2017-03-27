@@ -42,14 +42,10 @@ Gui::search_box(glm::vec3 pos, int width, int height)
     textbox->setFontSize(15);
     textbox->setAlignment(TextBox::Alignment::Left);
     textbox->setEditable(true);
-    textbox->setValue("Computer Science");
-    // textbox->keyboardEvent()
-    std::cout << textbox->value();
+    textbox->setValue("Computer science");
 
-    //TODO write callback to query wikidb for inserted category
     Button* b = new Button(_window, "Go!");
     b->setCallback([=] {
-        std::cout << " " << textbox->value() << "\n";
         _ctrl->find(textbox->value());
     } );
 

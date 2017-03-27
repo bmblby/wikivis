@@ -133,7 +133,7 @@ Ctrl::find(std::string const& name)
         std::cout << "Found cat: " << cat.title << "\n";
         Graph g = _model.graph(cat);
         _model._graph = g;
-    }
+    } else {std::cout << "Input not found please try again\n";}
     /*
     _model._graphs.push_back(g)
     renderer.draw(g);

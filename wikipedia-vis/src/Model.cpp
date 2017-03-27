@@ -101,7 +101,6 @@ Model::build(Graph& g, Category const& cat, int depth)
               and  g[v_parent].index != g[v_child].index) {
                 g[v_child].color = {.9, .9, .0, .9};
                 Category cat = _wikidb.getCategory(g[v_child].index);
-                std::cout << cat;
                 for(auto parent : cat.getParents()) {
                     if(g[v_parent].index == parent.index) {
                         EdgePair ep0 = add_edge(v_child, v_parent, g);
@@ -197,14 +196,24 @@ Model::dump_graph(Graph& g, std::string filename) const
 }
 
 bool
-Model::find(std::string const& name, Category& cat) const
+Model::find(std::string const& cat, Category& category) const
 {
-    if(_wikidb.categoryExists(name)) {
-        cat = _wikidb.getCategoryByName(name);
-        return true;
+    //TODO functions searches also index and revid
+    auto is_digit = [] (std::string s) {return std::find_if(s.begin(), s.end(), [] (char c) {return !std::isdigit(c); }) == s.end(); };
+    if(is_digit(cat)) {
+        int number = std::stoi(cat);
+        if(_wikidb.categoryExists(number)){
+            category = _wikidb.getCategoryByRevid(number);
+            return true;
+        } else
+            return false;
+    } else {
+        if(_wikidb.categoryExists(cat)) {
+            category = _wikidb.getCategoryByName(cat);
+            return true;
+        } else
+            return false;
     }
-    else
-        return false;
 }
 
 
