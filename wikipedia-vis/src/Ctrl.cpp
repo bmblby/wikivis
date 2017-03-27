@@ -129,9 +129,15 @@ void
 Ctrl::find(std::string const& name)
 {
     Category cat;
-    if(_model.find(name, cat))
+    if(_model.find(name, cat)) {
         std::cout << "Found cat: " << cat.title << "\n";
-    // _model.build_graph(_model._graph, (std::string)cat.title);
+        Graph g = _model.graph(cat);
+        _model._graph = g;
+    }
+    /*
+    _model._graphs.push_back(g)
+    renderer.draw(g);
+    */
 }
 
 } // namespace vta

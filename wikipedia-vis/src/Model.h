@@ -3,6 +3,7 @@
 
 //glm
 #include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 // graph and layout
 #include <boost/graph/adjacency_list.hpp>
@@ -21,7 +22,6 @@
 
 namespace vta
 {
-
 using Point = boost::square_topology<>::point_type;
 struct CatProp {
     CatProp(): color({.8, .1, .0, .5}) {}
@@ -30,11 +30,14 @@ struct CatProp {
     std::string title;
 
     //Layout properties
+    // enum {unused, parent};
+    int tag;
     Point position;
     std::array<float, 4> color;
 };
 
 struct EdgeProp {
+  EdgeProp(): color({.0, .7, .0, .7}) {}
   static uint32_t weight;
   std::array<float, 4> color;
 };
@@ -54,10 +57,11 @@ using Graph = boost::adjacency_list<
       // class constructor
       Model(WikiDB&);
 
-      void insert_into_graph(Category const&, std::vector<Category>, Graph&);
-      void build_graph(Graph& g,
-            std::string cat_title = "Computer science",
-            int depth = 1);
+      Graph graph(Category const& cat, int depth = 2);
+      Graph build(Graph& g, Category const& cat, int depth = 1);
+      void insert_into_graph(Category const&, std::vector<Category>, Graph& g);
+      void recursive_build(Graph& g, Category const& cat, int depth = 1);
+
 
       using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
       PosMap layout_circular(double const& radius);
@@ -78,9 +82,10 @@ using Graph = boost::adjacency_list<
                              const std::array<float, 4>>>
       get_edges() const;
 
-      Category posToCat(glm::vec3 pos);
+      Category posToCat(glm::vec3 target);
 
       // Member
+      std::vector<Graph> _graphs;
       Graph _graph;
       WikiDB& _wikidb;
 

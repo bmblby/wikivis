@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   if (main_window == nullptr)
   {
     glfwTerminate();
-	std::cerr << "Failed to create glfwWindow. " << std::endl;
+    std::cerr << "Failed to create glfwWindow. " << std::endl;
     exit(EXIT_FAILURE);
   }
   glfwSetWindowPos(main_window, 0, 0);
@@ -100,9 +100,9 @@ int main(int argc, char *argv[])
 
   glewExperimental = true;
   if (GLEW_OK != glewInit())
-	{
-	  std::cerr << "'glewInit()' failed." << std::endl;
-	  exit(EXIT_FAILURE);
+    {
+      std::cerr << "'glewInit()' failed." << std::endl;
+      exit(EXIT_FAILURE);
   }
   // used to catch escape key
   glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -111,12 +111,12 @@ int main(int argc, char *argv[])
   WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
 
   // Graph init
-  vta::Graph g;
   vta::Model model(wikidb);
-  std::string category_name = "Computer science";
-  Category computer_science = wikidb.getCategoryByName(category_name);
-
-  model.build_graph(g);
+  Category computer_science = wikidb.getCategoryByName("Computer science");
+  Category computer_hist = wikidb.getCategory(620085);
+  vta::Graph g = model.graph(computer_science, 2);
+  // vta::Graph g = model.graph(computer_hist, 4);
+  model._graph = g;
   auto fr_map = model.layout_FR();
   // auto circle_map = model.layout_circular(1.00);
 
@@ -124,8 +124,7 @@ int main(int argc, char *argv[])
 
   // dump graph
   auto pos_map = get(&vta::CatProp::position, model._graph);
-  model.dump_graph(model._graph, "test_dump");
-  // dump_graph_layout("test_graph", model._graph, pos_map);
+  model.dump_graph(g, "test_dump");
 
   vta::Renderer renderer(model, main_window_width, main_window_height);    // new renderer instance
   renderer_ptr = &renderer;
@@ -229,34 +228,10 @@ void keyfun(GLFWwindow* window, int key, int scancode, int action, int mods)
 void
 charfun(GLFWwindow* window, unsigned int codepoint)
 {
-    guip->charfun(codepoint);
+  guip->charfun(codepoint);
 }
 
 void glfw_errorfun(int error, const char* description)
 {
   fputs(description, stderr);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-//TODO include dumop function into modele class
-template<typename Graph, typename PositionMap>
-void dump_graph_layout(std::string name, const Graph& g, PositionMap position)
-{
-  std::ofstream out((name + ".dot").c_str());
-  out << "graph " << name << " {" << std::endl;
-
-  typename boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
-  for (boost::tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi) {
-    out << "  n" << get(&vta::CatProp::index, g, *vi) << "[ pos=\""
-        << (int)position[*vi][0] << ", " << (int)position[*vi][1]
-        << "\" ];\n";
-  }
-
-  typename boost::graph_traits<Graph>::edge_iterator ei, ei_end;
-  for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
-    out << "  n" << get(&vta::CatProp::index, g, source(*ei, g)) << " -- n"
-        << get(&vta::CatProp::index, g, target(*ei, g)) << ";\n";
-  }
-  out << "}\n";
 }
