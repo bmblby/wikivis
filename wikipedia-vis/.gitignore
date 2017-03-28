@@ -2,3 +2,4 @@ build/
 ext/glfw-3.3.0
 *.o
 bin/
+.nfs*
