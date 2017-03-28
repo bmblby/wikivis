@@ -24,46 +24,6 @@ Model::graph(Category const& cat, int depth)
    return g;
 }
 
-// void
-// Model::recursive_build(Graph& g, Category const& cat, int depth)
-// {
-//   if(depth > 0) {
-//     depth--;
-//     std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
-//     for(auto const& it : children) {
-//       recursive_build(g, cat, depth);
-//     }
-//     insert_into_graph(cat, children, g);
-//   }
-//   else {
-//     std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
-//     insert_into_graph(cat, children, g);
-//   }
-// }
-//
-// void
-// Model::insert_into_graph(Category const& cat, std::vector<Category> children, Graph& g)
-// {
-  // Graph g;
-//   using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
-//   using Edge = boost::graph_traits<Graph>::edge_descriptor;
-//   using EdgePair = std::pair<Edge, bool>;
-//
-//   Vertex v0 = add_vertex(g);
-//   g[v0].index = cat.index;
-//   g[v0].revid = cat.revid;
-//   g[v0].title = cat.title;
-//   for(auto const& child : children) {
-//     Vertex v1 = add_vertex(g);
-//     g[v1].index = child.index;
-//     g[v1].revid = child.revid;
-//     g[v1].title = child.title;
-//     EdgePair ep0 = add_edge(v0, v1, g);
-//   }
-//   // _graph = g;
-// }
-
-//BUG some categories are not inside graph
 Graph
 Model::build(Graph& g, Category const& cat, int depth)
 {
@@ -71,7 +31,8 @@ Model::build(Graph& g, Category const& cat, int depth)
   using VertexIt = boost::graph_traits<Graph>::vertex_iterator;
   using Edge = boost::graph_traits<Graph>::edge_descriptor;
   using EdgePair = std::pair<Edge, bool>;
-  enum {used, unused, parent};
+  enum {used, unused, parent, root};
+  int static max_depth = depth;
 
   if(depth == 0) {
     Vertex v = add_vertex(g);
@@ -82,26 +43,31 @@ Model::build(Graph& g, Category const& cat, int depth)
     return g;
   }
   else {
-    depth--;
-    std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
-
+      //coloring for debuging purposes
     Vertex v_parent = add_vertex(g);
     g[v_parent].index = cat.index;
     g[v_parent].revid = cat.revid;
     g[v_parent].title = cat.title;
+    g[v_parent].tag = parent;
+    if(depth == max_depth) {
+        g[v_parent].color = {.9, .1, .9, .8};
+        g[v_parent].tag = root;
+    }
 
+    depth--;
+    std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
     while(children.size() >= 1) {
         build(g, children.back(), depth);
-        g[v_parent].tag = parent;
         VertexIt vi, vi_end;
         for(boost::tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi) {
             Vertex v_child = *vi;
-
             if(get(&CatProp::tag, g, v_child) == parent
-              and  g[v_parent].index != g[v_child].index) {
+                and g[v_parent].index != g[v_child].index) {
+
                 g[v_child].color = {.9, .9, .0, .9};
                 Category cat = _wikidb.getCategory(g[v_child].index);
                 for(auto parent : cat.getParents()) {
+                    // build edges to parent nodes
                     if(g[v_parent].index == parent.index) {
                         EdgePair ep0 = add_edge(v_child, v_parent, g);
                         std::array<float, 4> col = {.0, .9, .9, .9};
@@ -109,9 +75,8 @@ Model::build(Graph& g, Category const& cat, int depth)
                         g[v_child].tag = used;
                     }
                 }
-            // std::cout <<  "\tparent: " << g[v_parent].title
-            //         << "\tchild: " << g[v_child].title << std::endl;
             }
+            //build edges to leaves
             if(get(&CatProp::tag, g, v_child) == unused) {
                 EdgePair ep0 = add_edge(v_parent, v_child, g);
                 g[v_child].tag = used;

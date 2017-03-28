@@ -114,8 +114,8 @@ int main(int argc, char *argv[])
   vta::Model model(wikidb);
   Category computer_science = wikidb.getCategoryByName("Computer science");
   Category computer_hist = wikidb.getCategory(620085);
-  vta::Graph g = model.graph(computer_science, 2);
-  // vta::Graph g = model.graph(computer_hist, 4);
+  // vta::Graph g = model.graph(computer_science, 2);
+  vta::Graph g = model.graph(computer_hist, 4);
   model._graph = g;
   auto fr_map = model.layout_FR();
   // auto circle_map = model.layout_circular(1.00);
