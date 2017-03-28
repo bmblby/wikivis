@@ -193,8 +193,12 @@ void mousebuttonfun(GLFWwindow* window, int button, int action, int mods)
 
 void scrollfun(GLFWwindow* window, double xoffset, double yoffset)
 {
-  guip->scrollfun(xoffset, yoffset);
-  ctrl_ptr->mouseScroll((float) yoffset);
+  double xpos = 0, ypos = 0;
+  glfwGetCursorPos(window, &xpos, &ypos);
+  if(guip->contains(xpos, ypos))
+    guip->scrollfun(xoffset, yoffset);
+  else
+    ctrl_ptr->mouseScroll((float) yoffset);
 
 }
 

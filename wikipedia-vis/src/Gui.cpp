@@ -39,14 +39,26 @@ Gui::search_box(glm::vec3 pos, int width, int height)
 
     TextBox* textbox = new TextBox(_window);
     textbox->setFixedSize(Eigen::Vector2i(120, 20));
-    textbox->setFontSize(15);
+    textbox->setFontSize(16);
     textbox->setAlignment(TextBox::Alignment::Left);
     textbox->setEditable(true);
     textbox->setValue("Computer science");
 
+    auto intBox = new IntBox<int>(_window);
+    intBox->setEditable(true);
+    intBox->setFixedSize(Eigen::Vector2i(50, 20));
+    intBox->setValue(2);
+    // intBox->setUnits("depth");
+    intBox->setDefaultValue("0");
+    intBox->setFontSize(16);
+    intBox->setFormat("[1-9][0-9]*");
+    intBox->setSpinnable(true);
+    intBox->setMinMaxValues(0, 5);
+    intBox->setValueIncrement(1);
+
     Button* b = new Button(_window, "Go!");
     b->setCallback([=] {
-        _ctrl->find(textbox->value());
+        _ctrl->find(textbox->value(), intBox->value());
     } );
 
     _screen->performLayout();

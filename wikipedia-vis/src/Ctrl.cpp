@@ -126,13 +126,13 @@ Ctrl::keyRelease(int key, int mods)
 }
 
 void
-Ctrl::find(std::string const& name)
+Ctrl::find(std::string const& name, int depth)
 {
     Category cat;
     if(_model.find(name, cat)) {
         std::cout << "Found cat: " << cat.title << "\n";
         // Graph g = _model.graph(cat);
-        _model._graph = _model.graph(cat);
+        _model._graph = _model.graph(cat, depth);
         _model._dirty = true;
         auto fr_map = _model.layout_FR();
         _model.write_layout(fr_map);
