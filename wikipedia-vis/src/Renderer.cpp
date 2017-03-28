@@ -111,14 +111,29 @@ Renderer::initialize()
 void
 Renderer::fill_vbos()
 {
-  // fill data buffers. bind vbos, push data do GPU
+  //bind node buffer and push to gpu
   auto nodes = _model.get_nodes();
-  auto edges = _model.get_edges();
   _num_nodes = nodes.size();
+  glBindBuffer(GL_ARRAY_BUFFER, _vboNode);
+  glBufferData(
+    GL_ARRAY_BUFFER,
+    //pos=3 and color=4 => 7
+    nodes.size() * (sizeof(float) * 7),
+    nodes.data(),
+    GL_STATIC_DRAW
+  );
+
+  //bind edge buffer and push to gpu
+  auto edges = _model.get_edges();
   _num_edges = edges.size();
-  // debug output
-  // std::cout << "Number of Points: " << nodes.size() << "\n";
-  // std::cout << "Number of Edges: " << edges.size() << "\n";
+  glBindBuffer(GL_ARRAY_BUFFER, _vboEdge);
+  glBufferData(
+    GL_ARRAY_BUFFER,
+    //2 times pos=3 and color=4 => 14
+    edges.size() * (sizeof(float) * 14),
+    0,
+    GL_STATIC_DRAW
+  );
 
   std::vector<glm::vec3> edgePos;
   std::vector<std::array<float, 4>> edgeCol;
@@ -128,26 +143,6 @@ Renderer::fill_vbos()
     edgeCol.push_back(std::get<2>(i));
     edgeCol.push_back(std::get<2>(i));
   };
-
-  //bind node buffer and push to gpu
-  glBindBuffer(GL_ARRAY_BUFFER, _vboNode);
-  glBufferData(
-    GL_ARRAY_BUFFER,
-    //TODO make size dependen on vactor variables
-    nodes.size() * (sizeof(float) * 7),
-    nodes.data(),
-    GL_STATIC_DRAW
-  );
-
-  //bind edge buffer and push to gpu
-  glBindBuffer(GL_ARRAY_BUFFER, _vboEdge);
-  glBufferData(
-    GL_ARRAY_BUFFER,
-    //TODO make size dependen on vactor variables
-    edges.size() * (sizeof(float) * 14),
-    0,
-    GL_STATIC_DRAW
-  );
 
   glBufferSubData(
     GL_ARRAY_BUFFER,

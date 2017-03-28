@@ -163,7 +163,6 @@ Model::dump_graph(Graph& g, std::string filename) const
 bool
 Model::find(std::string const& cat, Category& category) const
 {
-    //TODO functions searches also index and revid
     auto is_digit = [] (std::string s) {return std::find_if(s.begin(), s.end(), [] (char c) {return !std::isdigit(c); }) == s.end(); };
     if(is_digit(cat)) {
         int number = std::stoi(cat);
