@@ -29,29 +29,13 @@ class Renderer
 
     // initialize
     bool initialize();
-
-    // Fill vbo's with nodes and edges
     void fill_vbos();
-    // void fill_vbo_nodes(
-    //     std::vector<std::pair< glm::vec3,
-    //                            std::array<float, 4> > >const&,
-    //     std::shared_ptr<gloost::gl::Vbo>&);
-    //
-    // void fill_vbo_edges(
-    //     std::vector<std::tuple<const glm::vec3,
-    //                            const glm::vec3,
-    //                            const std::array<float, 4> > > const& nodes,
-    //     std::shared_ptr<gloost::gl::Vbo>&);
-
-    // Drawing
     void display();
     GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path);
     void draw();
     // void draw_HUD();
 
     void hover(glm::vec3 pos);
-
-    // resize window
     void resize(int width, int height);
 
     // update functions from controller

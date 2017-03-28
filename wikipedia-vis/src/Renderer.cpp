@@ -114,14 +114,11 @@ Renderer::fill_vbos()
   // fill data buffers. bind vbos, push data do GPU
   auto nodes = _model.get_nodes();
   auto edges = _model.get_edges();
-
   _num_nodes = nodes.size();
   _num_edges = edges.size();
-
   // debug output
   // std::cout << "Number of Points: " << nodes.size() << "\n";
   // std::cout << "Number of Edges: " << edges.size() << "\n";
-
 
   std::vector<glm::vec3> edgePos;
   std::vector<std::array<float, 4>> edgeCol;
@@ -179,14 +176,11 @@ Renderer::display()
   // // setup clear color and clear screen
   glClearColor(0.059f, 0.176f, 0.251f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
   // // apply viewport
   glViewport(0, 0, _width, _height);
-
-  fill_vbos();
 
   // enalbe alphe values for drawing
   glEnable(GL_BLEND);
@@ -194,7 +188,6 @@ Renderer::display()
 
   // Draw nodes and edges
   draw();
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -282,7 +275,6 @@ Renderer::draw()
     glDrawArrays(GL_LINES, 0,  _num_edges * 2);
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
-
 }
 
 GLuint
@@ -319,7 +311,6 @@ Renderer::LoadShaders(const char * vertex_file_path,const char * fragment_file_p
 	GLint Result = GL_FALSE;
 	int InfoLogLength;
 
-
 	// Compile Vertex Shader
 	printf("Compiling shader : %s\n", vertex_file_path);
 	char const * VertexSourcePointer = VertexShaderCode.c_str();
@@ -335,8 +326,6 @@ Renderer::LoadShaders(const char * vertex_file_path,const char * fragment_file_p
 		printf("%s\n", &VertexShaderErrorMessage[0]);
 	}
 
-
-
 	// Compile Fragment Shader
 	printf("Compiling shader : %s\n", fragment_file_path);
 	char const * FragmentSourcePointer = FragmentShaderCode.c_str();
@@ -351,8 +340,6 @@ Renderer::LoadShaders(const char * vertex_file_path,const char * fragment_file_p
 		glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
 		printf("%s\n", &FragmentShaderErrorMessage[0]);
 	}
-
-
 
 	// Link the program
 	printf("Linking program\n");
@@ -370,13 +357,10 @@ Renderer::LoadShaders(const char * vertex_file_path,const char * fragment_file_p
 		printf("%s\n", &ProgramErrorMessage[0]);
 	}
 
-
 	glDetachShader(ProgramID, VertexShaderID);
 	glDetachShader(ProgramID, FragmentShaderID);
-
 	glDeleteShader(VertexShaderID);
 	glDeleteShader(FragmentShaderID);
-
 	return ProgramID;
 }
 

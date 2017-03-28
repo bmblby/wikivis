@@ -202,9 +202,6 @@ Model::get_nodes() const
     Pair node_prop(pos, color);
       node_vec.push_back(node_prop);
   }
-
-  //   std::cout << "Color: " << _graph[vertex].color[0] << "\n";
-  // std::cout << "Number of Points: " << node_vec.size() << "\n";
   return node_vec;
 }
 

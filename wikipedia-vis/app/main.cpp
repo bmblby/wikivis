@@ -29,7 +29,6 @@ vta::Gui* guip;
 Screen *screen = nullptr;
 
 // callback function declaration
-void display(vta::Renderer& renderer);
 void resizefun(GLFWwindow* window, int width, int height);
 void mousebuttonfun(GLFWwindow* window, int button, int action, int mods);
 void scrollfun(GLFWwindow* window, double xoffset, double yoffset);
@@ -118,18 +117,18 @@ int main(int argc, char *argv[])
   vta::Graph g = model.graph(computer_hist, 4);
   model._graph = g;
   auto fr_map = model.layout_FR();
-  // auto circle_map = model.layout_circular(1.00);
-
   model.write_layout(fr_map);
 
   // dump graph
   auto pos_map = get(&vta::CatProp::position, model._graph);
   model.dump_graph(g, "test_dump");
 
-  vta::Renderer renderer(model, main_window_width, main_window_height);    // new renderer instance
+  // new renderer instance
+  vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;
-  if (!renderer.initialize())       //load shaders from file
+  if (!renderer.initialize())
   {
+    //load shaders from file
     std::cerr << "error initializing shaders for vis" << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -156,7 +155,7 @@ int main(int argc, char *argv[])
     renderer.deltaTime = deltaTime;
 
     // Main Window (Visualization)
-    display(renderer);
+    renderer.display();
     gui.display();
 
     glfwSwapBuffers(main_window);
@@ -172,12 +171,6 @@ int main(int argc, char *argv[])
   exit(EXIT_SUCCESS);
 }
 //////////////////////////////////////////////////////////////////////////////
-
-void display(vta::Renderer& renderer)
-{
-  renderer.display();
-  // ctrl->reset_mouse_state(); // causes segmentaion fault
-}
 
 void resizefun(GLFWwindow* window, int width, int height)
 {
