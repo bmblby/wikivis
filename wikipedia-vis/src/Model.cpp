@@ -94,7 +94,6 @@ Model::layout_circular(double const& radius)
 {
     auto pos_map = get(&CatProp::position, _graph);
     boost::circle_graph_layout(_graph, pos_map, radius);
-
     return pos_map;
 }
 
@@ -104,20 +103,11 @@ Model::layout_FR()
     using Topology = boost::circle_topology<boost::mt19937>;
     using Position = Topology::point_type;
 
-    boost::property_map<Graph, Point CatProp::*>::type
-    pos_map = get(&CatProp::position, _graph);
+    auto pos_map = get(&CatProp::position, _graph);
     Topology topo;
-
-    boost::random_graph_layout(
-        _graph,
-        pos_map,
-        topo
-    );
-
+    boost::random_graph_layout(_graph, pos_map, topo);
     boost::fruchterman_reingold_force_directed_layout(
-        _graph,
-        pos_map,
-        topo
+        _graph, pos_map, topo
     );
     return pos_map;
 }
@@ -129,7 +119,6 @@ Model::layout_random()
     auto pos_map = get(&CatProp::position, _graph);
     boost::square_topology<boost::mt19937> topo;
     boost::random_graph_layout(_graph, pos_map, topo);
-
     return pos_map;
 }
 
