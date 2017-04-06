@@ -119,11 +119,10 @@ int main(int argc, char *argv[])
   auto fr_map = model.layout_FR();
   model.write_layout(fr_map);
 
-  // dump graph
+  // dump graph layout to file
   auto pos_map = get(&vta::CatProp::position, model._graph);
   model.dump_graph(g, "test_dump");
 
-  // new renderer instance
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;
   if (!renderer.initialize())
@@ -138,11 +137,9 @@ int main(int argc, char *argv[])
   ctrl_ptr = &ctrl;
 
   glfwMakeContextCurrent(main_window);
-  // gui class
   vta::Gui gui(main_window, ctrl_ptr);
   guip = &gui;
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
-
 
   // Main loop
   do{
@@ -157,12 +154,10 @@ int main(int argc, char *argv[])
     // Main Window (Visualization)
     renderer.display();
     gui.display();
-
     glfwSwapBuffers(main_window);
   }
   while (glfwGetKey(main_window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
     glfwWindowShouldClose(main_window) == 0);
-
 
   // Cleanup
   renderer.cleanup();
@@ -199,7 +194,6 @@ void scrollfun(GLFWwindow* window, double xoffset, double yoffset)
     guip->scrollfun(xoffset, yoffset);
   else
     ctrl_ptr->mouseScroll((float) yoffset);
-
 }
 
 void cursorposfun(GLFWwindow* window, double xpos, double ypos)

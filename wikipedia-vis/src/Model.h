@@ -42,7 +42,7 @@ struct EdgeProp {
   std::array<float, 4> color;
 };
 
-//TODO choose final graph params
+//TODO:0 choose final graph params
 using Graph = boost::adjacency_list<
                  boost::setS
                , boost::vecS

@@ -96,7 +96,7 @@ Renderer::initialize()
   _nodeShader = gloost::gl::ShaderProgram::create();
   _nodeShader->attachShaderFile(GLOOST_SHADERPROGRAM_VERTEX_SHADER,   node_v);
   _nodeShader->attachShaderFile(GLOOST_SHADERPROGRAM_FRAGMENT_SHADER, node_f);
-  _nodeShader->attachShaderFile(GLOOST_SHADERPROGRAM_GEOMETRY_SHADER, node_g);
+  // _nodeShader->attachShaderFile(GLOOST_SHADERPROGRAM_GEOMETRY_SHADER, node_g);
 
   // gen VAOs and VBOs
   // _programID = LoadShaders( "SimpleTransform.vertexshader", "SimpleColor.fragmentshader" );
@@ -180,6 +180,8 @@ Renderer::display()
   // enalbe alphe values for drawing
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glEnable(GL_PROGRAM_POINT_SIZE);
 
   // Draw nodes and edges
   draw();

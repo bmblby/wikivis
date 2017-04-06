@@ -29,7 +29,7 @@ out vData
 
 void main()
 {
+  gl_Position = Projection * View * Model * vec4(in_position, 1.0);
+  gl_PointSize = 5.0f;
   vertex.color = in_color;
-  gl_Position.xyz = in_position;
-  gl_Position.w = 1.0;
 }
