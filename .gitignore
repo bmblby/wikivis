@@ -4,3 +4,5 @@ ext/glfw-3.3.0
 bin/
 .nfs*
 .imdone*
+*.out
+venv
