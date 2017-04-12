@@ -1,16 +1,16 @@
-#!./bin/python
+#!venv/bin/python
 
-"""Pythonic tool 
+"""Pythonic tool
 
  * Copyright (c) 2015 Bagrat Ter-Akopyan, bagrat.akopyan@gmail.com
 
 """
 
 __doc__ = """usage:
-     wikitool.py extract <xmlDumpFileName> <outDir> [--ns=<namespace>]...
+     wikitool.py extract <version> <xmlDumpFileName> <outDir> [--ns=<namespace>]...
      wikitool.py cleanprimary <simMatrixDir> <revid2title> <revid2parents> <outDir>
      wikitool.py sample <revid2title> <revid2parents> <sampleSize> <outDir> [<strata>...]
-     wikitool.py histogramm <revid2title> 
+     wikitool.py histogramm <revid2title>
 
 
     Command:
@@ -44,7 +44,7 @@ import pickle
 import operator
 import pandas as pd
 import numpy as np
-import matplotlib as plt
+#import matplotlib as plt
 
 import wikiutil
 
@@ -80,7 +80,6 @@ def main():
         if not os.path.exists(outDir):
             sys.stderr.write("sample: cannot open \'" + outDir + "\': No such file or directory\n")
             sys.exit(1)
-        
         #convert strata String to integers
         if arguments['<strata>']:
             stratas = list()
@@ -92,6 +91,12 @@ def main():
 
     if arguments['extract']:
         # Check if xmlFilename and outDir exist
+        if arguments['<version>']:
+            version = arguments['<version>']
+            # sys.stderr.write("""extract: Please insert number!\nSee first line in wikipedia xml file
+            # http://www.mediawiki.org/xml/export-<VERSION-NUMBER>/\nPlease insert version number with point not commata!\n""")
+            # sys.exit(1)
+
         xmlFileName = os.path.realpath(arguments['<xmlDumpFileName>'])
         if not os.path.exists(xmlFileName):
             sys.stderr.write("extract: cannot open \'" + xmlFileName + "\': No such file or directory\n")
@@ -106,7 +111,7 @@ def main():
         listOfNS = list()
         for el in arguments['--ns']:
             listOfNS.append(int(el))
-        extractPages(xmlFileName, listOfNS, outDir)
+        extractPages(version, xmlFileName, listOfNS, outDir)
 
     if arguments['cleanprimary']:
         # Check if simMatrixDir, ns0fileName and outDir exist
@@ -151,7 +156,7 @@ def randomSampling(revid2title, revid2parents, sampleSize, outDir):
     with open(revid2parents, "rb") as inFile:
         ns0_revid2parents = pickle.load(inFile)
 
-    #shuffle revid keys to get random sample 
+    #shuffle revid keys to get random sample
     revids = list(ns0_revid2title.keys())
     random.shuffle(revids)
     revids = revids[0:sampleSize]
@@ -172,7 +177,7 @@ def randomSampling(revid2title, revid2parents, sampleSize, outDir):
 def strataSampling(revid2title, revid2parents, sampleSize, outDir, strata):
     '''
         Input:  two pickles with articles
-                dir with simMatrix tsv files 
+                dir with simMatrix tsv files
                 size of subset to be sampled
                 dir to pickle sampled dataFrames
                 bucket sizes to be stratified
@@ -190,12 +195,12 @@ def strataSampling(revid2title, revid2parents, sampleSize, outDir, strata):
     titleFrame = titleFrame.set_index('revid')
     parentsFrame = pd.DataFrame.from_dict(parents , orient='index')
     parentsFrame.index.name = 'revid'
-    
+
     print('finished building DataFrames: ')
     print('length titleFrame: ' + str(len(titleFrame.index)))
     print('length parentsFrame: ' + str(len(parentsFrame.index)))
 
-    #loop over strata an get list with dataframe subsets 
+    #loop over strata an get list with dataframe subsets
     #hardcoded numbers to get right boundaries for min and max
     subsets = list()
     for index, el in enumerate(strata):
@@ -205,7 +210,7 @@ def strataSampling(revid2title, revid2parents, sampleSize, outDir, strata):
             subsets.append(getstrata(strata[index], strata[index+1], titleFrame, parentsFrame))
         else:
             subsets.append(getstrata(strata[index], titleFrame.max(axis=1).max(), titleFrame, parentsFrame))
-    
+
     # calculate sampling size according to strata
     subSizes = [len(el) for el in subsets]
     subPercentage = pd.Series([(el * 100 / len(titleFrame.index)) for el in subSizes])
@@ -224,7 +229,7 @@ def strataSampling(revid2title, revid2parents, sampleSize, outDir, strata):
     #convert dataFrames to dicts for cleanprimary to proccess
     sample_ns0_revid2title = sampleTitle.T.to_dict('list')
     sample_ns0_revid2parents = sampleParents.T.to_dict('list')
-    
+
 
     #save sampled Frames to tsv and pickle for further proccesing
     pickle.dump(sample_ns0_revid2title, open(outDir + "/sample_ns0_revid2title.p", "wb"))
@@ -238,8 +243,8 @@ def strataSampling(revid2title, revid2parents, sampleSize, outDir, strata):
 def getstrata(mini, maxi, titleFrame, parentsFrame):
     titleFrame.sort_values('words', ascending=True, inplace=True)
     return titleFrame[(titleFrame.words >= mini) & (titleFrame.words <= maxi)]
-    
-def extractPages(xmlFileName, listOfNS, outDir):
+
+def extractPages(version, xmlFileName, listOfNS, outDir):
     '''
         Save all Categories (pages ns 14) found in xml dump in tsv files
         Save all Articles (pages ns 0) found in xml dump in  pickle files
@@ -247,10 +252,11 @@ def extractPages(xmlFileName, listOfNS, outDir):
         Result: tsv file with Categories
 
     '''
+    ns0_pageid2revid = dict()
     ns0_revid2title = dict()
     ns0_revid2parents = dict()
 
-    wikiparser = wikiutil.wikiPageParser(xmlFileName, listOfNS)
+    wikiparser = wikiutil.wikiPageParser(version, xmlFileName, listOfNS)
     count = 0
     for elem in wikiparser.items():
         count += 1
@@ -259,17 +265,19 @@ def extractPages(xmlFileName, listOfNS, outDir):
 
         #TODO implement container for revision ids from other namespaces !!!
         ns = elem.getNS()
+        pageid = elem.getPageid()
         revid = elem.getRevid()
         title = elem.getTitle()
         parents = elem.getParents()
         text = elem.getText()
-        words = wikiparser.articleLength(text) 
-            
+        words = wikiparser.articleLength(text)
+
         if not parents:
              with open(outDir + "/no_parents.log", "a") as logFile:
                  logFile.write(str(ns) + "\t" + str(revid) + "\t" + title + "\n")
 
         if (ns == 0):
+            ns0_pageid2revid.setdefault(pageid, revid)
             ns0_revid2title.setdefault(revid, [title, words])
             #BUG: if parents list is empty -> no entry in dict
             # why not save directly ns 0 to revid2*.tsvs ??
@@ -277,6 +285,8 @@ def extractPages(xmlFileName, listOfNS, outDir):
                 ns0_revid2parents.setdefault(revid, []).append(el)
 
         elif (ns == 14):
+            with open(outDir + "/pageid2revid.tsv", "a") as outF:
+                outF.write(str(pageid) + "\t" + str(revid) + "\t" + str(title) + "\n")
             with open(outDir + "/revid2title.tsv", "a") as outF:
                 outF.write(str(ns) + "\t" + str(revid) + "\t" + title + "\t" + str(words) + "\n")
             with open(outDir + "/revid2parents.tsv", "a") as outF:
@@ -286,8 +296,9 @@ def extractPages(xmlFileName, listOfNS, outDir):
                 outF.write("\n")
 
     print("Saving pickle dicts in %s." % outDir)
-    pickle.dump(ns0_revid2title, open(outDir + "/xml_ns0_revid2title.p", "wb"))
-    pickle.dump(ns0_revid2parents, open(outDir + "/xml_ns0_revid2parents.p", "wb"))
+    pickle.dump(ns0_pageid2revid, open(outDir + "/pageid2revid.p", "wb"))
+    pickle.dump(ns0_revid2title, open(outDir + "/revid2title.p", "wb"))
+    pickle.dump(ns0_revid2parents, open(outDir + "/revid2parents.p", "wb"))
     print("Done.")
 
 def histogramm(revid2title):
@@ -359,7 +370,7 @@ def cleanprimary(simMatrixDir, revid2title, revid2parents, outDir):
             with open(outDir + "/revid2title.tsv", "a") as outF:
                 outF.write(str(0) + "\t" + str(revid) + "\t" + ns0_revid2title[revid][0] \
                 + '\t' + str(ns0_revid2title[revid][1]) + "\n")
-                
+
             with open(outDir + "/revid2parents.tsv", "a") as outF:
                 outF.write(str(0) + "\t" + str(revid))
                 outF.write("\n")
