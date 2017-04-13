@@ -1,8 +1,10 @@
 build/
 ext/glfw-3.3.0
+ext/nanogui
 *.o
 bin/
 .nfs*
 .imdone*
 *.out
 venv
+__pycache__
