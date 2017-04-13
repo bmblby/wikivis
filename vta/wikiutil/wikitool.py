@@ -137,6 +137,7 @@ def main():
         cleanprimary(simMatrixDir, revid2title, revid2parents, outDir)
 
 
+
 def randomSampling(revid2title, revid2parents, sampleSize, outDir):
     '''
         simple random Sampling of size: sampleSize
@@ -277,6 +278,7 @@ def extractPages(version, xmlFileName, listOfNS, outDir):
                  logFile.write(str(ns) + "\t" + str(revid) + "\t" + title + "\n")
 
         if (ns == 0):
+            # print("pageid: ", pageid, "revid: ", revid, "\n")
             ns0_pageid2revid.setdefault(pageid, revid)
             ns0_revid2title.setdefault(revid, [title, words])
             #BUG: if parents list is empty -> no entry in dict
@@ -285,6 +287,7 @@ def extractPages(version, xmlFileName, listOfNS, outDir):
                 ns0_revid2parents.setdefault(revid, []).append(el)
 
         elif (ns == 14):
+            # print("for ns 14 pageid: ", pageid, "revid: ", revid, "\n")
             with open(outDir + "/pageid2revid.tsv", "a") as outF:
                 outF.write(str(pageid) + "\t" + str(revid) + "\t" + str(title) + "\n")
             with open(outDir + "/revid2title.tsv", "a") as outF:
@@ -314,9 +317,6 @@ def histogramm(revid2title):
     plot = titleFrame.plot.hist(by='words')
     fig = plot.get_figure()
     fig.savefig('plot.png')
-
-
-
 
 def cleanprimary(simMatrixDir, revid2title, revid2parents, outDir):
     '''
