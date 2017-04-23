@@ -1,10 +1,11 @@
 build/
-ext/glfw-3.3.0
-ext/nanogui
+wikipedia-vis/ext/glfw-3.3.0
+wikipedia-vis/ext/nanogui
 *.o
 bin/
 .nfs*
 .imdone*
 *.out
+*.pyc
 venv
 __pycache__

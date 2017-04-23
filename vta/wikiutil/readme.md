@@ -8,7 +8,7 @@ histogram functionality missing!
 To be able to execute .wikitool.py please run the commands below.
 
 	mkdir venv
-	virtualenv venv
+	virtualenv -p python3 venv
 	source venv/bin/activate
 	pip install -r requirements.txt
 
@@ -22,4 +22,4 @@ Execute steps below to build createdb tool.
 
 	cd wikipedia-vis/ext/wikidb/build
 	cmake ..
-	cmake --build . --debug-output --Wno-dev 
+	cmake --build . --debug-output --Wno-dev

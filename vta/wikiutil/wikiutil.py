@@ -15,13 +15,15 @@ from string import punctuation
 class Page:
     title = ""
     ns = -1
+    pageid = -1
     revid = -1
     parents = list()
     text = ""
 
-    def __init__(self, title, ns, revid, parents, text):
+    def __init__(self, title, ns, pageid, revid, parents, text):
         self.title = title
         self.ns = ns
+        self.pageid = pageid
         self.revid = revid
         self.updateParents(parents)
         self.text = text
@@ -37,6 +39,9 @@ class Page:
     def getNS(self):
         return self.ns
 
+    def getPageid(self):
+        return self.pageid
+
     def getRevid(self):
         return self.revid
 
@@ -51,7 +56,8 @@ class wikiPageParser:
     listOfNS = list()
 
     # namespace for every tag
-    xmlns = "{http://www.mediawiki.org/xml/export-0.8/}"
+    # NOTE xmlns number missing input from user. version = "0.8"
+    xmlns = "{http://www.mediawiki.org/xml/export-"
     pagetag = xmlns + "page"
     titletag = xmlns + "title"
     nstag = xmlns + "ns"
@@ -60,7 +66,15 @@ class wikiPageParser:
     redirecttag = xmlns + "redirect"
     texttag = xmlns + "text"
 
-    def __init__(self, xmlDumpFile, listOfNS):
+    def __init__(self, version, xmlDumpFile, listOfNS):
+        self.xmlns = self.xmlns + str(version) + "/}"
+        self.pagetag = self.xmlns + "page"
+        self.titletag = self.xmlns + "title"
+        self.nstag = self.xmlns + "ns"
+        self.revisiontag = self.xmlns + "revision"
+        self.idtag = self.xmlns + "id"
+        self.redirecttag = self.xmlns + "redirect"
+        self.texttag = self.xmlns + "text"
         self.xmlFileName = xmlDumpFile
         self.updateNS(listOfNS)
 
@@ -68,29 +82,28 @@ class wikiPageParser:
         self.listOfNS.clear()
         for el in listOfNS:
             self.listOfNS.append(el)
-    
+
     def articleLength(self, text):
         words = re.split(r'[^0-9A-Za-z]+', text)
         for word in words:
             if not word.isalpha():
                 words.remove(word)
         return len(words)
-        
+
 
     def items(self):
         context = ET.iterparse(self.xmlFileName, events=("start", "end"))
         cit = iter(context)
 
         path = list()
-
         title = ""
         text = ""
         ns = -1
+        pageid = -1
         revid = -1
         parents = list()
 
         p = re.compile(r"\[\[Category:(.*?)\]\]")
-
         # regex to get pages that are redirects, if no redirect tag
         # see wikimedia source code
         r = re.compile(r"\#REDIRECT(?:S|ED|ION)?\s*(?: :|\sTO|=)?\s*\[\[([^\]]*)\]\]", re.IGNORECASE)
@@ -107,17 +120,21 @@ class wikiPageParser:
             if event == 'end':
                 if elem.tag == self.pagetag:
                     ns = -1
+                    pageid = -1
                     revid = -1
                     elem.clear()
 
                 if elem.tag == self.titletag:
                     title = elem.text
-                
-                if elem.tag == self.texttag:
-                    text = elem.text
 
                 if elem.tag == self.nstag:
                     ns = int(elem.text)
+
+                if elem.tag == self.idtag and path[-2] == self.pagetag:
+                    pageid = int(elem.text)
+
+                if elem.tag == self.texttag:
+                    text = elem.text
 
                 if elem.tag == self.idtag and self.revisiontag == path[-2]:
                     revid = int(elem.text)
@@ -161,7 +178,7 @@ class wikiPageParser:
                         if len(parents[i]) and parents[i][0].isalpha():
                                 parents[i] = parents[i].capitalize()
 
-                    page = Page(title, ns, revid, parents, text)
+                    page = Page(title, ns, pageid, revid, parents, text)
                     yield page
                 path.pop()
         print("Total number of pages skipped:", count)
