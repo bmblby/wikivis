@@ -276,6 +276,8 @@ def extractPages(version, xmlFileName, listOfNS, outDir):
                  logFile.write(str(ns) + "\t" + str(revid) + "\t" + title + "\n")
 
         if (ns == 0):
+            with open(outDir + "/pageid2revid.tsv", "a") as outF:
+                outF.write(str(pageid) + "\t" + str(revid) + "\t" + str(title) + "\n")
             # print("pageid: ", pageid, "revid: ", revid, "\n")
             ns0_pageid2revid.setdefault(pageid, revid)
             ns0_revid2title.setdefault(revid, [title, words])
@@ -286,8 +288,6 @@ def extractPages(version, xmlFileName, listOfNS, outDir):
 
         elif (ns == 14):
             # print("for ns 14 pageid: ", pageid, "revid: ", revid, "\n")
-            with open(outDir + "/pageid2revid.tsv", "a") as outF:
-                outF.write(str(pageid) + "\t" + str(revid) + "\t" + str(title) + "\n")
             with open(outDir + "/revid2title.tsv", "a") as outF:
                 outF.write(str(ns) + "\t" + str(revid) + "\t" + title + "\t" + str(words) + "\n")
             with open(outDir + "/revid2parents.tsv", "a") as outF:
