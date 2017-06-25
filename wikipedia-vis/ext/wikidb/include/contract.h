@@ -38,7 +38,7 @@ class Article : public Page {
 
     //member
     int4 words;
-    dbArray<uint32_t> comparisons;
+    dbArray<uint64_t> comparisons;
 
     TYPE_DESCRIPTOR((SUPERCLASS(Page), KEY(words, INDEXED|HASHED),
                     FIELD(comparisons)));

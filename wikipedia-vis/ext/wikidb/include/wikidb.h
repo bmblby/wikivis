@@ -39,7 +39,7 @@ class WikiDB {
     void bulkUpdateCategoryParents(uint32_t revid,
             std::vector<std::string> const& parents);
     void bulkUpdateComparisons(uint32_t revid,
-            std::vector<uint32_t> const& comparisons);
+            std::vector<uint64_t> const& comparisons);
 
     void commit();
 
@@ -59,7 +59,7 @@ class WikiDB {
 	int sizeArticles() const;
 	int sizeCategories() const;
 
-    std::vector<SimPair> getComparisons(uint32_t idx) const;
+    std::vector<SimPair> getComparisons(uint32_t index) const;
 
     bool articleExists(uint32_t number) const;
     bool categoryExists(uint32_t number) const;

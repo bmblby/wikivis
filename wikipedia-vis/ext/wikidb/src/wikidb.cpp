@@ -161,16 +161,16 @@ WikiDB::bulkInsertCategory(
     }
 
     t2 = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
     dbCursor<Category> categoryCursor(dbCursorViewOnly);
     int categoryNumber = categoryCursor.select();
     std::cout << "Inserted " << categoryNumber
-    << " categories in " << duration.count() << " milliseconds" << std::endl;
+    << " categories in " << duration.count() << " seconds" << std::endl;
 
     _db.commit();
     t3 = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2);
-    std::cout << "Time for commit: " << duration.count() << " milliseconds" << std::endl;
+    duration = std::chrono::duration_cast<std::chrono::seconds>(t3 - t2);
+    std::cout << "Time for commit: " << duration.count() << " seconds" << std::endl;
 
     return;
 }
@@ -271,7 +271,7 @@ WikiDB::commit() {
 
 void
 WikiDB::bulkUpdateComparisons(
-        uint32_t refRevid, std::vector<uint32_t> const& comparisons) {
+        uint32_t refRevid, std::vector<uint64_t> const& comparisons) {
     dbQuery q;
     q = "revid=", refRevid;
     dbCursor<Article> articleCursor(dbCursorForUpdate);

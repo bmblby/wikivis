@@ -31,7 +31,7 @@ R"(createdb.
 	Usage:
 	  createdb pages <DatabaseName> <revid2titleFilename>
 	  createdb parents <DatabaseName> <revid2parentsFilename>
-	  createdb comparisons <DatabaseName> <simMatrixDir>
+	  createdb comparisons <DatabaseName> <simMatrixDir> [ <threshold> ]
       createdb debug <DatabaseName> <parents>
 
 	Options:
@@ -227,7 +227,7 @@ void parents2db(std::string const& db_filename,
 //	      << duration.count() << " seconds." << std::endl;
 //}
 
-std::vector< std::pair<uint32_t, std::vector<uint32_t> > >
+std::vector< std::pair<uint32_t, std::vector<uint64_t> > >
 comparisons2vec(WikiDB &wikidb,
 		std::string const& simpairs_tsv_filename, uint32_t threshold = 500) {
 
@@ -237,12 +237,13 @@ comparisons2vec(WikiDB &wikidb,
         std::exit(1);
     }
 
-    std::vector< std::pair<uint32_t, std::vector<uint32_t> > > ret;
-    std::vector<uint32_t> comparisons(0);
+    std::vector< std::pair<uint32_t, std::vector<uint64_t> > > result_vec;
+    std::vector<uint64_t> comparisons(0);
     static std::size_t count(0);
 
     wikidb._db.attach();
 
+	uint32_t skipped = 0;
     boost::char_separator<char> sep("\t");
     for (std::string line; getline(infile, line); ) {
         boost::tokenizer<boost::char_separator<char> > tokens(line, sep);
@@ -252,35 +253,50 @@ comparisons2vec(WikiDB &wikidb,
 
         if (wikidb.articleExists(refRevid)) {       // does the reference revision id exist in the db?
             while (it != std::end(tokens)) {
-                uint32_t revid = boost::lexical_cast<uint32_t>(*it);
-                ++it;
-                uint32_t sim = boost::numeric_cast<uint32_t>
-                                (boost::lexical_cast<float>(*it) * k_similarity_multiplier);
+				uint32_t revid = 0;
+				uint32_t sim = 0;
+				try {
+					if (*it == "715581802")
+						std::cout << "right before the bug\n";
+	                revid = boost::lexical_cast<uint32_t>(*it);
+	                ++it;
+	                sim = boost::numeric_cast<uint32_t>
+	                                (boost::lexical_cast<float>(*it) * k_similarity_multiplier);
+					if (sim >= 999)		// for case with *it = 1.00000
+						sim = 999;
+				}
+				catch (const std::exception& e) {
+					// count simpairs not possible to get from page2rev and skip
+					std::cout << e.what() << std::endl;
+					skipped++;
+					++it;
+					continue;
+				}
 				if (sim >= threshold) {             // insert only simpairs to vec higher then treshold. Attention when sampling
 					dbQuery q1;
 					q1 = "revid=", revid;
 					dbCursor<Article> comparisonCursor;
 					if (comparisonCursor.select(q1) > 0) {
 						uint32_t comparisonIdx = comparisonCursor->index;
-
 						SimPair sp(comparisonIdx, sim);
 
-						uint32_t comparison = sp.getData();
+						uint64_t comparison = sp.getData();
 						comparisons.push_back(comparison);
 					}
 				} else { break; }
 				++it;
 			}
-			ret.push_back(std::make_pair(refRevid, comparisons));
+			result_vec.push_back(std::make_pair(refRevid, comparisons));
 
             //wikidb.bulkUpdateComparisons(refRevid, comparisons);
             comparisons.clear();
 		} else { /* nothing 8 */ }
     }
 
+	std::cout << "\nskipped: " << skipped << " simpairs in " << simpairs_tsv_filename << "\n";
     wikidb._db.detach();
     infile.close();
-    return ret;
+    return result_vec;
 }
 
 
@@ -326,21 +342,19 @@ int main(int argc, char* argv[]) {
 
 	WikiDB wikidb(args["<DatabaseName>"].asString());
 
-		std::size_t count = 0;
-		std::size_t filesNum = filename_vec.size();			// 5639 files uncleaned simMatrixDir
-		std::size_t chunks = 64;                            // number of threads, try 64 threads
+		std::size_t threshold(std::stoi(args["<threshold>"].asString()));
+		std::size_t count(0);
+		std::size_t filesNum(filename_vec.size());			// 5639 files uncleaned simMatrixDir
+		std::size_t chunks(1);                            // number of threads, try 64 threads
 
-        // for loop for every file
 		for(auto it = filename_vec.begin(); it != filename_vec.end(); ) {
 			auto t1 = std::chrono::high_resolution_clock::now();
 
-			std::vector< std::vector< std::pair< uint32_t, std::vector<uint32_t> > > > workVecs;
-            int threshold = 100;                             // set to 100 lowest threshold
+			std::vector< std::vector< std::pair< uint32_t, std::vector<uint64_t> > > > workVecs;
 			typedef decltype(std::async(comparisons2vec, std::ref(wikidb), *it, threshold)) future_t;
 			std::vector<future_t> futuresVec;
 
 			if (filesNum - (chunks * count) > chunks) {		// count = 0..351 for 16 threads
-                // for loop for
 				for (std::size_t i = 0; i < chunks; ++i) {
 					std::cout << *it << std::endl;
 					futuresVec.push_back(std::async(std::launch::async, comparisons2vec, std::ref(wikidb), *it, threshold));
@@ -369,7 +383,7 @@ int main(int argc, char* argv[]) {
 			wikidb.commit();
 
 			auto t2 = std::chrono::high_resolution_clock::now();
-			auto duration = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
+			auto duration = std::chrono::duration_cast<std::chrono::minutes>(t2 - t1);
 			std::cout << "successfully processed " << chunks << " files in " << duration.count() << " sec\n"
             << "processed: " << chunks * count << " files of " << filesNum << " total files" << std::endl;
 

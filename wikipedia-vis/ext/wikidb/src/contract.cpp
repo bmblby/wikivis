@@ -112,7 +112,7 @@ Article::info() const {
     message += "Comparisons\n";
     if (this->comparisons.length() > 0) {
         for (std::size_t i = 0; i < this->comparisons.length(); ++i) {
-            uint32_t sp = this->comparisons[i];
+            uint64_t sp = this->comparisons[i];
 
             SimPair simPair(sp);
             uint32_t index = simPair.getIndex();
