@@ -131,18 +131,18 @@ WikiDB::bulkInsertArticle(
          _db.insert(article);
     }
 
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
     dbCursor<Article> articleCursor(dbCursorViewOnly);
     int articleNumber = articleCursor.select();
     std::cout << "Inserted " << articleNumber
-    << " articles in " << duration.count() << " milliseconds" << std::endl;
+    << " articles in " << duration.count() << " seconds" << std::endl;
 
     _db.commit();
 
     //time
     t3 = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2);
-    std::cout << "Time for commit: " << duration.count() << " milliseconds" << std::endl;
+    duration = std::chrono::duration_cast<std::chrono::seconds>(t3 - t2);
+    std::cout << "Time for commit: " << duration.count() << " seconds" << std::endl;
 
     return;
 }
