@@ -136,8 +136,6 @@ def main():
             sys.exit(1)
         cleanprimary(simMatrixDir, revid2title, revid2parents, outDir)
 
-
-
 def randomSampling(revid2title, revid2parents, sampleSize, outDir):
     '''
         simple random Sampling of size: sampleSize
@@ -329,7 +327,7 @@ def cleanprimary(simMatrixDir, revid2title, revid2parents, outDir):
         Result: tsv file with Categories and Articles
 
     '''
-    ns0_list = list()
+    ns0_set = set()
     ns0_revid2title = dict()
     ns0_revid2parents = dict()
 
@@ -353,32 +351,34 @@ def cleanprimary(simMatrixDir, revid2title, revid2parents, outDir):
 #                    outFile.write(str(el)+ '\t')
 #                outFile.write('\n')
 
-        if revid in ns0_revid2parents:
-            ns0_list.append(revid)
-            with open(outDir + "/revid2title.tsv", "a") as outF:
-                outF.write(str(0) + "\t" + str(revid) + "\t" + ns0_revid2title[revid][0] \
-                + '\t' + str(ns0_revid2title[revid][1]) + "\n")
-            with open(outDir + "/revid2parents.tsv", "a") as outF:
-                outF.write(str(0) + "\t" + str(revid))
-                for el in ns0_revid2parents[revid]:
-                    if el is not None:
-                        outF.write("\t" + str(el))
-                outF.write("\n")
+        if revid not in ns0_set:
+            ns0_set.add(revid)
+            if revid in ns0_revid2parents:
+                with open(outDir + "/revid2title.tsv", "a") as outF:
+                    outF.write(str(0) + "\t" + str(revid) + "\t" + ns0_revid2title[revid][0] \
+                    + '\t' + str(ns0_revid2title[revid][1]) + "\n")
+                with open(outDir + "/revid2parents.tsv", "a") as outF:
+                    outF.write(str(0) + "\t" + str(revid))
+                    for el in ns0_revid2parents[revid]:
+                        if el is not None:
+                            outF.write("\t" + str(el))
+                    outF.write("\n")
 
-        elif revid in ns0_revid2title and revid not in ns0_revid2parents:
-            ns0_list.append(revid)
-            with open(outDir + "/revid2title.tsv", "a") as outF:
-                outF.write(str(0) + "\t" + str(revid) + "\t" + ns0_revid2title[revid][0] \
-                + '\t' + str(ns0_revid2title[revid][1]) + "\n")
+            elif revid in ns0_revid2title and revid not in ns0_revid2parents:
+                with open(outDir + "/revid2title.tsv", "a") as outF:
+                    outF.write(str(0) + "\t" + str(revid) + "\t" + ns0_revid2title[revid][0] \
+                    + '\t' + str(ns0_revid2title[revid][1]) + "\n")
 
-            with open(outDir + "/revid2parents.tsv", "a") as outF:
-                outF.write(str(0) + "\t" + str(revid))
-                outF.write("\n")
+                with open(outDir + "/revid2parents.tsv", "a") as outF:
+                    outF.write(str(0) + "\t" + str(revid) + "\n")
+        else:
+            with open(outDir + "/duplicate_lines.log", "a") as f:
+                f.write(str(line) + "\n")
 
 
-    print("Found", len(ns0_list), "in similarity matrix")
+    print("Found", len(ns0_set), "in similarity matrix")
     print("Saving pickle dicts in %s." % outDir)
-    pickle.dump(ns0_list, open(outDir + "/ns0_list.p", "wb"))
+    pickle.dump(ns0_set, open(outDir + "/ns0_set.p", "wb"))
     print("Done.")
 
 if __name__ == '__main__':
