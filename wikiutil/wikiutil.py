@@ -46,9 +46,9 @@ class wikiPageParser:
         cleanr = re.compile('<!--.*?-->')
         disTitle = re.compile(r"\(.*(?:disambiguation)\)")
 
-        disTemplate1 = re.compile(r"\{\{(?:Disambiguation|Disambig|Disamb|Dab|DAB)\}\}|\{\{(?:Disambiguation|Disambig|Disamb|Dab|DAB)(?:\|human name|\|church|\|county|\|uscounty|\|fish|\|genus|\|geo|\|hospital|\|latin|\|letter number|\|math|\|number|\|plant|\|political|\|road|\|school|\|ship|\|township|\|airport|\|callsign|\|given name|\|surname|\|chinese|\|split)*\}\}")
+        disTemplate1 = re.compile(r"\{\{(?:Disambiguation|Disambig|Disamb|Dab|DAB|disambiguation|disambig|disam)\}\}|\{\{(?:Disambiguation|Disambig|Disamb|Dab|DAB)(?:\|human name|\|church|\|county|\|uscounty|\|fish|\|genus|\|geo|\|hospital|\|latin|\|letter number|\|math|\|number|\|plant|\|political|\|road|\|school|\|ship|\|township|\|airport|\|callsign|\|given name|\|surname|\|chinese|\|split)*\}\}", re.IGNORECASE)
 
-        disTemplate2 = re.compile(r"\{\{(?:Airport|Biology|Caselaw|Call sign|Chinese title|Genus|Hospital|Letter|Mathematical|Phonetics|Road|School|Species Latin name|Wikipedia)(?:\sdisambiguation)\}\}|\{\{(?:Geodis|Hndis|Hndis-cleanup|Letter-NumberCombDisambig|Mil-unit-dis|Numberdis|)\}\}")
+        disTemplate2 = re.compile(r"\{\{(?:Airport|Biology|Caselaw|Call sign|Chinese title|Genus|Hospital|Letter|Mathematical|Phonetics|Road|School|Species Latin name|Wikipedia)(?:\sdisambiguation)\}\}|\{\{(?:Geodis|Hndis|Hndis-cleanup|Letter-NumberCombDisambig|Mil-unit-dis|Numberdis|)\}\}", re.IGNORECASE)
 
         if isinstance(page['text'], str):
             page['text'] = re.sub(cleanr, '', page['text'])
@@ -58,8 +58,12 @@ class wikiPageParser:
                 return True
 
     def get_parents(self, page):
-        p = re.compile(r"\[\[Category:(.*?)\]\]")
-        return p.findall(page['text'])
+        p = re.compile(r"\[\[Category:.*?(?=\|)|\[\[Category:.*?\]\]")
+        parents = p.findall(page['text'])
+        for i, el in enumerate(parents):
+            parents[i] = el.replace("[[Category:", "")
+            parents[i] = parents[i].replace("]]", "")
+        return parents
 
     def items(self):
         context = etree.iterparse(self.xmlFileName, events=("start", "end"))

@@ -366,10 +366,10 @@ def cleanprimary(simMatrixDir, revid2title, revid2parents, outDir):
                     outF.write(str(0) + "\t" + str(revid) + "\n")
         else:
             with open(outDir + "/duplicate_lines.log", "a") as f:
-                f.write(str(line) + "\n")
+                f.write(str(line[0]) + "\n")
 
 
-    print("Found", len(ns0_set), "in similarity matrix")
+    print("Found", len(ns0_set), "unique articles in similarity matrix")
     print("Saving pickle dicts in %s." % outDir)
     pickle.dump(ns0_set, open(outDir + "/ns0_set.p", "wb"))
     print("Done.")
