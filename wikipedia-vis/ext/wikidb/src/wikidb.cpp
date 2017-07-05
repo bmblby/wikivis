@@ -36,29 +36,46 @@ WikiDB::~WikiDB() {
 }
 
 bool
-WikiDB::articleExists(uint32_t number) const {
+WikiDB::articleExistsRevid(uint32_t revid) const {
+    //TODO change to two diffrent functions
     dbCursor<Article> articleCursor;
     dbQuery q;
-    q = "revid=", number;
-    if(articleCursor.select(q) > 0) {
+    q = "revid=", revid;
+    if(articleCursor.select(q) > 0)
         return true;
-    } else {
-        q = "index=", number;
-        return articleCursor.select(q) > 0;
-    }
+    else
+        return false;
+}
+bool
+WikiDB::articleExistsIndex(uint32_t index) const {
+    dbCursor<Article> articleCursor;
+    dbQuery q;
+    q = "index=", index;
+    if(articleCursor.select(q) > 0)
+        return true;
+    else
+        return false;
 }
 
 bool
-WikiDB::categoryExists(uint32_t number) const {
+WikiDB::categoryExistsRevid(uint32_t revid) const {
     dbCursor<Category> categoryCursor;
     dbQuery q;
-    q = "revid=", number;
-    if(categoryCursor.select(q) > 0) {
+    q = "revid=", revid;
+    if(categoryCursor.select(q) > 0)
         return true;
-    } else {
-        q = "index=", number;
-        return(categoryCursor.select(q) > 0);
-    }
+    else
+        return false;
+}
+bool
+WikiDB::categoryExistsIndex(uint32_t index) const {
+    dbCursor<Category> categoryCursor;
+    dbQuery q;
+    q = "index=", index;
+    if(categoryCursor.select(q) > 0)
+        return true;
+    else
+        return false;
 }
 
 bool
@@ -81,7 +98,7 @@ void
 WikiDB::insertArticle(uint32_t revid, std::string const& title) {
     // TODO(bagrat) is this desired behaviour?
     // if an article with this revid already exists, just bail out
-    if (articleExists(revid)) {
+    if (articleExistsRevid(revid)) {
         std::cerr << "Article with revid " << revid
                   << " already exists in table" << std::endl;
         return;
@@ -100,7 +117,7 @@ WikiDB::insertArticle(uint32_t revid, std::string const& title) {
 void
 WikiDB::insertCategory(uint32_t revid, std::string const& title) {
     // TODO(bagrat) see above about behaviour
-    if (categoryExists(revid)) {
+    if (categoryExistsRevid(revid)) {
         std::cerr << "Category with revid " << revid
                   << " already exists in table" << std::endl;
         return;
@@ -265,43 +282,39 @@ WikiDB::bulkUpdateCategoryParents(uint32_t revid,
 }
 
 void
-WikiDB::commit() {
-	_db.commit();
-}
-
-void
 WikiDB::bulkUpdateComparisons(
         uint32_t refRevid, std::vector<uint64_t> const& comparisons) {
     dbQuery q;
     q = "revid=", refRevid;
     dbCursor<Article> articleCursor(dbCursorForUpdate);
-
     if (articleCursor.select(q) > 0) {
-        for (auto comparison : comparisons) {
-            SimPair sp(comparison);
-        }
         (articleCursor->comparisons).assign(comparisons.data(), comparisons.size(), true);
         articleCursor.update();
     }
 }
 
+void
+WikiDB::commit() {
+	_db.commit();
+}
+
 Article
 WikiDB::getArticle(uint32_t index) const {
-        if (index > 0) {
-            dbQuery q;
-            q = "index=", index;
-            dbCursor<Article> articleCursor;
-            articleCursor.select(q);
+    if (index > 0) {
+        dbQuery q;
+        q = "index=", index;
+        dbCursor<Article> articleCursor;
+        articleCursor.select(q);
 
-            if (articleCursor.get() == NULL) {
-                throw record_not_found("article index: "
-                        + std::to_string(index) + " not in Table");
-            } else {
-                return *articleCursor.get();
-            }
+        if (articleCursor.get() == NULL) {
+            throw record_not_found("article index: "
+                    + std::to_string(index) + " not in Table");
         } else {
-            throw record_not_found("Index starts from 1 not 0!");
+            return *articleCursor.get();
         }
+    } else {
+        throw record_not_found("Index starts from 1 not 0!");
+    }
 }
 
 Category
@@ -371,7 +384,7 @@ WikiDB::getArticleChildren(uint32_t index) const {
 	std::vector<uint32_t> children = catCur->getChildren();
 	std::vector<Article> artChildren(0);
 	for (auto i : children) {
-		if(this->articleExists(i)) {
+		if(this->articleExistsIndex(i)) {
 			artChildren.push_back(getArticleByRevid(i));
 		}
 	}
@@ -388,23 +401,11 @@ WikiDB::getCategoryChildren(uint32_t index) const {
 	std::vector<uint32_t> children = catCur->getChildren();
 	std::vector<Category> catChildren(0);
 	for (auto i : children) {
-		if(this->categoryExists(i)) {
+		if(this->categoryExistsIndex(i)) {
 			catChildren.push_back(getCategoryByRevid(i));
 		}
 	}
 	return catChildren;
-}
-
-int
-WikiDB::sizeArticles() const {
-	dbCursor<Article> artCur;
-	return artCur.select();
-}
-
-int
-WikiDB::sizeCategories() const {
-	dbCursor<Category> catCur;
-	return catCur.select();
 }
 
 std::vector<SimPair>
@@ -424,4 +425,16 @@ WikiDB::getComparisons(uint32_t index) const {
         }
     }
     return simPairs;
+}
+
+int
+WikiDB::sizeArticles() const {
+	dbCursor<Article> artCur;
+	return artCur.select();
+}
+
+int
+WikiDB::sizeCategories() const {
+	dbCursor<Category> catCur;
+	return catCur.select();
 }

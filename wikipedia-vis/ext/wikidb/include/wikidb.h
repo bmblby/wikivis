@@ -21,6 +21,13 @@ class WikiDB {
     explicit WikiDB(std::string const& DBfilename);
     ~WikiDB();
 
+    bool articleExistsRevid(uint32_t revid) const;
+    bool categoryExistsRevid(uint32_t revid) const;
+    bool articleExistsIndex(uint32_t index) const;
+    bool categoryExistsIndex(uint32_t index) const;
+    bool articleExists(std::string title) const;
+    bool categoryExists(std::string title) const;
+
     // create database
     void insertArticle(uint32_t revid, std::string const& title);
     void insertCategory(uint32_t revid, std::string const& title);
@@ -55,18 +62,11 @@ class WikiDB {
 
 	std::vector<Article> getArticleChildren(uint32_t index) const;
 	std::vector<Category> getCategoryChildren(uint32_t index) const;
+    std::vector<SimPair> getComparisons(uint32_t index) const;
 
 	int sizeArticles() const;
 	int sizeCategories() const;
 
-    std::vector<SimPair> getComparisons(uint32_t index) const;
-
-    bool articleExists(uint32_t number) const;
-    bool categoryExists(uint32_t number) const;
-    bool articleExists(std::string title) const;
-    bool categoryExists(std::string title) const;
-
- public:
     dbDatabase _db;
 };
 

@@ -33,13 +33,13 @@ int main()
             << std::endl;
 
     Article one = db.getArticle(1);
-    std::cout << db.articleExists(one.index) << std::endl
-    << db.articleExists(one.revid) << std::endl;
+    std::cout << db.articleExistsIndex(one.index) << std::endl
+    << db.articleExistsRevid(one.revid) << std::endl;
     std::cout << one.info();
 
     Category two = db.getCategory(1);
-    std::cout << db.categoryExists(two.index) << std::endl
-    << db.categoryExists(two.revid) << std::endl;
+    std::cout << db.categoryExistsIndex(two.index) << std::endl
+    << db.categoryExistsRevid(two.revid) << std::endl;
     std::cout << two;
 
 }
