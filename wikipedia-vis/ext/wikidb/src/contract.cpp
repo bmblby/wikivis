@@ -143,7 +143,7 @@ Article::getComparisons() const {
         for (std::size_t i = 0; i < (this->comparisons).length(); ++i) {
             SimPair sp((this->comparisons)[i]);
 			simpairs[i] = sp;
-			// simpairs[i] = sp.getData();
+			// note: sp index is index from article table not revid!
         }
     }
     return simpairs;

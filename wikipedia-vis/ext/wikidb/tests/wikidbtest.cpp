@@ -6,7 +6,32 @@
 
 int main()
 {
-    WikiDB db("/dev/shm/wiki-vis-data/pages");
+    WikiDB db("/media/HDD2/data/database/enwiki2016-full");
+
+    //Write test to check right conversionfrom simpair to revid + simval
+    uint32_t revid = 714857385;
+    uint32_t simval = 478;
+    std::cout << "Revid: " << revid
+            << " Sim: " << simval << std::endl;
+
+    SimPair sp(revid, simval);
+    std::cout
+            << " get data: " << sp.getData()
+            << " SP: Revid: " << sp.getIndex()
+            << " SP: Sim: " << sp.getSim()
+            << std::endl;
+
+    assert(revid == sp.getIndex());
+    assert(simval == sp.getSim());
+
+    uint64_t data = sp.getData();
+    SimPair sp2(data);
+    std::cout << "SimPair two:\n"
+            << " get data: " << sp.getData()
+            << " SP: Revid: " << sp.getIndex()
+            << " SP: Sim: " << sp.getSim()
+            << std::endl;
+
     Article one = db.getArticle(1);
     std::cout << db.articleExists(one.index) << std::endl
     << db.articleExists(one.revid) << std::endl;

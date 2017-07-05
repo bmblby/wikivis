@@ -14,7 +14,8 @@ SimPair::SimPair(uint32_t id, uint32_t similarity)
 {
             assert(id < 1 << 30);
             assert(similarity < 1 << 10);
-            _data = (id << 10);
+            _data = id;
+            _data <<= 10;
             _data |= similarity;
 }
 
@@ -29,13 +30,16 @@ SimPair::SimPair(uint64_t data)
 
 uint32_t
 SimPair::getIndex() const {
-        return (uint32_t)(_data >> 10);
+        uint64_t data(_data);
+        data &= 0xFFFFFFFFFFFFFC00;
+        return (uint32_t)(data >> 10);
 }
 
 uint32_t
 SimPair::getSim() {
-        _data &= 0xFFFFFFFC00;
-        return (uint32_t)(_data);
+        uint64_t data(_data);
+        data &= 0x3FF;
+        return (uint32_t)(data);
 }
 
 uint64_t
