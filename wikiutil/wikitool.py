@@ -267,7 +267,7 @@ def extractPages(version, xmlFileName, listOfNS, outDir):
         words = wikiparser.articleLength(text)
 
         if not parents:
-            with open(outDir + "/no_parents.log", "a") as logFile:
+            with open(outDir + "/log/extract_no_parents.log", "a") as logFile:
                  logFile.write(str(ns) + "\t" + str(revid) + "\t" + title + "\n")
 
         if (ns == '0'):
@@ -365,7 +365,7 @@ def cleanprimary(simMatrixDir, revid2title, revid2parents, outDir):
                 with open(outDir + "/revid2parents.tsv", "a") as outF:
                     outF.write(str(0) + "\t" + str(revid) + "\n")
         else:
-            with open(outDir + "/duplicate_lines.log", "a") as f:
+            with open(outDir + "/log/duplicate_revid.log", "a") as f:
                 f.write(str(line[0]) + "\n")
 
 
