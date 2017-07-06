@@ -287,7 +287,7 @@ WikiDB::bulkUpdateComparisons(
     dbQuery q;
     q = "revid=", refRevid;
     dbCursor<Article> articleCursor(dbCursorForUpdate);
-    if (articleCursor.select(q) > 0) {
+    if (articleCursor.select(q) > 0 and (articleCursor->comparisons).length() == 0)  {
         (articleCursor->comparisons).assign(comparisons.data(), comparisons.size(), true);
         articleCursor.update();
     }
