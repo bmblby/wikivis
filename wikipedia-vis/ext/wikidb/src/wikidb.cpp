@@ -283,7 +283,7 @@ WikiDB::bulkUpdateCategoryParents(uint32_t revid,
 
 void
 WikiDB::bulkUpdateComparisons(
-        uint32_t refRevid, std::vector<uint64_t> const& comparisons) {
+        uint32_t refRevid, std::vector<int64_t> const& comparisons) {
     dbQuery q;
     q = "revid=", refRevid;
     dbCursor<Article> articleCursor(dbCursorForUpdate);
@@ -418,7 +418,7 @@ WikiDB::getComparisons(uint32_t index) const {
     if (articleCursor.select(q) > 0) {
         simPairs.resize((articleCursor->comparisons).length());
         for (std::size_t i = 0; i < (articleCursor->comparisons).length(); ++i) {
-            uint32_t simpair = (articleCursor->comparisons)[i];
+            int64_t simpair = (articleCursor->comparisons)[i];
             SimPair sp(simpair);
 
             simPairs[i] = sp;

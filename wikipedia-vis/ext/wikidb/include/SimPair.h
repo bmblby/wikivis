@@ -10,11 +10,11 @@ class SimPair {
  public:
     SimPair();
     SimPair(uint32_t id, uint32_t similarity);
-    SimPair(uint64_t data);
+    SimPair(int64_t data);
 
     uint32_t getIndex() const;
     uint32_t getSim();
-    uint64_t getData() const;
+    int64_t getData() const;
 
     void setIndex(uint32_t id);
     void setSim(uint32_t similarity);
@@ -25,7 +25,7 @@ class SimPair {
 
  private:
     // only 40 Bits used for storage
-    uint64_t _data;
+    int64_t _data;
     // Data Layout:
     // Bit 10..40: id (max id: 2^30 or 1073741824)
     // Bit   0..9: similarity value (between 0 and 999)

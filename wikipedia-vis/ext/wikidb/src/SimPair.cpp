@@ -19,30 +19,30 @@ SimPair::SimPair(uint32_t id, uint32_t similarity)
             _data |= similarity;
 }
 
-SimPair::SimPair(uint64_t data)
+SimPair::SimPair(int64_t data)
  : _data(0)
 {
     assert(data < 0x1FFFFFFFFF3);
     // NOTE switch first 14 bits to zero
-    data &= 0xFFFFFF0000000000;
+    data &= 0xFFFFFFFFFF;
     _data = data;
 }
 
 uint32_t
 SimPair::getIndex() const {
-        uint64_t data(_data);
+        int64_t data(_data);
         data &= 0xFFFFFFFFFFFFFC00;
         return (uint32_t)(data >> 10);
 }
 
 uint32_t
 SimPair::getSim() {
-        uint64_t data(_data);
+        int64_t data(_data);
         data &= 0x3FF;
         return (uint32_t)(data);
 }
 
-uint64_t
+int64_t
 SimPair::getData() const {
     return _data;
 }

@@ -109,12 +109,11 @@ Article::info() const {
     std::string message = this->Page::info();
     message += "words: " + std::to_string(this->words) + "\n";
 
-    message += "Comparisons\n";
+    message += "Comparisons";
     if (this->comparisons.length() > 0) {
+        message += std::to_string(this->comparisons.length()) + "\n";
         for (std::size_t i = 0; i < this->comparisons.length(); ++i) {
-            uint64_t sp = this->comparisons[i];
-
-            SimPair simPair(sp);
+            SimPair simPair(this->comparisons[i]);
             uint32_t index = simPair.getIndex();
             uint32_t sim  = simPair.getSim();
 
@@ -128,7 +127,7 @@ Article::info() const {
                       + " SimValue: " + std::to_string(sim) + "\n";
             }
     } else {
-          return message += "No Comparisons\n\n";
+          return message += "\nNo Comparisons\n\n";
       }
     return message;
 }

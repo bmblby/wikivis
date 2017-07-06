@@ -46,7 +46,7 @@ class WikiDB {
     void bulkUpdateCategoryParents(uint32_t revid,
             std::vector<std::string> const& parents);
     void bulkUpdateComparisons(uint32_t revid,
-            std::vector<uint64_t> const& comparisons);
+            std::vector<int64_t> const& comparisons);
 
     void commit();
 
