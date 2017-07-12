@@ -109,7 +109,7 @@ Article::info() const {
     std::string message = this->Page::info();
     message += "words: " + std::to_string(this->words) + "\n";
 
-    message += "Comparisons";
+    message += "Comparisons: ";
     if (this->comparisons.length() > 0) {
         message += std::to_string(this->comparisons.length()) + "\n";
         for (std::size_t i = 0; i < this->comparisons.length(); ++i) {
