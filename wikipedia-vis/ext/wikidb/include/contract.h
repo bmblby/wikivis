@@ -67,10 +67,23 @@ std::ostream& operator<<(std::ostream& os, Category& cat)
 }
 
 inline
+std::ostream& operator<<(std::ostream& os, Category const& cat)
+{
+    os << cat.info();
+    return os;
+}
+
+inline
 std::ostream& operator<<(std::ostream& os, Article& art)
 {
     os << art.info();
     return os;
 }
 
+inline
+std::ostream& operator<<(std::ostream& os, Article const& art)
+{
+    os << art.info();
+    return os;
+}
 #endif  // WIKIDB_CONTRACT_H_
