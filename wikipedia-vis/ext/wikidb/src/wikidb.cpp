@@ -401,7 +401,7 @@ WikiDB::getCategoryChildren(uint32_t index) const {
 	std::vector<uint32_t> children = catCur->getChildren();
 	std::vector<Category> catChildren(0);
 	for (auto i : children) {
-		if(this->categoryExistsIndex(i)) {
+		if(this->categoryExistsRevid(i)) {
 			catChildren.push_back(getCategoryByRevid(i));
 		}
 	}
