@@ -52,6 +52,10 @@ include_directories(${CMAKE_SOURCE_DIR}/ext/nanogui/include)
 include_directories(${CMAKE_SOURCE_DIR}/ext/nanogui/ext/eigen)
 include_directories(${CMAKE_SOURCE_DIR}/ext/nanogui/ext/nanovg/src)
 
+# nanovg
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanovg)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanovg/src)
+
 # gloost
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/gloost)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/gloost/contrib/tinyxml2/src)

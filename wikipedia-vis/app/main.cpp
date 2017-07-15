@@ -8,6 +8,11 @@
 
 #include <nanogui/nanogui.h>
 
+// nanovg
+#include <nanovg.h>
+#define NANOVG_GL3_IMPLEMENTATION
+#include <nanovg_gl.h>
+
 // wikidb
 #include "contract.h"
 #include "record_not_found.h"
@@ -108,6 +113,8 @@ int main(int argc, char *argv[])
 
  // build database
   WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
+  // WikiDB wikidb("/media/HDD2/data/database/enwiki2016-no-comp");
+
 
   // Graph init
   vta::Model model(wikidb);
@@ -153,6 +160,32 @@ int main(int argc, char *argv[])
 
     // Main Window (Visualization)
     renderer.display();
+
+    NVGcontext* vg = NULL;
+    vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+    if(vg == NULL) {
+        std::cerr << "Could not init nanovg!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    int fbWidth, fbHeight;
+    glfwGetFramebufferSize(main_window, &fbWidth, &fbHeight);
+    float pxRatio = (float)fbWidth / (float) main_window_width;
+
+
+    int center_x = 150;
+    int center_y = 150;
+    int center_r = 100;
+    nvgBeginFrame(vg, main_window_width, main_window_height, pxRatio);
+
+    nvgBeginPath(vg);
+    nvgCircle(vg, center_x, center_y, center_r);
+    nvgFill(vg);
+    nvgStrokeColor(vg, nvgRGBA(0,0,0,64));
+    nvgStrokeWidth(vg, 1.0f);
+    nvgStroke(vg);
+
+    nvgEndFrame(vg);
+
     gui.display();
     glfwSwapBuffers(main_window);
   }

@@ -15,6 +15,7 @@ target_link_libraries(app
                       m
                       gloost
                       nanogui
+                      nanovg
                       ${NANOGUI_EXTRA_LIBS}
                       GLEW
                       GL
