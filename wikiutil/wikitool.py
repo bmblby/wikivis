@@ -44,7 +44,6 @@ import pickle
 import operator
 import pandas as pd
 import numpy as np
-#import matplotlib as plt
 
 import wikiutil
 
@@ -258,27 +257,22 @@ def extractPages(version, xmlFileName, listOfNS, outDir):
     wikiparser = wikiutil.wikiPageParser(version, xmlFileName, listOfNS)
     count = 0
     for elem in wikiparser.items():
-        count += 1
-        if (count % 1000 == 0):
-            print("Found", count, "elements")
-
-        #TODO implement container for revision ids from other namespaces !!!
-        ns = elem.getNS()
-        pageid = elem.getPageid()
-        revid = elem.getRevid()
-        title = elem.getTitle()
-        parents = elem.getParents()
-        text = elem.getText()
+        # print('id', elem['id'], 'title', elem['title'], 'revid', elem['revid'])
+        ns = elem['ns']
+        pageid = elem['id']
+        revid = elem['revid']
+        title = elem['title']
+        parents = elem['parents']
+        text = elem['text']
         words = wikiparser.articleLength(text)
 
         if not parents:
-             with open(outDir + "/no_parents.log", "a") as logFile:
+            with open(outDir + "/no_parents.log", "a") as logFile:
                  logFile.write(str(ns) + "\t" + str(revid) + "\t" + title + "\n")
 
-        if (ns == 0):
+        if (ns == '0'):
             with open(outDir + "/pageid2revid.tsv", "a") as outF:
                 outF.write(str(pageid) + "\t" + str(revid) + "\t" + str(title) + "\n")
-            # print("pageid: ", pageid, "revid: ", revid, "\n")
             ns0_pageid2revid.setdefault(pageid, revid)
             ns0_revid2title.setdefault(revid, [title, words])
             #BUG: if parents list is empty -> no entry in dict
@@ -286,8 +280,7 @@ def extractPages(version, xmlFileName, listOfNS, outDir):
             for el in parents:
                 ns0_revid2parents.setdefault(revid, []).append(el)
 
-        elif (ns == 14):
-            # print("for ns 14 pageid: ", pageid, "revid: ", revid, "\n")
+        elif (ns == '14'):
             with open(outDir + "/revid2title.tsv", "a") as outF:
                 outF.write(str(ns) + "\t" + str(revid) + "\t" + title + "\t" + str(words) + "\n")
             with open(outDir + "/revid2parents.tsv", "a") as outF:

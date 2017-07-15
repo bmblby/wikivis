@@ -1,4 +1,4 @@
-"""Pythonic tool for:
+"""
     parsing wikipedia xml-dump
     parsing very specific cosinus similarity matrix of wikipedia articles
 
@@ -7,81 +7,22 @@
 """
 
 import sys
-import xml.etree.cElementTree as ET
+from lxml import etree
 import re
 import glob
 from string import punctuation
 
-class Page:
-    title = ""
-    ns = -1
-    pageid = -1
-    revid = -1
-    parents = list()
-    text = ""
-
-    def __init__(self, title, ns, pageid, revid, parents, text):
-        self.title = title
-        self.ns = ns
-        self.pageid = pageid
-        self.revid = revid
-        self.updateParents(parents)
-        self.text = text
-
-    def updateParents(self, parents):
-        self.parents.clear()
-        for el in parents:
-            self.parents.append(el)
-
-    def getTitle(self):
-        return self.title
-
-    def getNS(self):
-        return self.ns
-
-    def getPageid(self):
-        return self.pageid
-
-    def getRevid(self):
-        return self.revid
-
-    def getParents(self):
-        return self.parents
-
-    def getText(self):
-        return self.text
 
 class wikiPageParser:
     xmlFileName = ""
     listOfNS = list()
 
-    # namespace for every tag
-    # NOTE xmlns number missing input from user. version = "0.8"
-    xmlns = "{http://www.mediawiki.org/xml/export-"
-    pagetag = xmlns + "page"
-    titletag = xmlns + "title"
-    nstag = xmlns + "ns"
-    revisiontag = xmlns + "revision"
-    idtag = xmlns + "id"
-    redirecttag = xmlns + "redirect"
-    texttag = xmlns + "text"
+    global tag_list
+    tag_list = ['title', 'ns', 'id', 'text']
 
     def __init__(self, version, xmlDumpFile, listOfNS):
-        self.xmlns = self.xmlns + str(version) + "/}"
-        self.pagetag = self.xmlns + "page"
-        self.titletag = self.xmlns + "title"
-        self.nstag = self.xmlns + "ns"
-        self.revisiontag = self.xmlns + "revision"
-        self.idtag = self.xmlns + "id"
-        self.redirecttag = self.xmlns + "redirect"
-        self.texttag = self.xmlns + "text"
         self.xmlFileName = xmlDumpFile
-        self.updateNS(listOfNS)
-
-    def updateNS(self, listOfNS):
-        self.listOfNS.clear()
-        for el in listOfNS:
-            self.listOfNS.append(el)
+        self.listOfNS = listOfNS
 
     def articleLength(self, text):
         words = re.split(r'[^0-9A-Za-z]+', text)
@@ -90,72 +31,83 @@ class wikiPageParser:
                 words.remove(word)
         return len(words)
 
+    def is_redirect(self, page):
+        cleanr = re.compile('<!--.*?-->')
+        if isinstance(page['text'], str):
+            page['text'] = re.sub(cleanr, '', page['text'])
+            text_redirect = re.compile(r"\#REDIRECT?\s*\[\[([^\]]*)\]\]")
+            if 'redirect' in page.keys():
+                return True
+            elif text_redirect.findall(page['text']):
+                return True
+
+        disambigTitle = re.compile(r"\(.*(disambiguation)\)")
+    def is_disambig(self, page):
+        cleanr = re.compile('<!--.*?-->')
+        disTitle = re.compile(r"\(.*(?:disambiguation)\)")
+
+        disTemplate1 = re.compile(r"\{\{(?:Disambiguation|Disambig|Disamb|Dab|DAB)\}\}|\{\{(?:Disambiguation|Disambig|Disamb|Dab|DAB)(?:\|human name|\|church|\|county|\|uscounty|\|fish|\|genus|\|geo|\|hospital|\|latin|\|letter number|\|math|\|number|\|plant|\|political|\|road|\|school|\|ship|\|township|\|airport|\|callsign|\|given name|\|surname|\|chinese|\|split)*\}\}")
+
+        disTemplate2 = re.compile(r"\{\{(?:Airport|Biology|Caselaw|Call sign|Chinese title|Genus|Hospital|Letter|Mathematical|Phonetics|Road|School|Species Latin name|Wikipedia)(?:\sdisambiguation)\}\}|\{\{(?:Geodis|Hndis|Hndis-cleanup|Letter-NumberCombDisambig|Mil-unit-dis|Numberdis|)\}\}")
+
+        if isinstance(page['text'], str):
+            page['text'] = re.sub(cleanr, '', page['text'])
+            if disTitle.findall(page['title']):
+                return True
+            elif disTemplate1.findall(page['text']) or disTemplate2.findall(page['text']):
+                return True
+
+    def get_parents(self, page):
+        p = re.compile(r"\[\[Category:(.*?)\]\]")
+        return p.findall(page['text'])
 
     def items(self):
-        context = ET.iterparse(self.xmlFileName, events=("start", "end"))
-        cit = iter(context)
-
-        path = list()
-        title = ""
-        text = ""
-        ns = -1
-        pageid = -1
-        revid = -1
+        context = etree.iterparse(self.xmlFileName, events=("start", "end"))
+        path = list()       # list containing start and end tags
+        record = {}         # object containng page xml
         parents = list()
 
-        p = re.compile(r"\[\[Category:(.*?)\]\]")
-        # regex to get pages that are redirects, if no redirect tag
-        # see wikimedia source code
-        r = re.compile(r"\#REDIRECT(?:S|ED|ION)?\s*(?: :|\sTO|=)?\s*\[\[([^\]]*)\]\]", re.IGNORECASE)
-
-        # regex from wikimedia to match disambiguous pages |REMOVED from regex: |dab|surname|
-        disambigTitle = re.compile(r"\(.*(disambiguation)\)")
-        disambigTemplate = re.compile(r"{\{\s*disambiguation|disambig|disambig-cleanup|disamb|shipindex|hndis|geodis|schooldis|hospitaldis|mathdab|numberdis|given name\s*(?:\|.*)?\s*\}\}", re.IGNORECASE)
-
-        count = 0
-        for event, elem in cit:
+        redirect_c = 0
+        disambig_c = 0
+        pages = 0
+        ns14_c = 0
+        ns0_c = 0
+        for event, elem in context:
             if event == 'start':
-                path.append(elem.tag)
+                path.append(elem.tag.split('}')[1])
 
             if event == 'end':
-                if elem.tag == self.pagetag:
-                    ns = -1
-                    pageid = -1
-                    revid = -1
-                    elem.clear()
-
-                if elem.tag == self.titletag:
-                    title = elem.text
-
-                if elem.tag == self.nstag:
-                    ns = int(elem.text)
-
-                if elem.tag == self.idtag and path[-2] == self.pagetag:
-                    pageid = int(elem.text)
-
-                if elem.tag == self.texttag:
-                    text = elem.text
-
-                if elem.tag == self.idtag and self.revisiontag == path[-2]:
-                    revid = int(elem.text)
-
-                if elem.tag == self.redirecttag:
-                    count += 1
+                if elem.tag.split('}')[1] == 'id' and 'revision' in path and 'contributor' not in path:
+                    record['revid'] = elem.text
+                    continue
+                elif elem.tag.split('}')[1] == 'id' and 'contributor' in path:
+                    continue
+                elif elem.tag.split('}')[1] in tag_list:
+                    record[elem.tag.split('}')[1]] = elem.text
+                    continue
+                if elem.tag.split('}')[1] == 'redirect':
+                    record['redirect'] = True
                     continue
 
-                if elem.tag == self.texttag and ns in self.listOfNS:
-                    if not elem.text:
+            if event == 'end' and elem.tag.split('}')[1] == 'page':
+                if record['ns'] == '14' or record['ns'] == '0':
+                    pages += 1
+                    record['title'] = record['title'].strip()
+                    if self.is_redirect(record):
+                        redirect_c += 1
+                        elem.clear()
+                        while elem.getprevious() is not None:
+                            del elem.getparent()[0]
+                        path = []
+                        record = {}
                         continue
-
-                    title = title.strip()
-                    if ns == 14:
-                        title = title[9:]
-
-                    #remove white spaces at the beginning and the end of the title
-                    title = title.strip()
-                    disTitle = disambigTitle.findall(title)
-                    if disTitle:
-                        count += 1
+                    if self.is_disambig(record):
+                        disambig_c += 1
+                        elem.clear()
+                        while elem.getprevious() is not None:
+                            del elem.getparent()[0]
+                        path = []
+                        record = {}
                         continue
                     if record['ns'] == '14':
                         ns14_c += 1
@@ -163,29 +115,21 @@ class wikiPageParser:
                         record['title'] = record['title'][9:]
                     else:
                         ns0_c += 1
+                    if record['title'][0].isalpha():
+                        record['title'] = record['title'].capitalize()
+
                     if isinstance(record['text'], str):
                         record['parents'] = self.get_parents(record)
                         yield record
 
-                    redirect = r.findall(elem.text)
-                    if redirect:
-                        count += 1
-                        continue
+                elem.clear()
+                while elem.getprevious() is not None:
+                    del elem.getparent()[0]
+                path = []
+                record = {}
+        print("Pages: {}\nRedirect: {}".format(pages, redirect_c))
+        print("Disambig: {}\nNS 14: {}\nNS 0: {}\n".format(disambig_c, ns14_c, ns0_c))
 
-                    if title[0].isalpha():
-                        title = title.capitalize()
-
-                    parents = p.findall(elem.text)
-                    for i in range(len(parents)):
-                        parents[i] = parents[i].split("|")[0]
-                        parents[i] = parents[i].strip()
-                        if len(parents[i]) and parents[i][0].isalpha():
-                                parents[i] = parents[i].capitalize()
-
-                    page = Page(title, ns, pageid, revid, parents, text)
-                    yield page
-                path.pop()
-        print("Total number of pages skipped:", count)
 
 class matrixParser:
     simMatrixDir = ""
