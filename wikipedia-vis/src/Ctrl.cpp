@@ -18,8 +18,6 @@ Ctrl::mousePress(int x, int y, int btn, int mods)
     std::cout << "button number: " << btn <<std::endl;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 void
 Ctrl::mouseRelease(int x, int y, int btn, int mods)
 {
@@ -29,8 +27,6 @@ Ctrl::mouseRelease(int x, int y, int btn, int mods)
     }
 
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 void
 Ctrl::mouseMove(int x, int y, int state)
@@ -46,8 +42,6 @@ Ctrl::mouseMove(int x, int y, int state)
     _renderer.hover(glm::vec3(x, y, 0.0));
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 void
 Ctrl::mouseScroll(float yoffset)
 {
@@ -56,7 +50,6 @@ Ctrl::mouseScroll(float yoffset)
     _renderer.set_mouse(_mouse_state);
 }
 
-
 void
 Ctrl::reset_mouse_state()
 {
@@ -64,8 +57,6 @@ Ctrl::reset_mouse_state()
   _mouse_state.resetMouseEvents();
   _mouse_state.setSpeedToZero();
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 void
 Ctrl::keyPress(int key, int mods)
@@ -109,8 +100,6 @@ Ctrl::keyPress(int key, int mods)
       {}
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 void
 Ctrl::keyRelease(int key, int mods)
