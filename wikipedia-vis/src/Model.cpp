@@ -155,7 +155,7 @@ Model::find(std::string const& cat, Category& category) const
     auto is_digit = [] (std::string s) {return std::find_if(s.begin(), s.end(), [] (char c) {return !std::isdigit(c); }) == s.end(); };
     if(is_digit(cat)) {
         int number = std::stoi(cat);
-        if(_wikidb.categoryExists(number)){
+        if(_wikidb.categoryExistsRevid(number)){
             category = _wikidb.getCategoryByRevid(number);
             return true;
         } else
