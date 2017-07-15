@@ -157,11 +157,15 @@ class wikiPageParser:
                     if disTitle:
                         count += 1
                         continue
-
-                    disambig = disambigTemplate.findall(elem.text)
-                    if disambig:
-                        count += 1
-                        continue
+                    if record['ns'] == '14':
+                        ns14_c += 1
+                        # strip 'category:' from begining of title
+                        record['title'] = record['title'][9:]
+                    else:
+                        ns0_c += 1
+                    if isinstance(record['text'], str):
+                        record['parents'] = self.get_parents(record)
+                        yield record
 
                     redirect = r.findall(elem.text)
                     if redirect:
