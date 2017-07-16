@@ -34,13 +34,6 @@ link_directories(${Boost_LIBRARY_DIRS})
 #glm
 include_directories(/opt/glm)
 
-# GLFW
-set(GLFW_INSTALL OFF CACHE STRING "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE STRING "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE STRING "" FORCE)
-set(GLFW_BUILD_DOCS OFF CACHE STRING "" FORCE)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui/ext/glfw/include)
-
 #nanogui
 set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
 set(NANOGUI_BUILD_PYTHON OFF CACHE BOOL " " FORCE)
@@ -49,12 +42,18 @@ set(NANOGUI_INSTALL OFF CACHE BOOL " " FORCE)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui)
 set_property(TARGET glfw glfw_objects nanogui PROPERTY FOLDER "dependencies")
 include_directories(${CMAKE_SOURCE_DIR}/ext/nanogui/include)
-include_directories(${CMAKE_SOURCE_DIR}/ext/nanogui/ext/eigen)
-include_directories(${CMAKE_SOURCE_DIR}/ext/nanogui/ext/nanovg/src)
+add_definitions(${NANOGUI_EXTRA_DEFS})
+include_directories(${NANOGUI_EXTRA_INCS})
 
 # nanovg
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanovg)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanovg/src)
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ext/nanovg/src)
+
+# GLFW
+set(GLFW_INSTALL OFF CACHE STRING "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE STRING "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE STRING "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE STRING "" FORCE)
 
 # gloost
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/gloost)
