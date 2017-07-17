@@ -1,9 +1,9 @@
-#include "Ctrl.h"
+#include "Controller.h"
 
 namespace vta
 {
 
-Ctrl::Ctrl(Model& model, Renderer& renderer):
+Controller::Controller(Model& model, Renderer& renderer):
 _model(model),
 _renderer(renderer),
 _mouse_state(),
@@ -12,17 +12,14 @@ _strg_key_pressed(false)
 {}
 
 void
-Ctrl::mousePress(int x, int y, int btn, int mods)
+Controller::mousePress(int x, int y, int btn, int mods)
 {
     _mouse_state.setButtonState(btn, true);
     std::cout << "button number: " << btn <<std::endl;
-
-    //check category was clicked
-    // if()
 }
 
 void
-Ctrl::mouseRelease(int x, int y, int btn, int mods)
+Controller::mouseRelease(int x, int y, int btn, int mods)
 {
     if(_mouse_state.getButtonState(btn)){
         _mouse_state.setButtonState(btn, false);
@@ -32,7 +29,7 @@ Ctrl::mouseRelease(int x, int y, int btn, int mods)
 }
 
 void
-Ctrl::mouseMove(int x, int y, int state)
+Controller::mouseMove(int x, int y, int state)
 {
     _mouse_state.setPosition((float) x, (float) y);
 
@@ -46,7 +43,7 @@ Ctrl::mouseMove(int x, int y, int state)
 }
 
 void
-Ctrl::mouseScroll(float yoffset)
+Controller::mouseScroll(float yoffset)
 {
     // Zoom in
     _renderer.zoom(yoffset);
@@ -54,7 +51,7 @@ Ctrl::mouseScroll(float yoffset)
 }
 
 void
-Ctrl::reset_mouse_state()
+Controller::reset_mouse_state()
 {
   // reset mouse events
   _mouse_state.resetMouseEvents();
@@ -62,7 +59,7 @@ Ctrl::reset_mouse_state()
 }
 
 void
-Ctrl::keyPress(int key, int mods)
+Controller::keyPress(int key, int mods)
 {
   // http://www.glfw.org/docs/latest/group__keys.html
     switch (key)
@@ -105,7 +102,7 @@ Ctrl::keyPress(int key, int mods)
 }
 
 void
-Ctrl::keyRelease(int key, int mods)
+Controller::keyRelease(int key, int mods)
 {
   switch (key)
   {
@@ -117,31 +114,18 @@ Ctrl::keyRelease(int key, int mods)
   }
 }
 
-bool
-Ctrl::find(std::string const& name, int depth) const
+void
+Controller::find(std::string const& name, int depth)
 {
     Category cat;
     if(_model.find(name, cat)) {
         std::cout << "Found cat: " << cat.title << "\n";
         // Graph g = _model.graph(cat);
-        _model.initGraph(cat, depth);
+        _model._graph = _model.graph(cat, depth);
         _model._dirty = true;
-        auto map = _model.layout_circular(1.0);
-        _model.write_layout(map);
-        return true;
-    } else {
-        std::cout << "Input not found please try again\n";
-        return false;
-    }
-}
-
-void
-Ctrl::hover(int x, int y) const
-{
-    auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
-    Category cat = _model.posToCat(vec);
-    std::cout << cat << std::endl;
-
+        auto fr_map = _model.layout_FR();
+        _model.write_layout(fr_map);
+    } else {std::cout << "Input not found please try again\n";}
 }
 
 } // namespace vta

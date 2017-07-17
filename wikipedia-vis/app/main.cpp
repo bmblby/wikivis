@@ -17,7 +17,7 @@
 // vta
 #include "Renderer.h"
 #include "Model.h"
-#include "Ctrl.h"
+#include "Controller.h"
 #include "Gui.h"
 #include "View.h"
 
@@ -25,7 +25,7 @@ using namespace nanogui;
 
 //pointer
 vta::Renderer* renderer_ptr;
-vta::Ctrl* ctrl_ptr;
+vta::Controller* ctrl_ptr;
 vta::Gui* guip;
 Screen *screen = nullptr;
 
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
   }
   renderer.resize(main_window_width, main_window_height); // initial resize
 
-  vta::Ctrl ctrl(model, renderer);
+  vta::Controller ctrl(model, renderer);
   ctrl_ptr = &ctrl;
 
   glfwMakeContextCurrent(main_window);

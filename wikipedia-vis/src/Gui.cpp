@@ -5,7 +5,7 @@ namespace vta
 
 using namespace nanogui;
 
-Gui::Gui(GLFWwindow* window, Ctrl* ctrl):
+Gui::Gui(GLFWwindow* window, Controller* ctrl):
     _glfwWindow(window),
     _ctrl(ctrl)
 {
