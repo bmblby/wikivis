@@ -121,10 +121,10 @@ Ctrl::find(std::string const& name, int depth)
     if(_model.find(name, cat)) {
         std::cout << "Found cat: " << cat.title << "\n";
         // Graph g = _model.graph(cat);
-        _model._graph = _model.graph(cat, depth);
+        _model.initGraph(cat, depth);
         _model._dirty = true;
-        auto fr_map = _model.layout_FR();
-        _model.write_layout(fr_map);
+        auto map = _model.layout_circular(1.0);
+        _model.write_layout(map);
     } else {std::cout << "Input not found please try again\n";}
 }
 

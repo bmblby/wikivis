@@ -112,23 +112,25 @@ int main(int argc, char *argv[])
   glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
 
  // build database
-  WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
-  // WikiDB wikidb("/media/HDD2/data/database/enwiki2016-no-comp");
+  // WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
+  WikiDB wikidb("/media/HDD2/data/database/enwiki2016-no-comp");
 
 
   // Graph init
   vta::Model model(wikidb);
-  Category computer_science = wikidb.getCategoryByName("Computer science");
-  Category computer_hist = wikidb.getCategory(620085);
+  // Category computer_science = wikidb.getCategoryByName("Computer science");
   // vta::Graph g = model.graph(computer_science, 2);
-  vta::Graph g = model.graph(computer_hist, 4);
-  model._graph = g;
-  auto fr_map = model.layout_FR();
+  Category main_topic_rev = wikidb.getCategoryByName("Main topic classifications");
+
+
+  // Category main_topic_rev = wikidb.getCategoryByRevid(685314943);
+  model.initGraph(main_topic_rev, 2);
+  auto fr_map = model.layout_circular(1.0);
   model.write_layout(fr_map);
 
   // dump graph layout to file
-  auto pos_map = get(&vta::CatProp::position, model._graph);
-  model.dump_graph(g, "test_dump");
+  // auto pos_map = get(&vta::CatProp::position, model._graph);
+  // model.dump_graph(g, "test_dump");
 
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;
@@ -161,30 +163,32 @@ int main(int argc, char *argv[])
     // Main Window (Visualization)
     renderer.display();
 
-    NVGcontext* vg = NULL;
-    vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-    if(vg == NULL) {
-        std::cerr << "Could not init nanovg!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    int fbWidth, fbHeight;
-    glfwGetFramebufferSize(main_window, &fbWidth, &fbHeight);
-    float pxRatio = (float)fbWidth / (float) main_window_width;
 
 
-    int center_x = 150;
-    int center_y = 150;
-    int center_r = 100;
-    nvgBeginFrame(vg, main_window_width, main_window_height, pxRatio);
-
-    nvgBeginPath(vg);
-    nvgCircle(vg, center_x, center_y, center_r);
-    nvgFill(vg);
-    nvgStrokeColor(vg, nvgRGBA(0,0,0,64));
-    nvgStrokeWidth(vg, 1.0f);
-    nvgStroke(vg);
-
-    nvgEndFrame(vg);
+    // NVGcontext* vg = NULL;
+    // vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+    // if(vg == NULL) {
+    //     std::cerr << "Could not init nanovg!" << std::endl;
+    //     exit(EXIT_FAILURE);
+    // }
+    // int fbWidth, fbHeight;
+    // glfwGetFramebufferSize(main_window, &fbWidth, &fbHeight);
+    // float pxRatio = (float)fbWidth / (float) main_window_width;
+    //
+    //
+    // int center_x = 150;
+    // int center_y = 150;
+    // int center_r = 100;
+    // nvgBeginFrame(vg, main_window_width, main_window_height, pxRatio);
+    //
+    // nvgBeginPath(vg);
+    // nvgCircle(vg, center_x, center_y, center_r);
+    // nvgFill(vg);
+    // nvgStrokeColor(vg, nvgRGBA(0,0,0,64));
+    // nvgStrokeWidth(vg, 1.0f);
+    // nvgStroke(vg);
+    //
+    // nvgEndFrame(vg);
 
     gui.display();
     glfwSwapBuffers(main_window);

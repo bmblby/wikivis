@@ -57,8 +57,9 @@ using Graph = boost::adjacency_list<
       // class constructor
       Model(WikiDB&);
 
-      Graph graph(Category const& cat, int depth = 2);
+      void initGraph(Category const& cat, int depth = 2);
       Graph build(Graph& g, Category const& cat, int depth = 1);
+      Graph expand(Graph& g, Category const& cat);
     //   void insert_into_graph(Category const&, std::vector<Category>, Graph& g);
     //   void recursive_build(Graph& g, Category const& cat, int depth = 1);
 

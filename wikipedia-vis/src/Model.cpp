@@ -14,14 +14,13 @@ Model::Model(WikiDB& wikidb)
   _graph()
 {}
 
-Graph
-Model::graph(Category const& cat, int depth)
+void
+Model::initGraph(Category const& cat, int depth)
 {
    Graph g;
    // recursive_build(g, cat, depth);
-   g = build(g, cat, depth);
+   _graph = build(g, cat, depth);
    std::cout << "number of vertices: " << num_vertices(g) << "\n";
-   return g;
 }
 
 Graph
@@ -86,6 +85,12 @@ Model::build(Graph& g, Category const& cat, int depth)
     }
     return g;
   }
+}
+
+Graph
+Model::expand(Graph& g, Category const& cat)
+{
+
 }
 
 

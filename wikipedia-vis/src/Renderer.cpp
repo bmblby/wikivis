@@ -167,6 +167,7 @@ Renderer::display()
     fill_vbos();
     _model._dirty = false;
   }
+    fill_vbos();
 
   // // setup clear color and clear screen
   glClearColor(0.059f, 0.176f, 0.251f, 0.0f);
