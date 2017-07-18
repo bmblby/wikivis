@@ -233,28 +233,25 @@ Model::get_edges() const
 }
 
 
-Category
-Model::posToCat(glm::vec3 target)
+bool
+Model::pos2cat(glm::vec3 target, Category& cat) const
 {
     auto pos_map = get(&vta::CatProp::position, _graph);
-    int cat_index(1);
-    Category cat;
     for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {
         auto vertex_iter = vp.first;
         auto point = get(pos_map, *vertex_iter);
         glm::vec3 source(point[0], point[1], 0.0f);
         auto distance = glm::distance(target, source);
         if(distance < 0.011f) {
-            std::cout << "mouse Position: (" <<  glm::to_string(target) << ")\n";
-            std::cout << "Vertex Position: (" << glm::to_string(source)<< ")\n";
-            std::cout << "Distance: (" << distance << ")\n\n";
-            cat_index = _graph[*vertex_iter].index;
+            // std::cout << "mouse Position: (" <<  glm::to_string(target) << ")\n";
+            // std::cout << "Vertex Position: (" << glm::to_string(source)<< ")\n";
+            // std::cout << "Distance: (" << distance << ")\n\n";
+            size_t cat_index = _graph[*vertex_iter].index;
             cat = _wikidb.getCategory(cat_index);
-            std::cout << cat << std::endl;
+            return true;
         }
     }
-    cat = _wikidb.getCategory(cat_index);
-    return cat;
+    return false;
 }
 
 } // Namespace vta

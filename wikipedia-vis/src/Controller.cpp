@@ -39,7 +39,7 @@ Controller::mouseMove(int x, int y, int state)
         glm::vec3 inv_vec(-vec.x, -vec.y, -vec.z);
         _renderer.translate(inv_vec);
     }
-    _renderer.hover(glm::vec3(x, y, 0.0));
+    hover(x, y);
 }
 
 void
@@ -114,18 +114,30 @@ Controller::keyRelease(int key, int mods)
   }
 }
 
-void
-Controller::find(std::string const& name, int depth)
+bool
+Controller::find(std::string const& name, int depth) const
 {
     Category cat;
     if(_model.find(name, cat)) {
         std::cout << "Found cat: " << cat.title << "\n";
-        // Graph g = _model.graph(cat);
-        _model._graph = _model.graph(cat, depth);
+        _model.initGraph(cat, depth);
         _model._dirty = true;
         auto fr_map = _model.layout_FR();
         _model.write_layout(fr_map);
-    } else {std::cout << "Input not found please try again\n";}
+        return true;
+    } else {
+        std::cout << "Input not found please try again\n";
+        return false;
+    }
+}
+
+void
+Controller::hover(int x, int y) const
+{
+    auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
+    Category cat;
+    if(_model.pos2cat(vec, cat))
+        std::cout << cat << std::endl;
 }
 
 } // namespace vta

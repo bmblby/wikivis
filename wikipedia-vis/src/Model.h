@@ -82,7 +82,7 @@ using Graph = boost::adjacency_list<
                              const std::array<float, 4>>>
       get_edges() const;
 
-      Category posToCat(glm::vec3 target);
+      bool pos2cat(glm::vec3 target, Category& cat) const;
 
       // Member
       std::vector<Graph> _graphs;

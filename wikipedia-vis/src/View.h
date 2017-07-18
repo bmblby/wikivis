@@ -18,17 +18,18 @@ struct View
 {
     // class constructor
     View(Model& model,  Gui& gui, GLFWwindow* window);
+    void cleanup();
 
     void drawBubble () const;
 
 
     //draw
     void drawHomeView();
-    void drawCategoryGraphView();
-    void drawCategoryListView();
-    void drawArticleListView();
-
-    void drawExpandCategory();
+    // void drawCategoryGraphView();
+    // void drawCategoryListView();
+    // void drawArticleListView();
+    //
+    // void drawExpandCategory();
 
 
     //member
