@@ -3,7 +3,6 @@
 namespace vta
 {
 
-////////////////////////////////////////////////////////////////////////////////
 
 Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
 
@@ -76,7 +75,6 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
   _MVP = _projectionMatrix * _viewMatrix * _modelMatrix;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 bool
 Renderer::initialize()
 {
@@ -188,7 +186,6 @@ Renderer::display()
   draw();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 void
 Renderer::draw()
 {
@@ -276,7 +273,8 @@ Renderer::draw()
 }
 
 GLuint
-Renderer::LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
+Renderer::LoadShaders(const char * vertex_file_path,const char * fragment_file_path)
+{
 
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -362,10 +360,8 @@ Renderer::LoadShaders(const char * vertex_file_path,const char * fragment_file_p
 	return ProgramID;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-void
-Renderer::hover(glm::vec3 pos)
+glm::vec3
+Renderer::screen2modelSpace(glm::vec3 pos) const
 {
     GLfloat win_z;
     glReadPixels(pos[0], _height - pos[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
@@ -376,9 +372,8 @@ Renderer::hover(glm::vec3 pos)
     //unproject screen space
     glm::vec3 vec = glm::unProject(screen_pos, _viewMatrix * _modelMatrix, _projectionMatrix, glm::vec4(0.0f, 0.0f, _width, _height));
     // std::cout << "glm::unprojec to mouse position: " << glm::to_string(vec) << "\n\n";
-    Category cat = _model.posToCat(vec);
+    return vec;
 }
-
 
 void
 Renderer::resize(int width, int height)

@@ -35,7 +35,7 @@ class Renderer
     void draw();
     // void draw_HUD();
 
-    void hover(glm::vec3 pos);
+    glm::vec3 screen2modelSpace(glm::vec3 pos) const;
     void resize(int width, int height);
 
     // update functions from controller

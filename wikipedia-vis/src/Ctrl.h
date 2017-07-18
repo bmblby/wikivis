@@ -27,7 +27,10 @@ class Ctrl
     // key input
     void keyPress(int key, int mods);
     void keyRelease(int key, int mods);
-    void find(std::string const& name, int depth);
+
+    //util
+    bool find(std::string const& name, int depth) const;
+    void hover(int x, int y) const;
 
 
   protected:

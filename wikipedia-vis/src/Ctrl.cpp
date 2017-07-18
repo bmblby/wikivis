@@ -16,6 +16,9 @@ Ctrl::mousePress(int x, int y, int btn, int mods)
 {
     _mouse_state.setButtonState(btn, true);
     std::cout << "button number: " << btn <<std::endl;
+
+    //check category was clicked
+    // if()
 }
 
 void
@@ -114,8 +117,8 @@ Ctrl::keyRelease(int key, int mods)
   }
 }
 
-void
-Ctrl::find(std::string const& name, int depth)
+bool
+Ctrl::find(std::string const& name, int depth) const
 {
     Category cat;
     if(_model.find(name, cat)) {
@@ -125,7 +128,20 @@ Ctrl::find(std::string const& name, int depth)
         _model._dirty = true;
         auto map = _model.layout_circular(1.0);
         _model.write_layout(map);
-    } else {std::cout << "Input not found please try again\n";}
+        return true;
+    } else {
+        std::cout << "Input not found please try again\n";
+        return false;
+    }
+}
+
+void
+Ctrl::hover(int x, int y) const
+{
+    auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
+    Category cat = _model.posToCat(vec);
+    std::cout << cat << std::endl;
+
 }
 
 } // namespace vta
