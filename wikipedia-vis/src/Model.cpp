@@ -137,6 +137,51 @@ Model::build(Graph& g, Category const& cat, int depth)
 }
 
 
+void
+Model::expand(Category const& cat)
+{
+    // write fucntion to exapnd clicked category
+    // only expand leave categories
+    std::cout << "parent info: \n" << cat << "\n";
+
+    //search vertex of cat in graph
+    Vertex parent;
+    auto revid_map = get(&vta::CatProp::revid, _graph);
+    for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {
+        auto vertex = *vp.first;
+        auto revid = get(revid_map, vertex);
+        std::cout << "title: " << _graph[vertex].title
+            << " out degree: "  << out_degree(vertex, _graph) << std::endl;
+        if(revid == cat.revid and out_degree(vertex, _graph) == 0) {
+            parent = vertex;
+
+            auto children = _wikidb.getCategoryChildren(cat.index);
+            std::cout << "number of children : " << children.size() << std::endl;
+
+            double x_parent = _graph[parent].position[0];
+            double y_parent = _graph[parent].position[1];
+            std::cout << "xpos parent: " << _graph[parent].position[0] << std::endl;
+            std::cout << "ypos parent: " << _graph[parent].position[1] << std::endl;
+            size_t i = 0;
+            float radius = 0.1f;
+            double two_pi_over_n = 2 * 3.14 / children.size();
+
+            // add vertex for every children to graph
+            std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
+            for(auto const& child : children) {
+                Vertex vert = add_cat(_graph, child, parent);
+                std::cout << "child title: " << _graph[vert].title << std::endl;
+                _graph[vert].position[0] += radius * cos(i * two_pi_over_n);
+                _graph[vert].position[1] += radius * sin(i * two_pi_over_n);
+                ++i;
+            }
+            break;
+        }
+    }
+
+    std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
+}
+
 Vertex
 Model::add_cat(Graph& g, Category const& cat, Vertex const& parent)
 {

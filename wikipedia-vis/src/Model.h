@@ -66,6 +66,7 @@ class Model
 
     void initGraph(Category const& cat, int depth = 2);
     Graph build(Graph& g, Category const& cat, int depth = 1);
+    void expand(Category const& cat);
     //   void insert_into_graph(Category const&, std::vector<Category>, Graph& g);
     //   void recursive_build(Graph& g, Category const& cat, int depth = 1);
 
