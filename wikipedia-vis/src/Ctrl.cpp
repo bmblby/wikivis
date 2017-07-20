@@ -18,7 +18,11 @@ Ctrl::mousePress(int x, int y, int btn, int mods)
     std::cout << "button number: " << btn <<std::endl;
 
     //check category was clicked
-    // if()
+    Category cat;
+    auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
+    if(_model.pos2cat(vec, cat) and btn == 0) {
+        std::cout << cat;
+    }
 }
 
 void
@@ -42,7 +46,7 @@ Ctrl::mouseMove(int x, int y, int state)
         glm::vec3 inv_vec(-vec.x, -vec.y, -vec.z);
         _renderer.translate(inv_vec);
     }
-    hover(x, y);
+    // hover(x, y);
 }
 
 void
@@ -126,7 +130,7 @@ Ctrl::find(std::string const& name, int depth) const
         // Graph g = _model.graph(cat);
         _model.initGraph(cat, depth);
         _model._dirty = true;
-        auto map = _model.layout_circular(1.0);
+        auto map = _model.layout_FR();
         _model.write_layout(map);
         return true;
     } else {
@@ -142,7 +146,6 @@ Ctrl::hover(int x, int y) const
     Category cat;
     if(_model.pos2cat(vec, cat))
         std::cout << cat << std::endl;
-
 }
 
 } // namespace vta
