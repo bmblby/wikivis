@@ -95,7 +95,7 @@ class Model
     bool pos2cat(glm::vec3 target, Category& cat);
 
     // Member
-    std::vector<Graph> _graphs;
+    size_t _max_depth;
     Graph _graph;
     WikiDB& _wikidb;
 

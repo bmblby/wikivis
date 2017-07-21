@@ -18,10 +18,10 @@ void
 Model::initGraph(Category const& cat, int depth)
 {
    Graph g;
-   // recursive_build(g, cat, depth);
+   _max_depth = depth;
    build(g, cat, depth);
    _graph = g;
-   std::cout << "number of vertices: " << num_vertices(g) << "\n";
+   std::cout << "number of vertices: " << num_vertices(_graph) << "\n";
 }
 
 // Graph
@@ -91,10 +91,9 @@ Graph
 Model::build(Graph& g, Category const& cat, int depth)
 {
     enum {used, unused, parent, root};
-    int static max_depth = depth;
 
     Vertex v_parent;
-    if(depth == max_depth) {
+    if(depth == _max_depth) {
         //coloring for debuging purposes
         v_parent = add_vertex(g);
         g[v_parent].index = cat.index;
@@ -130,10 +129,8 @@ Model::build(Graph& g, Category const& cat, int depth)
             add_cat(g, children.back(), v_parent);
             children.pop_back();
         }
-        depth++;
         return g;
     }
-
 }
 
 
