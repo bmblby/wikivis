@@ -128,7 +128,6 @@ Ctrl::find(std::string const& name, int depth) const
     Category cat;
     if(_model.find(name, cat)) {
         std::cout << "Found cat: " << cat.title << "\n";
-        // Graph g = _model.graph(cat);
         _model.initGraph(cat, depth);
         _model._dirty = true;
         auto map = _model.layout_FR();
