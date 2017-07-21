@@ -1,17 +1,12 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 // cpp includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 
-#include <nanogui/nanogui.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-// nanovg
-#include <nanovg.h>
-#define NANOVG_GL3_IMPLEMENTATION
-#include <nanovg_gl.h>
+#include <nanogui/nanogui.h>
 
 // wikidb
 #include "contract.h"
@@ -22,14 +17,15 @@
 // vta
 #include "Renderer.h"
 #include "Model.h"
-#include "Ctrl.h"
+#include "Controller.h"
 #include "Gui.h"
+#include "View.h"
 
 using namespace nanogui;
 
 //pointer
 vta::Renderer* renderer_ptr;
-vta::Ctrl* ctrl_ptr;
+vta::Controller* ctrl_ptr;
 vta::Gui* guip;
 Screen *screen = nullptr;
 
@@ -111,24 +107,26 @@ int main(int argc, char *argv[])
   // used to catch escape key
   glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
 
- // build database
-  WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
-  // WikiDB wikidb("/media/HDD2/data/database/enwiki2016-no-comp");
+
+  // WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
+  WikiDB wikidb("/media/HDD2/data/database/enwiki2016-no-comp");
 
 
   // Graph init
   vta::Model model(wikidb);
-  Category computer_science = wikidb.getCategoryByName("Computer science");
-  Category computer_hist = wikidb.getCategory(620085);
+  // Category computer_science = wikidb.getCategoryByName("Computer science");
   // vta::Graph g = model.graph(computer_science, 2);
-  vta::Graph g = model.graph(computer_hist, 4);
-  model._graph = g;
-  auto fr_map = model.layout_FR();
+  Category main_topic_rev = wikidb.getCategoryByName("Main topic classifications");
+
+
+  // Category main_topic_rev = wikidb.getCategoryByRevid(685314943);
+  model.initGraph(main_topic_rev, 2);
+  auto fr_map = model.layout_circular(1.0);
   model.write_layout(fr_map);
 
   // dump graph layout to file
-  auto pos_map = get(&vta::CatProp::position, model._graph);
-  model.dump_graph(g, "test_dump");
+  // auto pos_map = get(&vta::CatProp::position, model._graph);
+  // model.dump_graph(g, "test_dump");
 
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;
@@ -140,13 +138,17 @@ int main(int argc, char *argv[])
   }
   renderer.resize(main_window_width, main_window_height); // initial resize
 
-  vta::Ctrl ctrl(model, renderer);
-  ctrl_ptr = &ctrl;
 
   glfwMakeContextCurrent(main_window);
-  vta::Gui gui(main_window, ctrl_ptr);
+  vta::Gui gui(main_window, model);
   guip = &gui;
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
+
+  vta::View view(model, main_window);
+  // view.drawHomeView();
+
+  vta::Controller ctrl(model, renderer, view, gui);
+  ctrl_ptr = &ctrl;
 
   // Main loop
   do{
@@ -157,42 +159,21 @@ int main(int argc, char *argv[])
     double currentTime = glfwGetTime();
     float deltaTime = float(currentTime - lastTime);
     renderer.deltaTime = deltaTime;
+    glClearColor(0.059f, 0.176f, 0.251f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Main Window (Visualization)
-    renderer.display();
-
-    NVGcontext* vg = NULL;
-    vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-    if(vg == NULL) {
-        std::cerr << "Could not init nanovg!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    int fbWidth, fbHeight;
-    glfwGetFramebufferSize(main_window, &fbWidth, &fbHeight);
-    float pxRatio = (float)fbWidth / (float) main_window_width;
-
-
-    int center_x = 150;
-    int center_y = 150;
-    int center_r = 100;
-    nvgBeginFrame(vg, main_window_width, main_window_height, pxRatio);
-
-    nvgBeginPath(vg);
-    nvgCircle(vg, center_x, center_y, center_r);
-    nvgFill(vg);
-    nvgStrokeColor(vg, nvgRGBA(0,0,0,64));
-    nvgStrokeWidth(vg, 1.0f);
-    nvgStroke(vg);
-
-    nvgEndFrame(vg);
-
+    // renderer.display();
+    view.drawBubble();
     gui.display();
+
     glfwSwapBuffers(main_window);
   }
   while (glfwGetKey(main_window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
     glfwWindowShouldClose(main_window) == 0);
 
   // Cleanup
+  view.cleanup();
   renderer.cleanup();
   glfwDestroyWindow(main_window);
   glfwTerminate();
@@ -231,12 +212,12 @@ void scrollfun(GLFWwindow* window, double xoffset, double yoffset)
 
 void cursorposfun(GLFWwindow* window, double xpos, double ypos)
 {
-  if(guip->contains(xpos, ypos))
-    guip->cursorfun(xpos, ypos);
-  else {
+  // if(guip->contains(xpos, ypos))
+  //   guip->cursorfun(xpos, ypos);
+  // else {
     int state_left = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
     ctrl_ptr->mouseMove(xpos, ypos, state_left);
-  }
+  // }
 }
 
 void keyfun(GLFWwindow* window, int key, int scancode, int action, int mods)

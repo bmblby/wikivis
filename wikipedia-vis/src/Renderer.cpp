@@ -3,7 +3,6 @@
 namespace vta
 {
 
-////////////////////////////////////////////////////////////////////////////////
 
 Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
 
@@ -76,7 +75,6 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
   _MVP = _projectionMatrix * _viewMatrix * _modelMatrix;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 bool
 Renderer::initialize()
 {
@@ -167,6 +165,7 @@ Renderer::display()
     fill_vbos();
     _model._dirty = false;
   }
+    fill_vbos();
 
   // // setup clear color and clear screen
   glClearColor(0.059f, 0.176f, 0.251f, 0.0f);
@@ -187,7 +186,6 @@ Renderer::display()
   draw();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 void
 Renderer::draw()
 {
@@ -274,97 +272,8 @@ Renderer::draw()
     glDisableVertexAttribArray(1);
 }
 
-GLuint
-Renderer::LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
-
-	// Create the shaders
-	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-
-	// Read the Vertex Shader code from the file
-	std::string VertexShaderCode;
-	std::ifstream VertexShaderStream(vertex_file_path, std::ios::in);
-	if(VertexShaderStream.is_open()){
-		std::string Line = "";
-		while(getline(VertexShaderStream, Line))
-			VertexShaderCode += "\n" + Line;
-		VertexShaderStream.close();
-	}else{
-		printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", vertex_file_path);
-		getchar();
-		return 0;
-	}
-
-	// Read the Fragment Shader code from the file
-	std::string FragmentShaderCode;
-	std::ifstream FragmentShaderStream(fragment_file_path, std::ios::in);
-	if(FragmentShaderStream.is_open()){
-		std::string Line = "";
-		while(getline(FragmentShaderStream, Line))
-			FragmentShaderCode += "\n" + Line;
-		FragmentShaderStream.close();
-	}
-
-	GLint Result = GL_FALSE;
-	int InfoLogLength;
-
-	// Compile Vertex Shader
-	printf("Compiling shader : %s\n", vertex_file_path);
-	char const * VertexSourcePointer = VertexShaderCode.c_str();
-	glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
-	glCompileShader(VertexShaderID);
-
-	// Check Vertex Shader
-	glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
-	glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	if ( InfoLogLength > 0 ){
-		std::vector<char> VertexShaderErrorMessage(InfoLogLength+1);
-		glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
-		printf("%s\n", &VertexShaderErrorMessage[0]);
-	}
-
-	// Compile Fragment Shader
-	printf("Compiling shader : %s\n", fragment_file_path);
-	char const * FragmentSourcePointer = FragmentShaderCode.c_str();
-	glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
-	glCompileShader(FragmentShaderID);
-
-	// Check Fragment Shader
-	glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
-	glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	if ( InfoLogLength > 0 ){
-		std::vector<char> FragmentShaderErrorMessage(InfoLogLength+1);
-		glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-		printf("%s\n", &FragmentShaderErrorMessage[0]);
-	}
-
-	// Link the program
-	printf("Linking program\n");
-	GLuint ProgramID = glCreateProgram();
-	glAttachShader(ProgramID, VertexShaderID);
-	glAttachShader(ProgramID, FragmentShaderID);
-	glLinkProgram(ProgramID);
-
-	// Check the program
-	glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
-	glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-	if ( InfoLogLength > 0 ){
-		std::vector<char> ProgramErrorMessage(InfoLogLength+1);
-		glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-		printf("%s\n", &ProgramErrorMessage[0]);
-	}
-
-	glDetachShader(ProgramID, VertexShaderID);
-	glDetachShader(ProgramID, FragmentShaderID);
-	glDeleteShader(VertexShaderID);
-	glDeleteShader(FragmentShaderID);
-	return ProgramID;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void
-Renderer::hover(glm::vec3 pos)
+glm::vec3
+Renderer::screen2modelSpace(glm::vec3 pos) const
 {
     GLfloat win_z;
     glReadPixels(pos[0], _height - pos[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
@@ -375,9 +284,8 @@ Renderer::hover(glm::vec3 pos)
     //unproject screen space
     glm::vec3 vec = glm::unProject(screen_pos, _viewMatrix * _modelMatrix, _projectionMatrix, glm::vec4(0.0f, 0.0f, _width, _height));
     // std::cout << "glm::unprojec to mouse position: " << glm::to_string(vec) << "\n\n";
-    Category cat = _model.posToCat(vec);
+    return vec;
 }
-
 
 void
 Renderer::resize(int width, int height)
@@ -400,6 +308,7 @@ Renderer::resize(int width, int height)
 }
 
 /// Update view from ctrl
+
 void
 Renderer::zoom(float yoffset)
 {
@@ -411,7 +320,7 @@ Renderer::zoom(float yoffset)
         _FOV = 1.0f;
     if(_FOV >= 90.0f)
         _FOV = 90.0f;
-    std::cout << "FOV: " << _FOV << "\n";
+    // std::cout << "FOV: " << _FOV << "\n";
     _projectionMatrix = glm::perspective(
         glm::radians(_FOV),
         (GLfloat)_width / (GLfloat)_height,
@@ -434,7 +343,7 @@ Renderer::translate(glm::vec3 vec)
     vec = vec * (_mousespeed * 0.5);
     _modelMatrix = glm::translate(_modelMatrix, vec);
     //debug
-    std::cout << "translate vector: " << glm::to_string(vec)<< "\n ";
+    // std::cout << "translate vector: " << glm::to_string(vec)<< "\n ";
 
 }
 

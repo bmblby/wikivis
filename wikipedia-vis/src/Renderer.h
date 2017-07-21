@@ -31,11 +31,10 @@ class Renderer
     bool initialize();
     void fill_vbos();
     void display();
-    GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path);
     void draw();
     // void draw_HUD();
 
-    void hover(glm::vec3 pos);
+    glm::vec3 screen2modelSpace(glm::vec3 pos) const;
     void resize(int width, int height);
 
     // update functions from controller

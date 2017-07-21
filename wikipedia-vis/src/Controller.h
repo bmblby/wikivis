@@ -7,15 +7,17 @@
 // vta
 #include "Model.h"
 #include "Renderer.h"
+#include "View.h"
+#include "Gui.h"
 
 namespace vta
 {
 
-class Ctrl
+class Controller
 {
   public:
     // class constructor
-    Ctrl(Model&, Renderer&);
+    Controller(Model&, Renderer&, View&, Gui& gui);
 
     // mouse input
     void mousePress(int x, int y, int btn, int mods);
@@ -27,12 +29,17 @@ class Ctrl
     // key input
     void keyPress(int key, int mods);
     void keyRelease(int key, int mods);
-    void find(std::string const& name, int depth);
+
+    //util
+    bool find(std::string const& name, int depth) const;
+    void hover(int x, int y) const;
 
 
   protected:
     Model& _model;
     Renderer& _renderer;
+    View& _view;
+    Gui& _gui;
 
     // holding the current mouse state
     gloost::human_input::MouseState _mouse_state;

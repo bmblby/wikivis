@@ -1,25 +1,35 @@
-#include "Ctrl.h"
+#include "Controller.h"
 
 namespace vta
 {
 
-Ctrl::Ctrl(Model& model, Renderer& renderer):
+Controller::Controller(Model& model, Renderer& renderer, View& view, Gui& gui):
 _model(model),
 _renderer(renderer),
+_view(view),
+_gui(gui),
 _mouse_state(),
 _key_state(),
 _strg_key_pressed(false)
 {}
 
 void
-Ctrl::mousePress(int x, int y, int btn, int mods)
+Controller::mousePress(int x, int y, int btn, int mods)
 {
     _mouse_state.setButtonState(btn, true);
     std::cout << "button number: " << btn <<std::endl;
+
+    //check category was clicked
+    Category cat;
+    auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
+    if(_model.pos2cat(vec, cat) and btn == 0) {
+        _model.expand(cat);
+        // std::cout << cat;
+    }
 }
 
 void
-Ctrl::mouseRelease(int x, int y, int btn, int mods)
+Controller::mouseRelease(int x, int y, int btn, int mods)
 {
     if(_mouse_state.getButtonState(btn)){
         _mouse_state.setButtonState(btn, false);
@@ -29,21 +39,24 @@ Ctrl::mouseRelease(int x, int y, int btn, int mods)
 }
 
 void
-Ctrl::mouseMove(int x, int y, int state)
+Controller::mouseMove(int x, int y, int state)
 {
     _mouse_state.setPosition((float) x, (float) y);
+    if(_gui.contains(x, y))
+        _gui.cursorfun(x, y);
 
     if(_mouse_state.getButtonState(GLOOST_MOUSESTATE_BUTTON0) ) {
         gloost::Point3 lastPos = _mouse_state.getLastMouseDownPosition();
         glm::vec3 vec(x - lastPos[0], y - lastPos[1], 0.0f);
         glm::vec3 inv_vec(-vec.x, -vec.y, -vec.z);
+        // _view.panning(inv_vec);
         _renderer.translate(inv_vec);
     }
-    _renderer.hover(glm::vec3(x, y, 0.0));
+    // hover(x, y);
 }
 
 void
-Ctrl::mouseScroll(float yoffset)
+Controller::mouseScroll(float yoffset)
 {
     // Zoom in
     _renderer.zoom(yoffset);
@@ -51,7 +64,7 @@ Ctrl::mouseScroll(float yoffset)
 }
 
 void
-Ctrl::reset_mouse_state()
+Controller::reset_mouse_state()
 {
   // reset mouse events
   _mouse_state.resetMouseEvents();
@@ -59,7 +72,7 @@ Ctrl::reset_mouse_state()
 }
 
 void
-Ctrl::keyPress(int key, int mods)
+Controller::keyPress(int key, int mods)
 {
   // http://www.glfw.org/docs/latest/group__keys.html
     switch (key)
@@ -102,7 +115,7 @@ Ctrl::keyPress(int key, int mods)
 }
 
 void
-Ctrl::keyRelease(int key, int mods)
+Controller::keyRelease(int key, int mods)
 {
   switch (key)
   {
@@ -114,18 +127,31 @@ Ctrl::keyRelease(int key, int mods)
   }
 }
 
-void
-Ctrl::find(std::string const& name, int depth)
+bool
+
+Controller::find(std::string const& name, int depth) const
 {
     Category cat;
     if(_model.find(name, cat)) {
         std::cout << "Found cat: " << cat.title << "\n";
-        // Graph g = _model.graph(cat);
-        _model._graph = _model.graph(cat, depth);
+        _model.initGraph(cat, depth);
         _model._dirty = true;
-        auto fr_map = _model.layout_FR();
-        _model.write_layout(fr_map);
-    } else {std::cout << "Input not found please try again\n";}
+        auto map = _model.layout_FR();
+        _model.write_layout(map);
+        return true;
+    } else {
+        std::cout << "Input not found please try again\n";
+        return false;
+    }
+}
+
+void
+Controller::hover(int x, int y) const
+{
+    auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
+    Category cat;
+    if(_model.pos2cat(vec, cat))
+        std::cout << cat << std::endl;
 }
 
 } // namespace vta

@@ -7,6 +7,8 @@
 
 // graph and layout
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/subgraph.hpp>
+#include <boost/graph/graph_utility.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/fruchterman_reingold.hpp>
 #include <boost/graph/circle_layout.hpp>
@@ -22,9 +24,17 @@
 
 namespace vta
 {
+//colors
+#define RED_NODE            {.93, .32, .25, .6}
+#define PINK                {.98, .12, 1.0, .6}
+#define YELLOW_SOFT         {1.0, .98, .36, .6}
+#define GREY_SOFT           {.22, .24, .39, .9}
+#define WHITE               {.95, .97, 1.0, .5}
+#define BLUE_BACK           {.29, .51, .65, .5}
+
 using Point = boost::square_topology<>::point_type;
 struct CatProp {
-    CatProp(): color({.8, .1, .0, .5}) {}
+    CatProp(): color(RED_NODE) {}
     uint32_t index;
     uint32_t revid;
     std::string title;
@@ -37,7 +47,7 @@ struct CatProp {
 };
 
 struct EdgeProp {
-  EdgeProp(): color({.0, .7, .0, .7}) {}
+  EdgeProp(): color(WHITE) {}
   static uint32_t weight;
   std::array<float, 4> color;
 };
@@ -46,51 +56,62 @@ struct EdgeProp {
 using Graph = boost::adjacency_list<
                  boost::setS
                , boost::vecS
-               , boost::undirectedS
+               , boost::directedS
                , CatProp
                , EdgeProp
                >;
 
-  class Model
-  {
+using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
+using VertexIt = boost::graph_traits<Graph>::vertex_iterator;
+using Edge = boost::graph_traits<Graph>::edge_descriptor;
+using EdgePair = std::pair<Edge, bool>;
+
+class Model
+{
     public:
-      // class constructor
-      Model(WikiDB&);
+    // class constructor
+    Model(WikiDB&);
 
-      Graph graph(Category const& cat, int depth = 2);
-      Graph build(Graph& g, Category const& cat, int depth = 1);
-    //   void insert_into_graph(Category const&, std::vector<Category>, Graph& g);
-    //   void recursive_build(Graph& g, Category const& cat, int depth = 1);
+    void initGraph(Category const& cat, int depth = 2);
+    Graph build(Graph& g, Category const& cat, int depth = 1);
+    void expand(Category const& cat);
 
-      using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
-      PosMap layout_circular(double const& radius);
-      PosMap layout_FR();
-      PosMap layout_random();
-      void write_layout(PosMap pos_map);
-      bool dump_graph(Graph& g, std::string filename) const;
+    Vertex add_cat(Graph& g,
+                Category const& cat,
+                Vertex const& parent,
+                std::array<float, 4> color = {.8, .1, .0, .6}
+    );
 
-      bool find(std::string const& cat, Category& category) const;
+    //layouts
+    using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
+    PosMap layout_circular(double const& radius);
+    PosMap layout_FR();
+    PosMap layout_random();
+    void write_layout(PosMap pos_map);
+    bool dump_graph(Graph& g, std::string filename) const;
 
-      //getter
-      std::vector<std::pair< glm::vec3,
-                             std::array<float, 4> > >
-      get_nodes() const;
+    bool find(std::string const& cat, Category& category) const;
 
-      std::vector<std::tuple<const glm::vec3,
-                             const glm::vec3,
-                             const std::array<float, 4>>>
-      get_edges() const;
+    //getter
+    std::vector<std::pair< glm::vec3,
+                         std::array<float, 4> > >
+    get_nodes() const;
 
-      Category posToCat(glm::vec3 target);
+    std::vector<std::tuple<const glm::vec3,
+                         const glm::vec3,
+                         const std::array<float, 4>>>
+    get_edges() const;
 
-      // Member
-      std::vector<Graph> _graphs;
-      Graph _graph;
-      WikiDB& _wikidb;
+    bool pos2cat(glm::vec3 target, Category& cat) const;
 
-      bool _dirty;
+    // Member
+    size_t _max_depth;
+    Graph _graph;
+    WikiDB& _wikidb;
 
-  };
+    bool _dirty;
+
+};
 
 } // Namespace vta
 #endif // MODEL_HPP
