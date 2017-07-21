@@ -22,7 +22,7 @@ Ctrl::mousePress(int x, int y, int btn, int mods)
     auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
     if(_model.pos2cat(vec, cat) and btn == 0) {
         _model.expand(cat);
-        std::cout << cat;
+        // std::cout << cat;
     }
 }
 

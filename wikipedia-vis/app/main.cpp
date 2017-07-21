@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   // used to catch escape key
   glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
 
- // build database
+
   // WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
   WikiDB wikidb("/media/HDD2/data/database/enwiki2016-no-comp");
 

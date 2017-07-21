@@ -99,7 +99,7 @@ Model::build(Graph& g, Category const& cat, int depth)
         g[v_parent].index = cat.index;
         g[v_parent].revid = cat.revid;
         g[v_parent].title = cat.title;
-        g[v_parent].color = {.5, .1, .9, .8};
+        g[v_parent].color = PINK;
         g[v_parent].tag = root;
     }
     else {
@@ -116,7 +116,8 @@ Model::build(Graph& g, Category const& cat, int depth)
     if(depth > 0) {
         std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
         while(children.size() >= 1) {
-            add_cat(g, children.back(), v_parent);
+            Vertex v = add_cat(g, children.back(), v_parent);
+            g[v].color = YELLOW_SOFT;
             build(g, children.back(), depth);
             children.pop_back();
         }
@@ -126,7 +127,8 @@ Model::build(Graph& g, Category const& cat, int depth)
     else {
         std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
         while(children.size() >= 1) {
-            add_cat(g, children.back(), v_parent);
+            Vertex v = add_cat(g, children.back(), v_parent);
+            // g[v].color = {.2, .9, .0, .5};
             children.pop_back();
         }
         return g;
@@ -139,7 +141,6 @@ Model::expand(Category const& cat)
 {
     // write fucntion to exapnd clicked category
     // only expand leave categories
-    std::cout << "parent info: \n" << cat << "\n";
 
     //search vertex of cat in graph
     Vertex parent;
@@ -147,9 +148,9 @@ Model::expand(Category const& cat)
     for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {
         auto vertex = *vp.first;
         auto revid = get(revid_map, vertex);
-        std::cout << "title: " << _graph[vertex].title
-            << " out degree: "  << out_degree(vertex, _graph) << std::endl;
         if(revid == cat.revid and out_degree(vertex, _graph) == 0) {
+            std::cout << "title: " << _graph[vertex].title
+                << " out degree: "  << out_degree(vertex, _graph) << std::endl;
             parent = vertex;
 
             auto children = _wikidb.getCategoryChildren(cat.index);
@@ -167,7 +168,7 @@ Model::expand(Category const& cat)
             std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
             for(auto const& child : children) {
                 Vertex vert = add_cat(_graph, child, parent);
-                std::cout << "child title: " << _graph[vert].title << std::endl;
+                // std::cout << "child title: " << _graph[vert].title << std::endl;
                 _graph[vert].position[0] += radius * cos(i * two_pi_over_n);
                 _graph[vert].position[1] += radius * sin(i * two_pi_over_n);
                 ++i;
@@ -175,12 +176,12 @@ Model::expand(Category const& cat)
             break;
         }
     }
-
     std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
 }
 
 Vertex
-Model::add_cat(Graph& g, Category const& cat, Vertex const& parent)
+Model::add_cat(Graph& g, Category const& cat,
+            Vertex const& parent, std::array<float, 4> color)
 {
     Vertex v = add_vertex(g);
     g[v].index = cat.index;
@@ -188,6 +189,7 @@ Model::add_cat(Graph& g, Category const& cat, Vertex const& parent)
     g[v].title = cat.title;
     g[v].position[0] = g[parent].position[0];
     g[v].position[1] = g[parent].position[1];
+    g[v].color = color;
     EdgePair ep0 = add_edge(parent, v, g);
     return v;
 }
@@ -335,18 +337,17 @@ bool
 Model::pos2cat(glm::vec3 target, Category& cat)
 {
     auto pos_map = get(&vta::CatProp::position, _graph);
-    int cat_index = 1;
     for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {
         auto vertex_iter = vp.first;
         auto point = get(pos_map, *vertex_iter);
         glm::vec3 source(point[0], point[1], 0.0f);
         auto distance = glm::distance(target, source);
-        if(distance < 0.017f) {
+        if(distance < 0.012f) {
             // debug
-            std::cout << "mouse Position: (" <<  glm::to_string(target) << ")\n";
-            std::cout << "Vertex Position: (" << glm::to_string(source)<< ")\n";
-            std::cout << "Distance: (" << distance << ")\n\n";
-            cat_index = _graph[*vertex_iter].index;
+            // std::cout << "mouse Position: (" <<  glm::to_string(target) << ")\n";
+            // std::cout << "Vertex Position: (" << glm::to_string(source)<< ")\n";
+            // std::cout << "Distance: (" << distance << ")\n\n";
+            size_t cat_index = _graph[*vertex_iter].index;
             cat = _wikidb.getCategory(cat_index);
             return true;
         }

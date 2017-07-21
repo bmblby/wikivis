@@ -308,6 +308,7 @@ Renderer::resize(int width, int height)
 }
 
 /// Update view from ctrl
+
 void
 Renderer::zoom(float yoffset)
 {
@@ -319,7 +320,7 @@ Renderer::zoom(float yoffset)
         _FOV = 1.0f;
     if(_FOV >= 90.0f)
         _FOV = 90.0f;
-    std::cout << "FOV: " << _FOV << "\n";
+    // std::cout << "FOV: " << _FOV << "\n";
     _projectionMatrix = glm::perspective(
         glm::radians(_FOV),
         (GLfloat)_width / (GLfloat)_height,
@@ -342,7 +343,7 @@ Renderer::translate(glm::vec3 vec)
     vec = vec * (_mousespeed * 0.5);
     _modelMatrix = glm::translate(_modelMatrix, vec);
     //debug
-    std::cout << "translate vector: " << glm::to_string(vec)<< "\n ";
+    // std::cout << "translate vector: " << glm::to_string(vec)<< "\n ";
 
 }
 

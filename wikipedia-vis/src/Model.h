@@ -24,9 +24,17 @@
 
 namespace vta
 {
+//colors
+#define RED_NODE            {.93, .32, .25, .6}
+#define PINK                {.98, .12, 1.0, .6}
+#define YELLOW_SOFT         {1.0, .98, .36, .6}
+#define GREY_SOFT           {.22, .24, .39, .9}
+#define WHITE               {.95, .97, 1.0, .5}
+#define BLUE_BACK           {.29, .51, .65, .5}
+
 using Point = boost::square_topology<>::point_type;
 struct CatProp {
-    CatProp(): color({.8, .1, .0, .6}) {}
+    CatProp(): color(RED_NODE) {}
     uint32_t index;
     uint32_t revid;
     std::string title;
@@ -39,7 +47,7 @@ struct CatProp {
 };
 
 struct EdgeProp {
-  EdgeProp(): color({.0, .7, .0, .6}) {}
+  EdgeProp(): color(WHITE) {}
   static uint32_t weight;
   std::array<float, 4> color;
 };
@@ -67,10 +75,12 @@ class Model
     void initGraph(Category const& cat, int depth = 2);
     Graph build(Graph& g, Category const& cat, int depth = 1);
     void expand(Category const& cat);
-    //   void insert_into_graph(Category const&, std::vector<Category>, Graph& g);
-    //   void recursive_build(Graph& g, Category const& cat, int depth = 1);
 
-    Vertex add_cat(Graph& g, Category const& cat, Vertex const& parent);
+    Vertex add_cat(Graph& g,
+                Category const& cat,
+                Vertex const& parent,
+                std::array<float, 4> color = {.8, .1, .0, .6}
+    );
 
     //layouts
     using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
