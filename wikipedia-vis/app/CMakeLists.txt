@@ -1,3 +1,4 @@
+include_directories(${NANOGUI_EXTRA_INCS})
 add_executable(app main.cpp)
 
 set(FASTDB_LIBRARY_SEARCH_DIR
@@ -8,7 +9,6 @@ find_library(fastdb NAMES libfastdb.a
 
 target_link_libraries(app
                       vta
-                      # glfw
                       m
                       gloost
                       nanogui

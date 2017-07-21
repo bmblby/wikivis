@@ -334,7 +334,7 @@ Model::get_edges() const
 
 
 bool
-Model::pos2cat(glm::vec3 target, Category& cat)
+Model::pos2cat(glm::vec3 target, Category& cat) const
 {
     auto pos_map = get(&vta::CatProp::position, _graph);
     for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {

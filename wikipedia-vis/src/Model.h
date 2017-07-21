@@ -102,7 +102,7 @@ class Model
                          const std::array<float, 4>>>
     get_edges() const;
 
-    bool pos2cat(glm::vec3 target, Category& cat);
+    bool pos2cat(glm::vec3 target, Category& cat) const;
 
     // Member
     size_t _max_depth;

@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <nanogui/nanogui.h>
 
-#include "Ctrl.h"
+#include "Controller.h"
 
 namespace vta
 {
@@ -15,7 +15,7 @@ class Gui
 {
   public:
     // class constructor
-    Gui(GLFWwindow* window, Ctrl* ctrl);
+    Gui(GLFWwindow* window, Controller* ctrl);
 
     bool contains(double x, double y);
     void search_box(glm::vec3 pos, int width, int height);
@@ -31,7 +31,7 @@ class Gui
 
 
   protected:
-    Ctrl* _ctrl;
+    Controller* _ctrl;
     GLFWwindow* _glfwWindow;
 
     nanogui::Screen* _screen;

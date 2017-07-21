@@ -11,11 +11,11 @@
 namespace vta
 {
 
-class Ctrl
+class Controller
 {
   public:
     // class constructor
-    Ctrl(Model&, Renderer&);
+    Controller(Model&, Renderer&);
 
     // mouse input
     void mousePress(int x, int y, int btn, int mods);

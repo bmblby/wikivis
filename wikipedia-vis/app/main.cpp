@@ -1,17 +1,12 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 // cpp includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 
-#include <nanogui/nanogui.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-// nanovg
-#include <nanovg.h>
-#define NANOVG_GL3_IMPLEMENTATION
-#include <nanovg_gl.h>
+#include <nanogui/nanogui.h>
 
 // wikidb
 #include "contract.h"
@@ -22,14 +17,15 @@
 // vta
 #include "Renderer.h"
 #include "Model.h"
-#include "Ctrl.h"
+#include "Controller.h"
 #include "Gui.h"
+#include "View.h"
 
 using namespace nanogui;
 
 //pointer
 vta::Renderer* renderer_ptr;
-vta::Ctrl* ctrl_ptr;
+vta::Controller* ctrl_ptr;
 vta::Gui* guip;
 Screen *screen = nullptr;
 
@@ -142,13 +138,16 @@ int main(int argc, char *argv[])
   }
   renderer.resize(main_window_width, main_window_height); // initial resize
 
-  vta::Ctrl ctrl(model, renderer);
+  vta::Controller ctrl(model, renderer);
   ctrl_ptr = &ctrl;
 
   glfwMakeContextCurrent(main_window);
   vta::Gui gui(main_window, ctrl_ptr);
   guip = &gui;
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
+
+  vta::View view(model, gui, main_window);
+  // view.drawHomeView();
 
   // Main loop
   do{
@@ -159,44 +158,21 @@ int main(int argc, char *argv[])
     double currentTime = glfwGetTime();
     float deltaTime = float(currentTime - lastTime);
     renderer.deltaTime = deltaTime;
+    glClearColor(0.059f, 0.176f, 0.251f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Main Window (Visualization)
-    renderer.display();
-
-
-
-    // NVGcontext* vg = NULL;
-    // vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-    // if(vg == NULL) {
-    //     std::cerr << "Could not init nanovg!" << std::endl;
-    //     exit(EXIT_FAILURE);
-    // }
-    // int fbWidth, fbHeight;
-    // glfwGetFramebufferSize(main_window, &fbWidth, &fbHeight);
-    // float pxRatio = (float)fbWidth / (float) main_window_width;
-    //
-    //
-    // int center_x = 150;
-    // int center_y = 150;
-    // int center_r = 100;
-    // nvgBeginFrame(vg, main_window_width, main_window_height, pxRatio);
-    //
-    // nvgBeginPath(vg);
-    // nvgCircle(vg, center_x, center_y, center_r);
-    // nvgFill(vg);
-    // nvgStrokeColor(vg, nvgRGBA(0,0,0,64));
-    // nvgStrokeWidth(vg, 1.0f);
-    // nvgStroke(vg);
-    //
-    // nvgEndFrame(vg);
-
+    // renderer.display();
+    view.drawBubble();
     gui.display();
+
     glfwSwapBuffers(main_window);
   }
   while (glfwGetKey(main_window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
     glfwWindowShouldClose(main_window) == 0);
 
   // Cleanup
+  view.cleanup();
   renderer.cleanup();
   glfwDestroyWindow(main_window);
   glfwTerminate();
