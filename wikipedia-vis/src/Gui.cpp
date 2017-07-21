@@ -5,9 +5,11 @@ namespace vta
 
 using namespace nanogui;
 
-Gui::Gui(GLFWwindow* window, Controller* ctrl):
+// Gui::Gui(GLFWwindow* window, Controller* ctrl):
+Gui::Gui(GLFWwindow* window, Model& model):
     _glfwWindow(window),
-    _ctrl(ctrl)
+    _model(model)
+    // _ctrl(ctrl)
 {
     _screen = new nanogui::Screen();
     _screen->initialize(_glfwWindow, true);
@@ -58,7 +60,20 @@ Gui::search_box(glm::vec3 pos, int width, int height)
 
     Button* b = new Button(_window, "Go!");
     b->setCallback([=] {
-        _ctrl->find(textbox->value(), intBox->value());
+        std::string name = textbox->value();
+        size_t depth = intBox->value();
+        Category cat;
+        if(_model.find(name, cat)) {
+            std::cout << "Found cat: " << cat.title << "\n";
+            _model.initGraph(cat, depth);
+            _model._dirty = true;
+            auto fr_map = _model.layout_FR();
+            _model.write_layout(fr_map);
+            return true;
+        } else {
+            std::cout << "Input not found please try again\n";
+            return false;
+        }
     } );
 
     _screen->performLayout();

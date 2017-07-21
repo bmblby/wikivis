@@ -8,7 +8,7 @@
 
 // vta
 #include "Model.h"
-#include "Gui.h"
+// #include "Gui.h"
 // #include "Geometry.h"
 
 namespace vta
@@ -17,7 +17,8 @@ namespace vta
 struct View
 {
     // class constructor
-    View(Model& model,  Gui& gui, GLFWwindow* window);
+    // View(Model& model,  Gui& gui, GLFWwindow* window);
+    View(Model& model,  GLFWwindow* window);
     void cleanup();
 
     void drawBubble () const;
@@ -36,7 +37,7 @@ struct View
     Model& _model;
     GLFWwindow* _window;
     NVGcontext* _vg;
-    Gui& _gui;
+    // Gui& _gui;
     int _width;
     int _height;
     float _pxRatio;

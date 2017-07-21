@@ -138,16 +138,17 @@ int main(int argc, char *argv[])
   }
   renderer.resize(main_window_width, main_window_height); // initial resize
 
-  vta::Controller ctrl(model, renderer);
-  ctrl_ptr = &ctrl;
 
   glfwMakeContextCurrent(main_window);
-  vta::Gui gui(main_window, ctrl_ptr);
+  vta::Gui gui(main_window, model);
   guip = &gui;
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
 
-  vta::View view(model, gui, main_window);
+  vta::View view(model, main_window);
   // view.drawHomeView();
+
+  vta::Controller ctrl(model, renderer, view, gui);
+  ctrl_ptr = &ctrl;
 
   // Main loop
   do{
@@ -211,12 +212,12 @@ void scrollfun(GLFWwindow* window, double xoffset, double yoffset)
 
 void cursorposfun(GLFWwindow* window, double xpos, double ypos)
 {
-  if(guip->contains(xpos, ypos))
-    guip->cursorfun(xpos, ypos);
-  else {
+  // if(guip->contains(xpos, ypos))
+  //   guip->cursorfun(xpos, ypos);
+  // else {
     int state_left = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
     ctrl_ptr->mouseMove(xpos, ypos, state_left);
-  }
+  // }
 }
 
 void keyfun(GLFWwindow* window, int key, int scancode, int action, int mods)
