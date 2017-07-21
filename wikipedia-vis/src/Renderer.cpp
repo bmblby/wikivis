@@ -313,33 +313,40 @@ Renderer::zoom(float yoffset)
 {
     // std::cout << "yoffset: " << yoffset << std::endl;
     // zoom for perspective View
-    if(_FOV >= 1.0f && _FOV <= 90.0f)
-        _FOV -= yoffset;
-    if(_FOV <= 1.0f)
-        _FOV = 1.0f;
-    if(_FOV >= 90.0f)
-        _FOV = 90.0f;
-    std::cout << "FOV: " << _FOV << "\n";
-    _projectionMatrix = glm::perspective(
-        glm::radians(_FOV),
-        (GLfloat)_width / (GLfloat)_height,
-        0.1f, 100.0f
-    );
+    // if(_FOV >= 1.0f && _FOV <= 90.0f)
+    //     _FOV -= yoffset;
+    // if(_FOV <= 1.0f)
+    //     _FOV = 1.0f;
+    // if(_FOV >= 90.0f)
+    //     _FOV = 90.0f;
+    // std::cout << "FOV: " << _FOV << "\n";
+    // _projectionMatrix = glm::perspective(
+    //     glm::radians(_FOV),
+    //     (GLfloat)_width / (GLfloat)_height,
+    //     0.1f, 100.0f
+    // );
 
     //ortho zoom
-    // float scale(0.0f);
-    // if(yoffset < 0)
-    //     scale = 0.9f;
-    // else
-    //     scale = 1.1f;
-    // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(scale, scale, 0.0f));
+    float scale(0.0f);
+    if(yoffset < 0)
+        scale = 0.9f;
+    else
+        scale = 1.1f;
+    _modelMatrix = glm::scale(_modelMatrix, glm::vec3(scale, scale, 0.0f));
 
 }
 
 void
 Renderer::translate(glm::vec3 vec)
 {
-    vec = vec * (_mousespeed * 0.5);
+    // vec = vec * (_mousespeed * 0.5);
+    vec = vec / 4000 ;
+    if(vec.x > 40 or vec.y > 40 or vec.z > 40) {
+        vec[0] = 20;
+        vec[1] = 20;
+        vec[2] = 20;
+    }
+    auto modelVec = screen2modelSpace(vec);
     _modelMatrix = glm::translate(_modelMatrix, vec);
     //debug
     std::cout << "translate vector: " << glm::to_string(vec)<< "\n ";
