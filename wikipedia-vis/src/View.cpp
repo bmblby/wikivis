@@ -6,11 +6,11 @@
 namespace vta
 {
 
-View::View(Model& model, Gui& gui, GLFWwindow* window):
+// View::View(Model& model, Gui& gui, GLFWwindow* window):
+View::View(Model& model, GLFWwindow* window):
 _model(model),
-_window(window),
-// _vg(vg),
-_gui(gui)
+_window(window)
+// _gui(gui)
 {
     glfwGetWindowSize(_window, &_width, &_height);
     _vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);

@@ -3,9 +3,11 @@
 namespace vta
 {
 
-Controller::Controller(Model& model, Renderer& renderer):
+Controller::Controller(Model& model, Renderer& renderer, View& view, Gui& gui):
 _model(model),
 _renderer(renderer),
+_view(view),
+_gui(gui),
 _mouse_state(),
 _key_state(),
 _strg_key_pressed(false)
@@ -32,11 +34,14 @@ void
 Controller::mouseMove(int x, int y, int state)
 {
     _mouse_state.setPosition((float) x, (float) y);
+    if(_gui.contains(x, y))
+        _gui.cursorfun(x, y);
 
     if(_mouse_state.getButtonState(GLOOST_MOUSESTATE_BUTTON0) ) {
         gloost::Point3 lastPos = _mouse_state.getLastMouseDownPosition();
         glm::vec3 vec(x - lastPos[0], y - lastPos[1], 0.0f);
         glm::vec3 inv_vec(-vec.x, -vec.y, -vec.z);
+        // _view.panning(inv_vec);
         _renderer.translate(inv_vec);
     }
     hover(x, y);

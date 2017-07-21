@@ -7,6 +7,8 @@
 // vta
 #include "Model.h"
 #include "Renderer.h"
+#include "View.h"
+#include "Gui.h"
 
 namespace vta
 {
@@ -15,7 +17,7 @@ class Controller
 {
   public:
     // class constructor
-    Controller(Model&, Renderer&);
+    Controller(Model&, Renderer&, View&, Gui& gui);
 
     // mouse input
     void mousePress(int x, int y, int btn, int mods);
@@ -36,6 +38,8 @@ class Controller
   protected:
     Model& _model;
     Renderer& _renderer;
+    View& _view;
+    Gui& _gui;
 
     // holding the current mouse state
     gloost::human_input::MouseState _mouse_state;
