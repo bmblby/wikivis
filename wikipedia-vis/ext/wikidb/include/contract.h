@@ -47,10 +47,6 @@ class Article : public Page {
 class Category : public Page {
  public:
     std::string info() const;
-    int4 article_num;
-    int4 category_num;
-    int4 sum_articles;
-    int4 sum_categories;
     dbArray< dbReference<Page> > children;
 
     // get revision ids of children
