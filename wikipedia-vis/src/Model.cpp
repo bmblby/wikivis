@@ -24,68 +24,6 @@ Model::initGraph(Category const& cat, int depth)
    std::cout << "number of vertices: " << num_vertices(_graph) << "\n";
 }
 
-// Graph
-// Model::build(Graph& g, Category const& cat, int depth)
-// {
-//   enum {used, unused, parent, root};
-//   int static max_depth = depth;
-//
-//   if(depth == 0) {
-//     // leaves
-//     Vertex v = add_vertex(g);
-//     g[v].index = cat.index;
-//     g[v].revid = cat.revid;
-//     g[v].title = cat.title;
-//     g[v].tag = unused;
-//     return g;
-//   }
-//   else {
-//     Vertex v_parent = add_vertex(g);
-//     g[v_parent].index = cat.index;
-//     g[v_parent].revid = cat.revid;
-//     g[v_parent].title = cat.title;
-//     g[v_parent].tag = parent;
-//     // if(cat.title  == "Computer science" )
-//     //     g[v_parent].color =  {.9, .1, .9, .8};
-//     if(depth == max_depth) {
-//         //coloring for debuging purposes
-//         g[v_parent].color = {.5, .1, .9, .8};
-//         g[v_parent].tag = root;
-//     }
-//
-//     depth--;
-//     std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
-//     while(children.size() >= 1) {
-//         build(g, children.back(), depth);
-//         VertexIt vi, vi_end;
-//         for(boost::tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi) {
-//             Vertex v_child = *vi;
-//             if(get(&CatProp::tag, g, v_child) == parent
-//                 and g[v_parent].index != g[v_child].index) {
-//
-//                 g[v_child].color = {.9, .9, .0, .2};
-//                 Category cat = _wikidb.getCategory(g[v_child].index);
-//                 for(auto parent : cat.getParents()) {
-//                     // build edges to parent nodes
-//                     if(g[v_parent].index == parent.index) {
-//                         EdgePair ep0 = add_edge(v_parent, v_child, g);
-//                         std::array<float, 4> col = {.0, .9, .9, .2};
-//                         put(&EdgeProp::color, g, ep0.first, col);
-//                         g[v_child].tag = used;
-//                     }
-//                 }
-//             }
-//             //build edges to leaves
-//             if(get(&CatProp::tag, g, v_child) == unused) {
-//                 EdgePair ep0 = add_edge(v_parent, v_child, g);
-//                 g[v_child].tag = used;
-//             }
-//         }
-//        children.pop_back();
-//     }
-//     return g;
-//   }
-// }
 
 Graph
 Model::build(Graph& g, Category const& cat, int depth)
