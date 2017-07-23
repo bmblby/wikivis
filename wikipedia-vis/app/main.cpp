@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
 
   // WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
-  WikiDB wikidb("/media/HDD2/data/database/enwiki2016-no-comp");
+  WikiDB wikidb("/media/HDD2/data/database/enwiki2016no-comp");
 
 
   // Graph init
@@ -164,7 +164,10 @@ int main(int argc, char *argv[])
 
     // Main Window (Visualization)
     // renderer.display();
+    view.beginFrame();
     view.drawBubble();
+    view.endFrame();
+
     gui.display();
 
     glfwSwapBuffers(main_window);

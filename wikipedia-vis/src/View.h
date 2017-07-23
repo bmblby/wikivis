@@ -19,6 +19,8 @@ struct View
     // class constructor
     // View(Model& model,  Gui& gui, GLFWwindow* window);
     View(Model& model,  GLFWwindow* window);
+    void beginFrame();
+    void endFrame();
     void cleanup();
 
     void drawBubble () const;
