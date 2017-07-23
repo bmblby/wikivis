@@ -38,6 +38,8 @@ struct CatProp {
     uint32_t index;
     uint32_t revid;
     std::string title;
+    size_t num_articles;
+    size_t num_categories;
 
     //Layout properties
     // enum {unused, parent};

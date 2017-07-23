@@ -47,7 +47,6 @@ View::drawBubble() const
     int center_x = _width/2;
     int center_y = _height/2;
     int center_r = 100;
-    // nvgBeginFrame(_vg, _width, _height, _pxRatio);
 
     nvgBeginPath(_vg);
     nvgCircle(_vg, center_x, center_y, center_r);
@@ -79,7 +78,6 @@ View::drawBubble() const
         nvgText(_vg, xPos-10.0f, yPos, "Testing Text", NULL);
     }
 
-    // nvgEndFrame(_vg);
 }
 
 

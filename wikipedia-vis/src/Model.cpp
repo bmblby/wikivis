@@ -101,6 +101,9 @@ Model::build(Graph& g, Category const& cat, int depth)
         g[v_parent].title = cat.title;
         g[v_parent].color = PINK;
         g[v_parent].tag = root;
+
+        g[v_parent].num_articles = _wikidb.getArticleChildren(cat.index).size();
+        g[v_parent].num_categories = _wikidb.getArticleChildren(cat.index).size();
     }
     else {
         VertexIt vi, vi_end;
@@ -187,6 +190,9 @@ Model::add_cat(Graph& g, Category const& cat,
     g[v].index = cat.index;
     g[v].revid = cat.revid;
     g[v].title = cat.title;
+    g[v].num_articles = _wikidb.getArticleChildren(cat.index).size();
+    g[v].num_categories = _wikidb.getArticleChildren(cat.index).size();
+
     g[v].position[0] = g[parent].position[0];
     g[v].position[1] = g[parent].position[1];
     g[v].color = color;
