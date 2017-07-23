@@ -39,10 +39,12 @@ struct View
     Model& _model;
     GLFWwindow* _window;
     NVGcontext* _vg;
+
     // Gui& _gui;
     int _width;
     int _height;
     float _pxRatio;
+    int _font;
 
 };
 

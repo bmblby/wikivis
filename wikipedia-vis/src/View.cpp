@@ -21,6 +21,10 @@ _window(window)
     int fbWidth, fbHeight;
     glfwGetFramebufferSize(_window, &fbWidth, &fbHeight);
     _pxRatio = (float)fbWidth / (float) _width;
+
+    _font = nvgCreateFont(_vg, "verdana", "../../res/fonts/Verdana.ttf");
+    if(_font == -1)
+        std::cout << "could not find font!\n";
 }
 
 void
@@ -68,9 +72,6 @@ View::drawBubble() const
         nvgStrokeWidth(_vg, 1.0f);
         nvgStroke(_vg);
 
-        auto font = nvgCreateFont(_vg, "verdana", "../../res/fonts/Verdana.ttf");
-        if(font == -1)
-            std::cout << "could not find font!\n";
         nvgFontSize(_vg, 10.0f);
         nvgFontFace(_vg, "verdana");
         nvgFillColor(_vg, nvgRGBA(255,255,255,255));
