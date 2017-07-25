@@ -77,6 +77,8 @@ class Model
 
     void initGraph(Category const& root, size_t depth = 2);
     Graph buildDFS(Graph& g, Category const& cat, size_t depth);
+    void initIDDFS(Category const& root, size_t depth);
+    Graph buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth);
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
 
     void expand(Category const& cat);
@@ -93,9 +95,7 @@ class Model
     PosMap layout_FR();
     PosMap layout_random();
     void write_layout(PosMap pos_map);
-    bool dump_graph(Graph& g, std::string filename) const;
 
-    bool find(std::string const& cat, Category& category) const;
 
     //getter
     std::vector<std::pair< glm::vec3,
@@ -107,7 +107,9 @@ class Model
                          const std::array<float, 4>>>
     get_edges() const;
 
+    bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
+    bool dump_graph(Graph& g, std::string filename) const;
 
     // Member
     size_t _max_depth;

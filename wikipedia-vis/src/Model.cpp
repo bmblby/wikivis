@@ -78,6 +78,55 @@ Model::buildDFS(Graph& g, Category const& cat, size_t depth)
     }
 }
 
+void
+Model::initIDDFS(Category const& root, size_t depth)
+{
+    Graph g;
+    enum {white, grey, black};
+    for(size_t i = 0; i <= depth; ++i) {
+        Vertex v;
+        buildDLS(g, root, v, i);
+    }
+    _graph = g;
+}
+
+Graph
+Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
+{
+    if(depth == 0) {
+        if(num_vertices(g) == 0) {
+            enum {white, grey, black, root};
+            v = add_vertex(g);
+            g[v].index = cat.index;
+            g[v].revid = cat.revid;
+            g[v].title = cat.title;
+            g[v].color = PINK;
+            g[v].tag = root;
+
+            g[v].num_articles = _wikidb.getArticleChildren(cat.index).size();
+            g[v].num_categories = _wikidb.getArticleChildren(cat.index).size();
+            _root = v;
+        }
+        else if(!in_graph(g, cat).first){
+            auto pair = add_cat(g, cat, v);
+        }
+        return g;
+    }
+    if(depth > 0) {
+        depth--;
+        // get vertex descriptor on cat
+        if(in_graph(g, cat).first)
+            v = in_graph(g, cat).second;
+        std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
+        while(children.size() >= 1) {
+            buildDLS(g, children.back(), v, depth);
+            children.pop_back();
+        }
+        depth++;
+        return g;
+    }
+}
+
 std::pair<bool, Vertex>
 Model::in_graph(Graph& g, Category const& cat) const
 {
@@ -200,43 +249,6 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
     }
 }
 
-bool
-Model::dump_graph(Graph& g, std::string filename) const
-{
-  // Dump graph in dot format for debugging
-  auto name_map = boost::get(&vta::CatProp::title, g);
-  boost::default_writer dw;
-  std::ofstream file(filename);
-  if(file.is_open()) {
-    boost::write_graphviz(file, g,
-        boost::make_label_writer(name_map),
-        dw, dw, get(&vta::CatProp::index, g));
-    return  true;
-  }
-  else {return false;}
-}
-
-bool
-Model::find(std::string const& cat, Category& category) const
-{
-    auto is_digit = [] (std::string s) {return std::find_if(s.begin(), s.end(), [] (char c) {return !std::isdigit(c); }) == s.end(); };
-    if(is_digit(cat)) {
-        int number = std::stoi(cat);
-        if(_wikidb.categoryExistsRevid(number)){
-            category = _wikidb.getCategoryByRevid(number);
-            return true;
-        } else
-            return false;
-    } else {
-        if(_wikidb.categoryExists(cat)) {
-            category = _wikidb.getCategoryByName(cat);
-            return true;
-        } else
-            return false;
-    }
-}
-
-
 std::vector<std::pair<glm::vec3, std::array<float, 4> > >
 Model::get_nodes() const
 {
@@ -294,6 +306,25 @@ Model::get_edges() const
     return edge_vec;
 }
 
+bool
+Model::find(std::string const& cat, Category& category) const
+{
+    auto is_digit = [] (std::string s) {return std::find_if(s.begin(), s.end(), [] (char c) {return !std::isdigit(c); }) == s.end(); };
+    if(is_digit(cat)) {
+        int number = std::stoi(cat);
+        if(_wikidb.categoryExistsRevid(number)){
+            category = _wikidb.getCategoryByRevid(number);
+            return true;
+        } else
+            return false;
+    } else {
+        if(_wikidb.categoryExists(cat)) {
+            category = _wikidb.getCategoryByName(cat);
+            return true;
+        } else
+            return false;
+    }
+}
 
 bool
 Model::pos2cat(glm::vec3 target, Category& cat) const
@@ -315,6 +346,22 @@ Model::pos2cat(glm::vec3 target, Category& cat) const
         }
     }
     return false;
+}
+
+bool
+Model::dump_graph(Graph& g, std::string filename) const
+{
+  // Dump graph in dot format for debugging
+  auto name_map = boost::get(&vta::CatProp::title, g);
+  boost::default_writer dw;
+  std::ofstream file(filename);
+  if(file.is_open()) {
+    boost::write_graphviz(file, g,
+        boost::make_label_writer(name_map),
+        dw, dw, get(&vta::CatProp::index, g));
+    return  true;
+  }
+  else {return false;}
 }
 
 } // Namespace vta
