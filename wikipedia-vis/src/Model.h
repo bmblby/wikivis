@@ -59,7 +59,7 @@ struct EdgeProp {
 using Graph = boost::adjacency_list<
                  boost::setS
                , boost::vecS
-               , boost::directedS
+               , boost::bidirectionalS
                , CatProp
                , EdgeProp
                >;
