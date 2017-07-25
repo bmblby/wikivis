@@ -79,10 +79,11 @@ class Model
     Graph build(Graph& g, Category const& cat, int depth = 1);
     void expand(Category const& cat);
 
-    Vertex add_cat(Graph& g,
+    std::pair<Vertex, EdgePair>
+    add_cat(Graph& g,
                 Category const& cat,
                 Vertex const& parent,
-                std::array<float, 4> color = {.8, .1, .0, .6}
+                std::array<float, 4> color = RED_NODE
     );
 
     //layouts

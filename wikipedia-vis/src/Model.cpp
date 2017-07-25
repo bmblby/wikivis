@@ -121,7 +121,7 @@ Model::expand(Category const& cat)
     std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
 }
 
-Vertex
+std::pair<Vertex, EdgePair>
 Model::add_cat(Graph& g, Category const& cat,
             Vertex const& parent, std::array<float, 4> color)
 {
@@ -136,7 +136,9 @@ Model::add_cat(Graph& g, Category const& cat,
     g[v].position[1] = g[parent].position[1];
     g[v].color = color;
     EdgePair ep0 = add_edge(parent, v, g);
-    return v;
+
+    std::pair<Vertex, EdgePair> p(v, ep0);
+    return p;
 }
 
 boost::property_map<Graph, Point CatProp::*>::type
