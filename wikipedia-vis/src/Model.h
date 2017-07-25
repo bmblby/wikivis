@@ -67,6 +67,7 @@ using Graph = boost::adjacency_list<
 using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
 using VertexIt = boost::graph_traits<Graph>::vertex_iterator;
 using Edge = boost::graph_traits<Graph>::edge_descriptor;
+using EdgeIt = boost::graph_traits<Graph>::edge_iterator;
 using EdgePair = std::pair<Edge, bool>;
 
 class Model

@@ -348,20 +348,72 @@ Model::pos2cat(glm::vec3 target, Category& cat) const
     return false;
 }
 
+// Dump graph to file with graphviz
+template <class TitleMap, class IndexMap, class RevidMap, class PositionMap>
+class vertex_writer
+{
+public:
+    vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm):
+    _tm(tm), _im(im), _rm(rm), _pm(pm)
+    {}
+
+    void operator()(std::ostream& out, Vertex const& v) const {
+        auto point = get(_pm, v);
+        out << "[index=\"" << _im(v) << "\", revid=\"" << _rm(v)
+            << "\", title=\"" << _tm(v) << "\", "
+            << "position=\"" << point[0] << "," << point[1] << "\"]";
+    }
+private:
+    TitleMap _tm;
+    IndexMap _im;
+    RevidMap _rm;
+    PositionMap _pm;
+};
+template <class TitleMap, class IndexMap, class RevidMap, class PositionMap>
+inline vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap>
+make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p) {
+    return vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap>(t, i, r, p);
+}
+
+template <class TitleMap>
+class edge_writer
+{
+public:
+    edge_writer(TitleMap tm)
+    :_tm(tm) {}
+    void operator()(std::ostream& out, Vertex const& ep) const {
+        out << "\"" << _tm(ep) << "\"->\"" << _tm(ep) << "\"]";
+    }
+private:
+    TitleMap _tm;
+};
+
+template <class TitleMap>
+inline edge_writer<TitleMap>
+make_edge_writer(TitleMap t) {
+    return edge_writer<TitleMap>(t);
+}
+
 bool
 Model::dump_graph(Graph& g, std::string filename) const
 {
-  // Dump graph in dot format for debugging
-  auto name_map = boost::get(&vta::CatProp::title, g);
+  //TODO add edge writer with position an name for convenience
+  auto t_map = boost::get(&vta::CatProp::title, g);
+  auto i_map = boost::get(&vta::CatProp::index, g);
+  auto r_map = boost::get(&vta::CatProp::revid, g);
+  auto p_map = boost::get(&vta::CatProp::position, g);
   boost::default_writer dw;
+
   std::ofstream file(filename);
   if(file.is_open()) {
     boost::write_graphviz(file, g,
-        boost::make_label_writer(name_map),
-        dw, dw, get(&vta::CatProp::index, g));
+    make_vertex_writer(t_map, i_map, r_map, p_map),
+    //   make_edge_writer(t_map));
+    dw);
     return  true;
   }
-  else {return false;}
+  else
+    return false;
 }
 
 } // Namespace vta
