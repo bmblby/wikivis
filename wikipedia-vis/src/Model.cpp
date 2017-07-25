@@ -78,6 +78,19 @@ Model::buildDFS(Graph& g, Category const& cat, size_t depth)
     }
 }
 
+std::pair<bool, Vertex>
+Model::in_graph(Graph& g, Category const& cat) const
+{
+    for(auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
+        if(g[*vp.first].index == cat.index
+            or g[*vp.first].revid == cat.revid
+            or g[*vp.first].title == cat.title) {
+                return std::make_pair(true, *vp.first);
+            }
+    }
+    Vertex v;
+    return std::make_pair(false, v);
+}
 
 void
 Model::expand(Category const& cat)

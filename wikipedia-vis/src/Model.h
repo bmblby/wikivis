@@ -77,8 +77,9 @@ class Model
 
     void initGraph(Category const& root, size_t depth = 2);
     Graph buildDFS(Graph& g, Category const& cat, size_t depth);
-    void expand(Category const& cat);
+    std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
 
+    void expand(Category const& cat);
     std::pair<Vertex, EdgePair>
     add_cat(Graph& g,
                 Category const& cat,
