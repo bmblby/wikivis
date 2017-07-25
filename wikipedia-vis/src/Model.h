@@ -75,8 +75,8 @@ class Model
     // class constructor
     Model(WikiDB&);
 
-    void initGraph(Category const& cat, int depth = 2);
-    Graph build(Graph& g, Category const& cat, int depth = 1);
+    void initGraph(Category const& root, size_t depth = 2);
+    Graph buildDFS(Graph& g, Category const& cat, size_t depth);
     void expand(Category const& cat);
 
     std::pair<Vertex, EdgePair>

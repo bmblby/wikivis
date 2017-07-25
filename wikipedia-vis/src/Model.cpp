@@ -15,18 +15,17 @@ Model::Model(WikiDB& wikidb)
 {}
 
 void
-Model::initGraph(Category const& cat, int depth)
+Model::initGraph(Category const& root, size_t depth)
 {
    Graph g;
    _max_depth = depth;
-   build(g, cat, depth);
+   buildDFS(g, root, depth);
    _graph = g;
    std::cout << "number of vertices: " << num_vertices(_graph) << "\n";
 }
 
-
 Graph
-Model::build(Graph& g, Category const& cat, int depth)
+Model::buildDFS(Graph& g, Category const& cat, size_t depth)
 {
     enum {white, grey, black, root};
 
@@ -45,22 +44,21 @@ Model::build(Graph& g, Category const& cat, int depth)
         _root = v_parent;
     }
     else {
-        VertexIt vi, vi_end;
-        for(boost::tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi) {
-            if(get(&CatProp::revid, g, *vi) == cat.revid) {
-                v_parent = *vi;
-                break;
-            }
-        }
+    if(in_graph(g, cat).first)
+        v_parent = in_graph(g, cat).second;
     }
     depth--;
 
     if(depth > 0) {
         std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
         while(children.size() >= 1) {
-            Vertex v = add_cat(g, children.back(), v_parent);
-            g[v].color = YELLOW_SOFT;
-            build(g, children.back(), depth);
+            if(in_graph(g, children.back()).first) {
+                children.pop_back();
+                continue;
+            }
+            auto pair = add_cat(g, children.back(), v_parent);
+            g[pair.first].color = YELLOW_SOFT;
+            buildDFS(g, children.back(), depth);
             children.pop_back();
         }
         depth++;
@@ -69,8 +67,11 @@ Model::build(Graph& g, Category const& cat, int depth)
     else {
         std::vector<Category> children = _wikidb.getCategoryChildren(cat.index);
         while(children.size() >= 1) {
-            Vertex v = add_cat(g, children.back(), v_parent);
-            // g[v].color = {.2, .9, .0, .5};
+            if(in_graph(g, children.back()).first) {
+                children.pop_back();
+                continue;
+            }
+            auto pair = add_cat(g, children.back(), v_parent);
             children.pop_back();
         }
         return g;
@@ -109,15 +110,16 @@ Model::expand(Category const& cat)
             // add vertex for every children to graph
             std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
             for(auto const& child : children) {
-                Vertex vert = add_cat(_graph, child, parent);
+                auto pair = add_cat(_graph, child, parent);
                 // std::cout << "child title: " << _graph[vert].title << std::endl;
-                _graph[vert].position[0] += radius * cos(i * two_pi_over_n);
-                _graph[vert].position[1] += radius * sin(i * two_pi_over_n);
+                _graph[pair.first].position[0] += radius * cos(i * two_pi_over_n);
+                _graph[pair.first].position[1] += radius * sin(i * two_pi_over_n);
                 ++i;
             }
             break;
         }
     }
+    std::cout << cat.title << std::endl;
     std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
 }
 
