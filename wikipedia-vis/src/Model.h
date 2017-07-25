@@ -42,8 +42,9 @@ struct CatProp {
     size_t num_categories;
 
     //Layout properties
-    // enum {unused, parent};
-    int tag;
+    enum {white, grey, black, root};
+    int tag = white;
+    size_t level = 0;
     Point position;
     std::array<float, 4> color;
 };
@@ -108,6 +109,7 @@ class Model
 
     // Member
     size_t _max_depth;
+    Vertex _root;
     Graph _graph;
     WikiDB& _wikidb;
 

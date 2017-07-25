@@ -28,7 +28,7 @@ Model::initGraph(Category const& cat, int depth)
 Graph
 Model::build(Graph& g, Category const& cat, int depth)
 {
-    enum {used, unused, parent, root};
+    enum {white, grey, black, root};
 
     Vertex v_parent;
     if(depth == _max_depth) {
@@ -42,6 +42,7 @@ Model::build(Graph& g, Category const& cat, int depth)
 
         g[v_parent].num_articles = _wikidb.getArticleChildren(cat.index).size();
         g[v_parent].num_categories = _wikidb.getArticleChildren(cat.index).size();
+        _root = v_parent;
     }
     else {
         VertexIt vi, vi_end;
