@@ -8,7 +8,7 @@ _model(model),
 _renderer(renderer),
 _view(view),
 _gui(gui),
-_mouse_state(),
+_mouse(),
 _key_state(),
 _strg_key_pressed(false)
 {}
@@ -17,7 +17,7 @@ void
 Controller::mousePress(int x, int y, int btn, int mods)
 {
     _mouse_state.setButtonState(btn, true);
-    std::cout << "button number: " << btn <<std::endl;
+    //std::cout << "button number: " << btn <<std::endl;
 
     //check category was clicked
     Category cat;
@@ -26,14 +26,20 @@ Controller::mousePress(int x, int y, int btn, int mods)
         _model.expand(cat);
         // std::cout << cat;
     }
+    _mouse.setButtonState(btn, true);
+    if(_mouse.getButtonState(btn)){
+        _start = glm::vec3(x - _last.x, y - _last.y, 0.0);
+        // std::cout << "btn: " << btn << glm::to_string(_start) << std::endl;
+    }
 }
 
 void
 Controller::mouseRelease(int x, int y, int btn, int mods)
 {
-    if(_mouse_state.getButtonState(btn)){
-        _mouse_state.setButtonState(btn, false);
-        std::cout << "Set  mouse button to false\n";
+    if(_mouse.getButtonState(btn)){
+        _mouse.setButtonState(btn, false);
+        _last = glm::vec3(x - _start.x, y - _start.y, 0.0);
+        // std::cout << "btn: " << btn << glm::to_string(_last) << std::endl;
     }
 
 }
@@ -41,13 +47,12 @@ Controller::mouseRelease(int x, int y, int btn, int mods)
 void
 Controller::mouseMove(int x, int y, int state)
 {
-    _mouse_state.setPosition((float) x, (float) y);
+    _mouse.setPosition((float) x, (float) y);
     if(_gui.contains(x, y))
         _gui.cursorfun(x, y);
 
-    if(_mouse_state.getButtonState(GLOOST_MOUSESTATE_BUTTON0) ) {
-        gloost::Point3 lastPos = _mouse_state.getLastMouseDownPosition();
-        glm::vec3 vec(x - lastPos[0], y - lastPos[1], 0.0f);
+    if(_mouse.getButtonState(GLOOST_MOUSESTATE_BUTTON0) ) {
+        glm::vec3 vec = glm::vec3(x - _start.x, y - _start.y, 0.0);
         glm::vec3 inv_vec(-vec.x, -vec.y, -vec.z);
         // _view.panning(inv_vec);
         _renderer.translate(inv_vec);
@@ -66,11 +71,11 @@ Controller::mouseScroll(float yoffset)
 }
 
 void
-Controller::reset_mouse_state()
+Controller::reset_mouse()
 {
   // reset mouse events
-  _mouse_state.resetMouseEvents();
-  _mouse_state.setSpeedToZero();
+  _mouse.resetMouseEvents();
+  _mouse.setSpeedToZero();
 }
 
 void

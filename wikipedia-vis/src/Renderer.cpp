@@ -343,17 +343,17 @@ Renderer::zoom(float yoffset)
 void
 Renderer::translate(glm::vec3 vec)
 {
-    vec = vec * (_mousespeed * 0.5);
-    _modelMatrix = glm::translate(_modelMatrix, vec);
+    vec = glm::vec3(vec.x /1000, vec.y/1000, 0.0);
+    _modelMatrix = glm::translate(glm::mat4(1.0f), vec);
     //debug
-    // std::cout << "translate vector: " << glm::to_string(vec)<< "\n ";
+    // std::cout << "ModelMatrix: " << glm::to_string(_modelMatrix)<< "\n ";
 
 }
 
 void
 Renderer::set_mouse(gloost::human_input::MouseState mouse)
 {
-  _mouse_state = mouse;
+  _mouse = mouse;
   _mouse_pos = mouse.getPosition();
 }
 

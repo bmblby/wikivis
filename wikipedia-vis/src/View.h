@@ -23,17 +23,11 @@ struct View
     void endFrame();
     void cleanup();
 
-    void drawBubble () const;
-
-
     //draw
     void drawHomeView();
-    // void drawCategoryGraphView();
-    // void drawCategoryListView();
-    // void drawArticleListView();
-    //
-    // void drawExpandCategory();
+    void drawBubble () const;
 
+    void panning(glm::vec3 const& vec);
 
     //member
     Model& _model;

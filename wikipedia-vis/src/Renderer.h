@@ -85,7 +85,7 @@ class Renderer
 
 
     gloost::Point3 _mouse_pos;
-    gloost::human_input::MouseState _mouse_state;
+    gloost::human_input::MouseState _mouse;
 
     // gl ressources
     std::shared_ptr<gloost::gl::ShaderProgram> _edgeShader;
