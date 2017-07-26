@@ -14,6 +14,29 @@ _window(window)
 {
     glfwGetWindowSize(_window, &_width, &_height);
     _vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+    if(_vg == NULL) {
+        std::cerr << "Could not init nanovg!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    int fbWidth, fbHeight;
+    glfwGetFramebufferSize(_window, &fbWidth, &fbHeight);
+    _pxRatio = (float)fbWidth / (float) _width;
+
+    _font = nvgCreateFont(_vg, "verdana", "../../res/fonts/Verdana.ttf");
+    if(_font == -1)
+        std::cout << "could not find font!\n";
+}
+
+void
+View::beginFrame()
+{
+    nvgBeginFrame(_vg, _width, _height, _pxRatio);
+}
+
+void
+View::endFrame()
+{
+    nvgEndFrame(_vg);
 }
 
 void
@@ -25,20 +48,9 @@ View::cleanup()
 void
 View::drawBubble() const
 {
-
-    if(_vg == NULL) {
-        std::cerr << "Could not init nanovg!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    int fbWidth, fbHeight;
-    glfwGetFramebufferSize(_window, &fbWidth, &fbHeight);
-    float pxRatio = (float)fbWidth / (float) _width;
-
-
     int center_x = _width/2;
     int center_y = _height/2;
     int center_r = 100;
-    nvgBeginFrame(_vg, _width, _height, pxRatio);
 
     nvgBeginPath(_vg);
     nvgCircle(_vg, center_x, center_y, center_r);
@@ -60,9 +72,6 @@ View::drawBubble() const
         nvgStrokeWidth(_vg, 1.0f);
         nvgStroke(_vg);
 
-        auto font = nvgCreateFont(_vg, "verdana", "../../res/fonts/Verdana.ttf");
-        if(font == -1)
-            std::cout << "could not find font!\n";
         nvgFontSize(_vg, 10.0f);
         nvgFontFace(_vg, "verdana");
         nvgFillColor(_vg, nvgRGBA(255,255,255,255));
@@ -70,7 +79,6 @@ View::drawBubble() const
         nvgText(_vg, xPos-10.0f, yPos, "Testing Text", NULL);
     }
 
-    nvgEndFrame(_vg);
 }
 
 

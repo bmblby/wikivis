@@ -38,6 +38,7 @@ class Renderer
     void resize(int width, int height);
 
     // update functions from controller
+    void zoomFOV(float yoffset);
     void zoom(float yoffset);
     void translate(glm::vec3 vec);
     void set_mouse(gloost::human_input::MouseState mouse);

@@ -384,7 +384,7 @@ WikiDB::getArticleChildren(uint32_t index) const {
 	std::vector<uint32_t> children = catCur->getChildren();
 	std::vector<Article> artChildren(0);
 	for (auto i : children) {
-		if(this->articleExistsIndex(i)) {
+		if(this->articleExistsRevid(i)) {
 			artChildren.push_back(getArticleByRevid(i));
 		}
 	}

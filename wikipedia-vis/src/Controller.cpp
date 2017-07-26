@@ -59,7 +59,9 @@ void
 Controller::mouseScroll(float yoffset)
 {
     // Zoom in
-    _renderer.zoom(yoffset);
+    _renderer.zoomFOV(yoffset);
+    //BUG no position transaltion
+    // _renderer.zoom(yoffset);
     _renderer.set_mouse(_mouse_state);
 }
 

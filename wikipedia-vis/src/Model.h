@@ -38,10 +38,13 @@ struct CatProp {
     uint32_t index;
     uint32_t revid;
     std::string title;
+    size_t num_articles;
+    size_t num_categories;
 
     //Layout properties
-    // enum {unused, parent};
-    int tag;
+    enum {white, grey, black, root};
+    int tag = white;
+    size_t level = 0;
     Point position;
     std::array<float, 4> color;
 };
@@ -56,7 +59,7 @@ struct EdgeProp {
 using Graph = boost::adjacency_list<
                  boost::setS
                , boost::vecS
-               , boost::directedS
+               , boost::bidirectionalS
                , CatProp
                , EdgeProp
                >;
@@ -64,6 +67,7 @@ using Graph = boost::adjacency_list<
 using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
 using VertexIt = boost::graph_traits<Graph>::vertex_iterator;
 using Edge = boost::graph_traits<Graph>::edge_descriptor;
+using EdgeIt = boost::graph_traits<Graph>::edge_iterator;
 using EdgePair = std::pair<Edge, bool>;
 
 class Model
@@ -72,14 +76,18 @@ class Model
     // class constructor
     Model(WikiDB&);
 
-    void initGraph(Category const& cat, int depth = 2);
-    Graph build(Graph& g, Category const& cat, int depth = 1);
-    void expand(Category const& cat);
+    void initGraph(Category const& root, size_t depth = 2);
+    Graph buildDFS(Graph& g, Category const& cat, size_t depth);
+    void initIDDFS(Category const& root, size_t depth);
+    Graph buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth);
+    std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
 
-    Vertex add_cat(Graph& g,
+    void expand(Category const& cat);
+    std::pair<Vertex, EdgePair>
+    add_cat(Graph& g,
                 Category const& cat,
                 Vertex const& parent,
-                std::array<float, 4> color = {.8, .1, .0, .6}
+                std::array<float, 4> color = RED_NODE
     );
 
     //layouts
@@ -88,9 +96,7 @@ class Model
     PosMap layout_FR();
     PosMap layout_random();
     void write_layout(PosMap pos_map);
-    bool dump_graph(Graph& g, std::string filename) const;
 
-    bool find(std::string const& cat, Category& category) const;
 
     //getter
     std::vector<std::pair< glm::vec3,
@@ -102,10 +108,13 @@ class Model
                          const std::array<float, 4>>>
     get_edges() const;
 
+    bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
+    bool dump_graph(Graph& g, std::string filename) const;
 
     // Member
     size_t _max_depth;
+    Vertex _root;
     Graph _graph;
     WikiDB& _wikidb;
 

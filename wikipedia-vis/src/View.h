@@ -19,6 +19,8 @@ struct View
     // class constructor
     // View(Model& model,  Gui& gui, GLFWwindow* window);
     View(Model& model,  GLFWwindow* window);
+    void beginFrame();
+    void endFrame();
     void cleanup();
 
     void drawBubble () const;
@@ -37,10 +39,12 @@ struct View
     Model& _model;
     GLFWwindow* _window;
     NVGcontext* _vg;
+
     // Gui& _gui;
     int _width;
     int _height;
     float _pxRatio;
+    int _font;
 
 };
 

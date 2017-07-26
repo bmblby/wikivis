@@ -308,12 +308,11 @@ Renderer::resize(int width, int height)
 }
 
 /// Update view from ctrl
-
 void
-Renderer::zoom(float yoffset)
+Renderer::zoomFOV(float yoffset)
 {
-    // std::cout << "yoffset: " << yoffset << std::endl;
     // zoom for perspective View
+    // std::cout << "yoffset: " << yoffset << std::endl;
     if(_FOV >= 1.0f && _FOV <= 90.0f)
         _FOV -= yoffset;
     if(_FOV <= 1.0f)
@@ -326,14 +325,18 @@ Renderer::zoom(float yoffset)
         (GLfloat)_width / (GLfloat)_height,
         0.1f, 100.0f
     );
+}
 
+void
+Renderer::zoom(float yoffset)
+{
     //ortho zoom
-    // float scale(0.0f);
-    // if(yoffset < 0)
-    //     scale = 0.9f;
-    // else
-    //     scale = 1.1f;
-    // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(scale, scale, 0.0f));
+    float scale(0.0f);
+    if(yoffset < 0)
+        scale = 0.9f;
+    else
+        scale = 1.1f;
+    _modelMatrix = glm::scale(_modelMatrix, glm::vec3(scale, scale, 0.0f));
 
 }
 
