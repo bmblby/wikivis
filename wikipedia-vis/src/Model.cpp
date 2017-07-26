@@ -252,22 +252,22 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
 std::vector<std::pair<glm::vec3, std::array<float, 4> > >
 Model::get_nodes() const
 {
-  using NodeIt = boost::graph_traits<Graph>::vertex_iterator;
-  using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
+  // using NodeIt = boost::graph_traits<Graph>::vertex_iterator;
+  // using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
+  // NodeIt vi, vi_end;
   using Pair = std::pair< glm::vec3,
                           std::array<float, 4> >;
-  NodeIt vi, vi_end;
   std::vector<Pair> node_vec;
 
-  for(boost::tie(vi, vi_end) = vertices(_graph); vi != vi_end; ++vi) {
-    Vertex vertex = *vi;
+  for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+    Vertex vertex = *vp.first;
     glm::vec3 pos;
     pos[0] = (float)_graph[vertex].position[0];
     pos[1] = (float)_graph[vertex].position[1];
     pos[2] = 0.0f;
     std::array<float, 4> color = _graph[vertex].color;
     Pair node_prop(pos, color);
-      node_vec.push_back(node_prop);
+    node_vec.push_back(node_prop);
   }
   return node_vec;
 }
@@ -275,17 +275,17 @@ Model::get_nodes() const
 std::vector<std::tuple<const glm::vec3, const glm::vec3, const std::array<float, 4> > >
 Model::get_edges() const
 {
-    using EdgeIt = boost::graph_traits<Graph>::edge_iterator;
-    using Edge = boost::graph_traits<Graph>::edge_descriptor;
-    using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
+    // using EdgeIt = boost::graph_traits<Graph>::edge_iterator;
+    // using Edge = boost::graph_traits<Graph>::edge_descriptor;
+    // using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
+    // EdgeIt ei, ei_end;
     using Tuple = std::tuple<const glm::vec3,
                              const glm::vec3,
                              const std::array<float, 4>>;
 
     std::vector<Tuple> edge_vec;
-    EdgeIt ei, ei_end;
-    for(boost::tie(ei, ei_end) = edges(_graph); ei != ei_end; ei++) {
-        Edge edge = *ei;
+    for(auto ep = edges(_graph); ep.first != ep.second; ++ep.first) {
+        Edge edge = *ep.first;
         Vertex source = boost::source(edge, _graph);
         auto prop_source = get(&vta::CatProp::title, _graph, source);
         Vertex target = boost::target(edge, _graph);
