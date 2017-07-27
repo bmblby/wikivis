@@ -66,6 +66,7 @@ class Renderer
     glm::mat4 _projectionMatrix;
     glm::mat4 _viewMatrix;
     glm::mat4 _modelMatrix;
+    glm::mat4 _scaleM;
 
     //controls
     glm::vec3 _cameraPos;
@@ -83,8 +84,6 @@ class Renderer
     // graph model
     Model& _model;
 
-
-    gloost::Point3 _mouse_pos;
     gloost::human_input::MouseState _mouse;
 
     // gl ressources
