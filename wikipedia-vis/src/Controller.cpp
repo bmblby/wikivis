@@ -16,7 +16,7 @@ _strg_key_pressed(false)
 void
 Controller::mousePress(int x, int y, int btn, int mods)
 {
-    _mouse_state.setButtonState(btn, true);
+    _mouse.setButtonState(btn, true);
     //std::cout << "button number: " << btn <<std::endl;
 
     //check category was clicked
@@ -57,7 +57,8 @@ Controller::mouseMove(int x, int y, int state)
         // _view.panning(inv_vec);
         _renderer.translate(inv_vec);
     }
-    // hover(x, y);
+    if(hover_state == true)
+        hover(x, y);
 }
 
 void
@@ -67,7 +68,7 @@ Controller::mouseScroll(float yoffset)
     _renderer.zoomFOV(yoffset);
     //BUG no position transaltion
     // _renderer.zoom(yoffset);
-    _renderer.set_mouse(_mouse_state);
+    _renderer.set_mouse(_mouse);
 }
 
 void
@@ -81,43 +82,32 @@ Controller::reset_mouse()
 void
 Controller::keyPress(int key, int mods)
 {
-  // http://www.glfw.org/docs/latest/group__keys.html
+    // http://www.glfw.org/docs/latest/group__keys.html
     switch (key)
     {
-      case 82: //GLFW_KEY_R
-      {
-        _renderer.redraw();
-        break;
-      }
+        case 321: //GLFW_KEY_KP_1
+        {
+            hover_state = !hover_state;
+            // _renderer.redraw();
+            break;
+        }
 
-      case 257: // ENTER
-      {
-        // open wikipage of selected node
-  //      if (_highlight_nodes_mode)
-  //      {
-  //        // Open firefox window with corresponding wikipedia article
-  //        std::string url = "http://en.wikipedia.org/w/index.php?oldid=" + boost::lexical_cast<std::string>(_highlighted_node->_article.revid);
-  //        std::string command = "firefox " + url;
-  //
-  //        system(command.c_str());
-  //      }
-        break;
-      }
+        // case 257: // ENTER
+        // {
+        //     // open wikipage of selected node
+        //     if (_highlight_nodes_mode)
+        //     {
+        //         // Open firefox window with corresponding wikipedia article
+        //         std::string url = "http://en.wikipedia.org/w/index.php?oldid=" + boost::lexical_cast<std::string>(_highlighted_node->_article.revid);
+        //         std::string command = "firefox " + url;
+        //
+        //         system(command.c_str());
+        //     }
+        //     break;
+        // }
 
-      case 341: // strg
-      {
-        _strg_key_pressed = true;
-
-        break;
-      }
-
-      case 256: // ESC
-      {
-        break;
-      }
-
-      default:
-      {}
+        default:
+            {}
     }
 }
 

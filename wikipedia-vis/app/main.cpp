@@ -163,10 +163,10 @@ int main(int argc, char *argv[])
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Main Window (Visualization)
-    // renderer.display();
-    view.beginFrame();
-    view.drawBubble();
-    view.endFrame();
+    renderer.display();
+    // view.beginFrame();
+    // view.drawBubble();
+    // view.endFrame();
 
     gui.display();
 

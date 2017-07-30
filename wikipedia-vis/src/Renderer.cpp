@@ -96,7 +96,6 @@ Renderer::initialize()
   // _nodeShader->attachShaderFile(GLOOST_SHADERPROGRAM_GEOMETRY_SHADER, node_g);
 
   // gen VAOs and VBOs
-  // _programID = LoadShaders( "SimpleTransform.vertexshader", "SimpleColor.fragmentshader" );
   glGenVertexArrays(1, &_vaoNode);
   glGenBuffers(1, &_vboNode);
   glGenVertexArrays(1, &_vaoEdge);
