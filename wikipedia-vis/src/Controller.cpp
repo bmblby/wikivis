@@ -65,9 +65,11 @@ void
 Controller::mouseScroll(float yoffset)
 {
     // Zoom in
-    _renderer.zoomFOV(yoffset);
-    //BUG no position transaltion
-    // _renderer.zoom(yoffset);
+    if(zoom_state)
+        //BUG no position transaltion
+        _renderer.zoomFOV(yoffset);
+    else
+        _renderer.zoom(yoffset);
     _renderer.set_mouse(_mouse);
 }
 
@@ -93,6 +95,14 @@ Controller::keyPress(int key, int mods)
             else
                 std::cout << "deactivate hover!\n";
             break;
+        }
+    case 322: //GLFW_KEY_KP_2
+        {
+            zoom_state = !zoom_state;
+            if(zoom_state)
+                std::cout << "zoomFOV activ!\n";
+            else
+                std::cout << "zoom(scale) activ!\n";
         }
 
         // case 257: // ENTER
