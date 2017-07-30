@@ -65,9 +65,11 @@ void
 Controller::mouseScroll(float yoffset)
 {
     // Zoom in
-    _renderer.zoomFOV(yoffset);
-    //BUG no position transaltion
-    // _renderer.zoom(yoffset);
+    if(zoom_state)
+        //BUG no position transaltion
+        _renderer.zoom(yoffset);
+    else
+        _renderer.zoomFOV(yoffset);
     _renderer.set_mouse(_mouse);
 }
 
@@ -90,6 +92,10 @@ Controller::keyPress(int key, int mods)
             hover_state = !hover_state;
             // _renderer.redraw();
             break;
+        }
+    case 323: //GLFW_KEY_KP_2
+        {
+            zoom_state = !zoom_state;
         }
 
         // case 257: // ENTER
