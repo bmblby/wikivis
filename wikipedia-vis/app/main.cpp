@@ -117,12 +117,17 @@ int main(int argc, char *argv[])
   // Category computer_science = wikidb.getCategoryByName("Computer science");
   // vta::Graph g = model.graph(computer_science, 2);
   Category main_topic_rev = wikidb.getCategoryByName("Main topic classifications");
+  size_t depth = 2;
 
+  model.initGraph(main_topic_rev, depth);
+  model.layout(main_topic_rev, main_window_width, main_window_height, depth);
 
   // Category main_topic_rev = wikidb.getCategoryByRevid(685314943);
   model.initGraph(main_topic_rev, 2);
   auto fr_map = model.layout_circular(1.0);
   model.write_layout(fr_map);
+  // auto fr_map = model.layout_circular(1.0);
+  // model.write_layout(fr_map);
 
   // dump graph layout to file
   // auto pos_map = get(&vta::CatProp::position, model._graph);

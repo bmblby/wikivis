@@ -1,6 +1,8 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include <math.h>
+
 //glm
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -10,6 +12,8 @@
 #include <boost/graph/subgraph.hpp>
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/graphviz.hpp>
+//layout
+#include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/fruchterman_reingold.hpp>
 #include <boost/graph/circle_layout.hpp>
 #include <boost/graph/random_layout.hpp>
@@ -44,8 +48,8 @@ struct CatProp {
     //Layout properties
     enum {white, grey, black, root};
     int tag = white;
-    size_t level = 0;
-    Point position;
+    size_t mutable level = 0;
+    Point mutable position;
     std::array<float, 4> color;
 };
 
@@ -90,12 +94,14 @@ class Model
                 std::array<float, 4> color = RED_NODE
     );
 
-    //layouts
+    //layouts with BGL
     using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
     PosMap layout_circular(double const& radius);
     PosMap layout_FR();
     PosMap layout_random();
     void write_layout(PosMap pos_map);
+    //layout with visitor
+    PosMap layout(Category const& cat, size_t width, size_t height, size_t depth);
 
 
     //getter

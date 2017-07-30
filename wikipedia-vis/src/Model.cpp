@@ -228,7 +228,6 @@ Model::layout_FR()
     return pos_map;
 }
 
-
 boost::property_map<Graph, Point CatProp::*>::type
 Model::layout_random()
 {
@@ -246,7 +245,98 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
         boost::graph_traits<Graph>::vertex_descriptor vertex = *vi;
         _graph[vertex].position[0] = pos_map[vertex][0];
         _graph[vertex].position[1] = pos_map[vertex][1];
+        std::cout << pos_map[vertex][0] << " "
+        << pos_map[vertex][1] << std::endl;
     }
+}
+
+struct layout_visitor : public boost::default_bfs_visitor
+{
+    template<typename PosMap>
+    layout_visitor(size_t width, size_t height, size_t depth, PosMap& pos_map)
+    :_w(width), _h(height), _depth(depth), _pmap(pos_map){}
+
+    template<typename Vertex, typename Graph>
+    void set_level(Vertex v, Graph& g) {
+        if(in_degree(v, g) != 0) {
+            auto ep = boost::in_edges(v, g);
+            auto parent = boost::source(*ep.first, g);
+            int test = g[parent].level;
+            g[v].level = test + 1;
+        }
+    }
+
+    template<typename Vertex, typename Graph>
+    void discover_vertex(Vertex v, Graph& g)
+    {
+        double radius = .2; //_h/2;
+        double dist = radius/ _depth;
+        set_level(v, g);
+        // glm::vec3 center(_w/2, _h/2, 0.0);
+        // center = vta::screen2modelSpace(center);
+        if(g[v].level == 0) {
+            g[v].position[0] = 0; //_w/2;
+            g[v].position[1] = 0; //_h/2;
+        }
+        else if (g[v].level == 1) {
+            g[v].position[0] = 0; //_w/2;
+            g[v].position[1] = 0; //_h/2;
+            auto ep = boost::in_edges(v, g);
+            auto parent = boost::source(*ep.first, g);
+            double angle_space = 2*M_PI / g[parent].num_categories;
+            g[v].position[0] += radius * cos(_index * angle_space);
+            g[v].position[1] += radius * sin(_index * angle_space);
+            _index++;
+        }
+        else {
+            g[v].position[0] = 0; //_w/2;
+            g[v].position[1] = 0; //_h/2;
+            auto ep = boost::in_edges(v, g);
+            auto parent = boost::source(*ep.first, g);
+            double angle_space = 2*M_PI / g[parent].num_categories;
+            radius += dist;
+            g[v].position[0] += radius * cos(_index1 * angle_space);
+            g[v].position[1] += radius * sin(_index1 * angle_space);
+            _index1++;
+
+        }
+        // _pmap = get(&vta::CatProp::position, g);
+        // debug
+        std::cout << g[v].title
+        << " x: " << g[v].position[0]
+        << " y: " << g[v].position[1] << std::endl;
+        // std::cout << g[v].title <<  "<-title : level ->" << g[v].level << std::endl;
+    }
+
+    //member
+    size_t _w;
+    size_t _h;
+    size_t _depth;
+    size_t _index = 0;
+    size_t _index1 = 0;
+    PosMap& _pmap;
+
+};
+
+// boost::property_map<Graph, Point CatProp::*>::type
+PosMap
+Model::layout(Category const& cat, size_t width, size_t height, size_t depth)
+{
+    auto p = in_graph(_graph, cat);
+    if(p.first) {
+        Vertex start = p.second;
+        PosMap pos_map;
+        layout_visitor vis(width, height, depth, pos_map);
+        breadth_first_search(_graph, start, visitor(vis));
+    }
+    return get(&vta::CatProp::position, _graph);
+
+    // debug
+    // for(auto vp = vertices(_graph); vp.first != vp.second; vp.first++) {
+    //     std::cout << _graph[*vp.first].title
+    //     << " x: " << _graph[*vp.first].position[0]
+    //     << " y: " << _graph[*vp.first].position[1] << std::endl;
+    //  }
 }
 
 std::vector<std::pair<glm::vec3, std::array<float, 4> > >
@@ -352,23 +442,24 @@ Model::pos2cat(glm::vec3 target, Category& cat) const
 template <class TitleMap, class IndexMap, class RevidMap, class PositionMap>
 class vertex_writer
 {
-public:
-    vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm):
-    _tm(tm), _im(im), _rm(rm), _pm(pm)
-    {}
+    public:
+        vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm):
+        _tm(tm), _im(im), _rm(rm), _pm(pm)
+        {}
 
-    void operator()(std::ostream& out, Vertex const& v) const {
-        auto point = get(_pm, v);
-        out << "[index=\"" << _im(v) << "\", revid=\"" << _rm(v)
-            << "\", title=\"" << _tm(v) << "\", "
-            << "position=\"" << point[0] << "," << point[1] << "\"]";
-    }
-private:
-    TitleMap _tm;
-    IndexMap _im;
-    RevidMap _rm;
-    PositionMap _pm;
+        void operator()(std::ostream& out, Vertex const& v) const {
+            auto point = get(_pm, v);
+            out << "[index=\"" << _im(v) << "\", revid=\"" << _rm(v)
+                << "\", title=\"" << _tm(v) << "\", "
+                << "position=\"" << point[0] << "," << point[1] << "\"]";
+        }
+    private:
+        TitleMap _tm;
+        IndexMap _im;
+        RevidMap _rm;
+        PositionMap _pm;
 };
+
 template <class TitleMap, class IndexMap, class RevidMap, class PositionMap>
 inline vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap>
 make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p) {
@@ -378,14 +469,14 @@ make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p) {
 template <class TitleMap>
 class edge_writer
 {
-public:
-    edge_writer(TitleMap tm)
-    :_tm(tm) {}
-    void operator()(std::ostream& out, Vertex const& ep) const {
-        out << "\"" << _tm(ep) << "\"->\"" << _tm(ep) << "\"]";
-    }
-private:
-    TitleMap _tm;
+    public:
+        edge_writer(TitleMap tm)
+        :_tm(tm) {}
+        void operator()(std::ostream& out, Vertex const& ep) const {
+            out << "\"" << _tm(ep) << "\"->\"" << _tm(ep) << "\"]";
+        }
+    private:
+        TitleMap _tm;
 };
 
 template <class TitleMap>
