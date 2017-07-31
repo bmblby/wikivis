@@ -16,7 +16,7 @@ _strg_key_pressed(false)
 void
 Controller::mousePress(int x, int y, int btn, int mods)
 {
-    _mouse_state.setButtonState(btn, true);
+    _mouse.setButtonState(btn, true);
     //std::cout << "button number: " << btn <<std::endl;
 
     //check category was clicked
@@ -67,7 +67,7 @@ Controller::mouseScroll(float yoffset)
     _renderer.zoomFOV(yoffset);
     //BUG no position transaltion
     // _renderer.zoom(yoffset);
-    _renderer.set_mouse(_mouse_state);
+    _renderer.set_mouse(_mouse);
 }
 
 void
