@@ -15,7 +15,7 @@ endif()
 
 # Boost
 if (UNIX)
-  set (BOOST_ROOT "/opt/boost/current" CACHE PATH "Set to your boost install")
+  set (BOOST_ROOT "/usr/include/boost" CACHE PATH "Set to your boost install")
 endif(UNIX)
 
 find_package(Boost COMPONENTS
@@ -24,7 +24,6 @@ find_package(Boost COMPONENTS
   regex
   system
   filesystem
-  graph
   REQUIRED
 )
 
@@ -32,7 +31,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 #glm
-include_directories(/opt/glm)
+include_directories(/usr/include/glm)
 
 # GLFW
 set(GLFW_INSTALL OFF CACHE STRING "" FORCE)
