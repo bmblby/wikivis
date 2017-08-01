@@ -37,7 +37,6 @@ Model::buildDFS(Graph& g, Category const& cat, size_t depth)
         g[v_parent].revid = cat.revid;
         g[v_parent].title = cat.title;
         g[v_parent].color = PINK;
-        g[v_parent].tag = root;
 
         g[v_parent].num_articles = _wikidb.getArticleChildren(cat.index).size();
         g[v_parent].num_categories = _wikidb.getArticleChildren(cat.index).size();
@@ -101,7 +100,6 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].revid = cat.revid;
             g[v].title = cat.title;
             g[v].color = PINK;
-            g[v].tag = root;
 
             g[v].num_articles = _wikidb.getArticleChildren(cat.index).size();
             g[v].num_categories = _wikidb.getArticleChildren(cat.index).size();
@@ -269,38 +267,67 @@ struct layout_visitor : public boost::default_bfs_visitor
     template<typename Vertex, typename Graph>
     void discover_vertex(Vertex v, Graph& g)
     {
-        double radius = .2; //_h/2;
+        double radius = .2;
         double dist = radius/ _depth;
         set_level(v, g);
-        // glm::vec3 center(_w/2, _h/2, 0.0);
-        // center = vta::screen2modelSpace(center);
         if(g[v].level == 0) {
-            g[v].position[0] = 0; //_w/2;
-            g[v].position[1] = 0; //_h/2;
-        }
-        else if (g[v].level == 1) {
-            g[v].position[0] = 0; //_w/2;
-            g[v].position[1] = 0; //_h/2;
-            auto ep = boost::in_edges(v, g);
-            auto parent = boost::source(*ep.first, g);
-            double angle_space = 2*M_PI / g[parent].num_categories;
-            g[v].position[0] += radius * cos(_index * angle_space);
-            g[v].position[1] += radius * sin(_index * angle_space);
-            _index++;
-        }
-        else {
-            g[v].position[0] = 0; //_w/2;
-            g[v].position[1] = 0; //_h/2;
-            auto ep = boost::in_edges(v, g);
-            auto parent = boost::source(*ep.first, g);
-            double angle_space = 2*M_PI / g[parent].num_categories;
-            radius += dist;
-            g[v].position[0] += radius * cos(_index1 * angle_space);
-            g[v].position[1] += radius * sin(_index1 * angle_space);
-            _index1++;
+            g[v].position[0] = 0;
+            g[v].position[1] = 0;
+            double angle_space = 2*M_PI / g[v].num_categories;
 
+            // set position for level 1 children;
+            int index = 0;
+            for(auto ep = boost::out_edges(v, g); ep.first != ep.second; ep.first++) {
+                auto child = boost::target(*ep.first, g);
+                g[child].position[0] += radius * cos(index * angle_space);
+                g[child].position[1] += radius * sin(index * angle_space);
+                g[child].color = YELLOW_SOFT;
+
+                //calculate bisector and tangent limits
+                g[child].angle = angle_space * index;
+                g[child].deg_prev_cat = g[child].angle - last_cat_angle;
+                g[child].r_bis_lim = g[child].angle - deg_prev_cat/2;
+                g[child].l_bis_lim = g[child].angle + deg_prev_cat/2;
+                double arc_angle = 4 * asin(dist * _depth /dist * (_depth + 1));
+                g[child].l_tan_lim = g[child].angle + (arc_angle/2);
+                g[child].r_tan_lim = g[child].angle - (arc_angle/2);
+
+                last_cat_angle = g[child].angle;
+                deg_prev_cat = g[child].deg_prev_cat;
+                index++;
+            }
         }
-        // _pmap = get(&vta::CatProp::position, g);
+        else if (g[v].level >= 1) {
+            std::cout << " parent: " << g[v].title << std::endl;
+            double l_lim = std::min(g[v].l_bis_lim, g[v].l_tan_lim);
+            double r_lim = std::max(g[v].r_bis_lim, g[v].r_tan_lim);
+            radius += dist * g[v].level;
+            double angle_space = (l_lim - r_lim)/ g[v].num_categories;
+
+            int index = 0;
+            for(auto ep = boost::out_edges(v, g); ep.first != ep.second; ep.first++) {
+                auto child = boost::target(*ep.first, g);
+                std::cout << "processing child: " << g[child].title << std::endl;
+
+                g[child].position[0] += radius * cos(angle_space * index + r_lim);
+                g[child].position[1] += radius * sin(angle_space * index + r_lim);
+                g[child].angle = angle_space * index + r_lim;
+                if(g[child].num_categories > 0){
+                    g[child].angle = angle_space * index;
+                    g[child].deg_prev_cat = g[child].angle - last_cat_angle;
+                    g[child].r_bis_lim = g[child].angle - deg_prev_cat/2;
+                    g[child].l_bis_lim = g[child].angle + deg_prev_cat/2;
+                    double arc_angle = 4 * asin(dist * _depth /dist * (_depth + 1));
+                    g[child].l_tan_lim = g[child].angle + (arc_angle/2);
+                    g[child].r_tan_lim = g[child].angle - (arc_angle/2);
+
+                    last_cat_angle = g[child].angle;
+                    deg_prev_cat = g[child].deg_prev_cat;
+                }
+                index++;
+            }
+        }
+
         // debug
         std::cout << g[v].title
         << " x: " << g[v].position[0]
@@ -308,7 +335,10 @@ struct layout_visitor : public boost::default_bfs_visitor
         // std::cout << g[v].title <<  "<-title : level ->" << g[v].level << std::endl;
     }
 
+
     //member
+    float last_cat_angle  = 0.0f;
+    float deg_prev_cat = 0.0f;
     size_t _w;
     size_t _h;
     size_t _depth;

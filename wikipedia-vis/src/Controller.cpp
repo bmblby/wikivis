@@ -57,7 +57,7 @@ Controller::mouseMove(int x, int y, int state)
         // _view.panning(inv_vec);
         _renderer.translate(inv_vec);
     }
-    // hover(x, y);
+    hover(x, y);
 }
 
 void

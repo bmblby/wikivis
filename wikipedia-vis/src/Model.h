@@ -32,6 +32,7 @@ namespace vta
 #define RED_NODE            {.93, .32, .25, .6}
 #define PINK                {.98, .12, 1.0, .6}
 #define YELLOW_SOFT         {1.0, .98, .36, .6}
+#define YELLOW_SUN          {1.0, .99, .0, .9}
 #define GREY_SOFT           {.22, .24, .39, .9}
 #define WHITE               {.95, .97, 1.0, .5}
 #define BLUE_BACK           {.29, .51, .65, .5}
@@ -46,17 +47,22 @@ struct CatProp {
     size_t num_categories;
 
     //Layout properties
-    enum {white, grey, black, root};
-    int tag = white;
     size_t mutable level = 0;
     Point mutable position;
-    std::array<float, 4> color;
+    double mutable angle;
+    double mutable r_bis_lim;
+    double mutable l_bis_lim;
+    double mutable r_tan_lim;
+    double mutable l_tan_lim;
+    double mutable deg_prev_cat;
+    double mutable deg_next_cat;
+    std::array<float, 4> mutable color;
 };
 
 struct EdgeProp {
   EdgeProp(): color(WHITE) {}
   static uint32_t weight;
-  std::array<float, 4> color;
+  std::array<float, 4> mutable color;
 };
 
 //TODO:0 choose final graph params
