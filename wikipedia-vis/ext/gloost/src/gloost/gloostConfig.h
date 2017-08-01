@@ -89,7 +89,7 @@
      for newer systems the path to freetype is /usr/include/freetype2
   */
 
-#define GLOOST_SYSTEM_FREETYPE2
+// #define GLOOST_SYSTEM_FREETYPE2
 
 
 ////////////////////////////////////////////////////////////////////////////////
