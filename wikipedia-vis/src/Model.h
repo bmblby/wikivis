@@ -122,7 +122,7 @@ class Model
 
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
-    bool dump_graph(Graph& g, std::string filename) const;
+    bool dump_graph(std::string filename) const;
 
     // Member
     size_t _max_depth;

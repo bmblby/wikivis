@@ -126,8 +126,7 @@ int main(int argc, char *argv[])
   // model.write_layout(fr_map);
 
   // dump graph layout to file
-  // auto pos_map = get(&vta::CatProp::position, model._graph);
-  // model.dump_graph(g, "test_dump");
+  model.dump_graph("test_dump");
 
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;

@@ -479,31 +479,47 @@ Model::pos2cat(glm::vec3 target, Category& cat) const
 }
 
 // Dump graph to file with graphviz
-template <class TitleMap, class IndexMap, class RevidMap, class PositionMap>
+template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class NextDegCatMap, class PrevDegCatMap>
 class vertex_writer
 {
     public:
-        vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm):
-        _tm(tm), _im(im), _rm(rm), _pm(pm)
+        vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm, LevelMap lm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, NextDegCatMap ndcm, PrevDegCatMap pdcm):
+        _tm(tm), _im(im), _rm(rm), _pm(pm), _level(lm), _lbm(lbm), _rbm(rbm), _ltm(ltm),
+        _rtm(rtm), _ndcm(ndcm), _pdcm(pdcm)
         {}
 
         void operator()(std::ostream& out, Vertex const& v) const {
             auto point = get(_pm, v);
-            out << "[index=\"" << _im(v) << "\", revid=\"" << _rm(v)
-                << "\", title=\"" << _tm(v) << "\", "
-                << "position=\"" << point[0] << "," << point[1] << "\"]";
+            out << "[index=\"" << _im(v) << "\", "
+            << "revid=\"" << _rm(v) << "\", "
+            << "title=\"" << _tm(v) << "\", "
+            << "position=\"" << point[0] << "," << point[1] << "\", "
+            << "level=\"" << _level(v) << "\", "
+            << "lbis=\"" << _lbm(v) << "\", "
+            << "rbis=\"" << _rbm(v) << "\", "
+            << "ltan=\"" << _ltm(v) << "\", "
+            << "rtan=\"" << _rtm(v) << "\", "
+            << "ndc=\"" << _ndcm(v) << "\", "
+            << "pdc=\"" << _pdcm(v) << "\"]";
         }
     private:
         TitleMap _tm;
         IndexMap _im;
         RevidMap _rm;
         PositionMap _pm;
+        LevelMap _level;
+        LBisMap _lbm;
+        RBisMap _rbm;
+        LTanMap _ltm;
+        RTanMap _rtm;
+        NextDegCatMap _ndcm;
+        PrevDegCatMap _pdcm;
 };
 
-template <class TitleMap, class IndexMap, class RevidMap, class PositionMap>
-inline vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap>
-make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p) {
-    return vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap>(t, i, r, p);
+template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class NextDegCatMap, class PrevDegCatMap>
+inline vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, LBisMap,  RBisMap,  LTanMap,  RTanMap, NextDegCatMap, PrevDegCatMap>
+make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p, LevelMap lm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, NextDegCatMap ndcm, PrevDegCatMap pdcm) {
+    return vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap,  LBisMap,  RBisMap,  LTanMap,  RTanMap, NextDegCatMap, PrevDegCatMap>(t, i, r, p, lm, lbm, rbm, ltm, rtm, ndcm, pdcm);
 }
 
 template <class TitleMap>
@@ -526,19 +542,27 @@ make_edge_writer(TitleMap t) {
 }
 
 bool
-Model::dump_graph(Graph& g, std::string filename) const
+Model::dump_graph(std::string filename) const
 {
   //TODO add edge writer with position an name for convenience
-  auto t_map = boost::get(&vta::CatProp::title, g);
-  auto i_map = boost::get(&vta::CatProp::index, g);
-  auto r_map = boost::get(&vta::CatProp::revid, g);
-  auto p_map = boost::get(&vta::CatProp::position, g);
-  boost::default_writer dw;
+  auto t_map = boost::get(&vta::CatProp::title, _graph);
+  auto i_map = boost::get(&vta::CatProp::index, _graph);
+  auto r_map = boost::get(&vta::CatProp::revid, _graph);
+  auto p_map = boost::get(&vta::CatProp::position, _graph);
 
+  auto level_map = boost::get(&vta::CatProp::level, _graph);
+  auto l_bis_map = boost::get(&vta::CatProp::l_bis_lim, _graph);
+  auto r_bis_map = boost::get(&vta::CatProp::r_bis_lim, _graph);
+  auto l_tan_map = boost::get(&vta::CatProp::l_tan_lim, _graph);
+  auto r_tan_map = boost::get(&vta::CatProp::r_tan_lim, _graph);
+  auto deg_next_map = boost::get(&vta::CatProp::deg_next_cat, _graph);
+  auto deg_prev_map = boost::get(&vta::CatProp::deg_prev_cat, _graph);
+
+  boost::default_writer dw;
   std::ofstream file(filename);
   if(file.is_open()) {
-    boost::write_graphviz(file, g,
-    make_vertex_writer(t_map, i_map, r_map, p_map),
+    boost::write_graphviz(file, _graph,
+    make_vertex_writer(t_map, i_map, r_map, p_map, level_map, l_bis_map, r_bis_map, l_tan_map, r_tan_map, deg_next_map, deg_prev_map),
     //   make_edge_writer(t_map));
     dw);
     return  true;
