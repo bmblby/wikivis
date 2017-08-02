@@ -271,14 +271,23 @@ struct layout_visitor : public boost::default_bfs_visitor
         double dist = radius/ _depth;
         set_level(v, g);
         if(g[v].level == 0) {
+            float last_cat_angle  = 0.0f;
+            float deg_prev_cat = 0.0f;
             g[v].position[0] = 0;
             g[v].position[1] = 0;
-            double angle_space = 2*M_PI / g[v].num_categories;
+            double angle_space = 2*M_PI / out_degree(v, g);
 
             // set position for level 1 children;
             int index = 0;
             for(auto ep = boost::out_edges(v, g); ep.first != ep.second; ep.first++) {
                 auto child = boost::target(*ep.first, g);
+                // if(g[child].revid == 706026924 or g[child].revid == 700106825) {
+                //     std::cout << g[child].title
+                //     // << g[child].r_bis_lim
+                //     // << g[child].l_bis_lim
+                //     // << g[child].r_tan_lim
+                //     << g[child].l_tan_lim << std::endl;
+                // }
                 g[child].position[0] += radius * cos(index * angle_space);
                 g[child].position[1] += radius * sin(index * angle_space);
                 g[child].color = YELLOW_SOFT;
@@ -298,16 +307,19 @@ struct layout_visitor : public boost::default_bfs_visitor
             }
         }
         else if (g[v].level >= 1) {
-            std::cout << " parent: " << g[v].title << std::endl;
+            float last_cat_angle  = 0.0f;
+            float deg_prev_cat = 0.0f;
             double l_lim = std::min(g[v].l_bis_lim, g[v].l_tan_lim);
             double r_lim = std::max(g[v].r_bis_lim, g[v].r_tan_lim);
             radius += dist * g[v].level;
-            double angle_space = (l_lim - r_lim)/ g[v].num_categories;
+            double angle_space = (l_lim - r_lim)/out_degree(v, g);
 
             int index = 0;
             for(auto ep = boost::out_edges(v, g); ep.first != ep.second; ep.first++) {
                 auto child = boost::target(*ep.first, g);
-                std::cout << "processing child: " << g[child].title << std::endl;
+                std::cout << "processing child: " << g[child].title
+                << " x: " << g[v].position[0]
+                << " y: " << g[v].position[1] << std::endl;
 
                 g[child].position[0] += radius * cos(angle_space * index + r_lim);
                 g[child].position[1] += radius * sin(angle_space * index + r_lim);
@@ -329,16 +341,14 @@ struct layout_visitor : public boost::default_bfs_visitor
         }
 
         // debug
-        std::cout << g[v].title
-        << " x: " << g[v].position[0]
-        << " y: " << g[v].position[1] << std::endl;
+        // std::cout << g[v].title
+        // << " x: " << g[v].position[0]
+        // << " y: " << g[v].position[1] << std::endl;
         // std::cout << g[v].title <<  "<-title : level ->" << g[v].level << std::endl;
     }
 
 
     //member
-    float last_cat_angle  = 0.0f;
-    float deg_prev_cat = 0.0f;
     size_t _w;
     size_t _h;
     size_t _depth;
