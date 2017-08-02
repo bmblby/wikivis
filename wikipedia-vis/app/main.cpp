@@ -38,12 +38,6 @@ void keyfun(GLFWwindow* window, int key, int scancode, int action, int mods);
 void charfun(GLFWwindow* window, unsigned int codepoint);
 void glfw_errorfun(int error, const char* description);
 
-GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path);
-
-template<typename Graph, typename PositionMap>
-void dump_graph_layout(std::string name, const Graph& g, PositionMap position);
-
-
 int main(int argc, char *argv[])
 {
   // GLFW window layout
@@ -126,8 +120,8 @@ int main(int argc, char *argv[])
   // model.write_layout(fr_map);
 
   // dump graph layout to file
-  // auto pos_map = get(&vta::CatProp::position, model._graph);
-  // model.dump_graph(g, "test_dump");
+  auto pos_map = get(&vta::CatProp::position, model._graph);
+  model.dump_graph(g, "test_dump");
 
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;
