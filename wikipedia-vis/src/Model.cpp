@@ -265,6 +265,22 @@ struct layout_visitor : public boost::default_bfs_visitor
     }
 
     template<typename Vertex, typename Graph>
+    void print(Vertex child, Graph g, double arc_angle, double angle_space, double dist)
+    {
+        std::cout << g[child].title << " bisector limits: "
+        << g[child].r_bis_lim << ":"
+        << g[child].l_bis_lim << " tangent limits: "
+        << g[child].r_tan_lim << ":"
+        << g[child].l_tan_lim << " deg prev cat: "
+        << g[child].deg_prev_cat << " angle: "
+        << g[child].angle << " angle_space: "
+        << angle_space << " arc_angle: "
+        << arc_angle << " dist: "
+        << dist
+        << std::endl;
+    }
+
+    template<typename Vertex, typename Graph>
     void discover_vertex(Vertex v, Graph& g)
     {
         double radius = .2;
@@ -279,15 +295,15 @@ struct layout_visitor : public boost::default_bfs_visitor
 
             // set position for level 1 children;
             int index = 0;
-            for(auto ep = boost::out_edges(v, g); ep.first != ep.second; ep.first++) {
+            size_t level = g[v].level + 1;
+            Vertex prev_cat;
+            auto ep = boost::out_edges(v, g);
+            using EdgeIt = decltype(ep.first);
+            EdgeIt ei;
+            for(;ep.first != ep.second; ep.first++) {
                 auto child = boost::target(*ep.first, g);
-                // if(g[child].revid == 706026924 or g[child].revid == 700106825) {
-                //     std::cout << g[child].title
-                //     // << g[child].r_bis_lim
-                //     // << g[child].l_bis_lim
-                //     // << g[child].r_tan_lim
-                //     << g[child].l_tan_lim << std::endl;
-                // }
+                // set level because children are yet to be discoverd
+
                 g[child].position[0] += radius * cos(index * angle_space);
                 g[child].position[1] += radius * sin(index * angle_space);
                 g[child].color = YELLOW_SOFT;
@@ -297,14 +313,40 @@ struct layout_visitor : public boost::default_bfs_visitor
                 g[child].deg_prev_cat = g[child].angle - last_cat_angle;
                 g[child].r_bis_lim = g[child].angle - deg_prev_cat/2;
                 g[child].l_bis_lim = g[child].angle + deg_prev_cat/2;
-                double arc_angle = 4 * asin(dist * _depth /dist * (_depth + 1));
+                double arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
                 g[child].l_tan_lim = g[child].angle + (arc_angle/2);
                 g[child].r_tan_lim = g[child].angle - (arc_angle/2);
 
                 last_cat_angle = g[child].angle;
                 deg_prev_cat = g[child].deg_prev_cat;
+
+                //save last and first category to set limit for first and second cat
+                if(index == out_degree(v, g) -1) {
+                    prev_cat = child;
+                }
+                if(index == 0)
+                    ei = ep.first;
                 index++;
             }
+
+            Vertex first_cat = boost::target(*ei, g);
+            double remaining_deg = 2*M_PI - g[prev_cat].angle;
+            double deg_to_first = remaining_deg + g[first_cat].angle;
+            g[first_cat].r_bis_lim = g[first_cat].angle - deg_to_first/2;
+            g[first_cat].l_bis_lim = g[first_cat].angle + deg_to_first/2;
+            double arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
+            g[first_cat].l_tan_lim = g[first_cat].angle + (arc_angle/2);
+            g[first_cat].r_tan_lim = g[first_cat].angle - (arc_angle/2);
+
+            ei++;
+            Vertex second_cat = boost::target(*ei, g);
+            g[second_cat].deg_prev_cat = g[second_cat].angle - last_cat_angle;
+            g[second_cat].r_bis_lim = g[second_cat].angle - deg_prev_cat/2;
+            g[second_cat].l_bis_lim = g[second_cat].angle + deg_prev_cat/2;
+            arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
+            g[second_cat].l_tan_lim = g[second_cat].angle + (arc_angle/2);
+            g[second_cat].r_tan_lim = g[second_cat].angle - (arc_angle/2);
+
         }
         else if (g[v].level >= 1) {
             float last_cat_angle  = 0.0f;
@@ -314,22 +356,28 @@ struct layout_visitor : public boost::default_bfs_visitor
             radius += dist * g[v].level;
             double angle_space = (l_lim - r_lim)/out_degree(v, g);
 
-            int index = 0;
-            for(auto ep = boost::out_edges(v, g); ep.first != ep.second; ep.first++) {
-                auto child = boost::target(*ep.first, g);
-                std::cout << "processing child: " << g[child].title
+            if(g[v].level == 3) {
+                std::cout << "discovering child: " << g[v].title
                 << " x: " << g[v].position[0]
                 << " y: " << g[v].position[1] << std::endl;
+            }
 
+            int index = 0;
+            int child_lvl = g[v].level + 1;
+            for(auto ep = boost::out_edges(v, g); ep.first != ep.second; ep.first++) {
+                auto child = boost::target(*ep.first, g);
                 g[child].position[0] += radius * cos(angle_space * index + r_lim);
                 g[child].position[1] += radius * sin(angle_space * index + r_lim);
                 g[child].angle = angle_space * index + r_lim;
-                if(g[child].num_categories > 0){
+
+                // print(child, g, 0, angle_space, dist);
+                // caluclate limits if category has children
+                if(boost::out_degree(v, g) > 0){
                     g[child].angle = angle_space * index;
                     g[child].deg_prev_cat = g[child].angle - last_cat_angle;
                     g[child].r_bis_lim = g[child].angle - deg_prev_cat/2;
                     g[child].l_bis_lim = g[child].angle + deg_prev_cat/2;
-                    double arc_angle = 4 * asin(dist * _depth /dist * (_depth + 1));
+                    double arc_angle = 4 * asin(dist * child_lvl /(dist * (child_lvl + 1)));
                     g[child].l_tan_lim = g[child].angle + (arc_angle/2);
                     g[child].r_tan_lim = g[child].angle - (arc_angle/2);
 

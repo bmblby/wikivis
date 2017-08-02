@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <chrono>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -103,6 +104,7 @@ int main(int argc, char *argv[])
 
 
   // WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
+  auto t1  = std::chrono::high_resolution_clock::now();
   WikiDB wikidb("/media/HDD2/data/database/enwiki2016no-comp");
 
 
@@ -111,10 +113,20 @@ int main(int argc, char *argv[])
   // Category computer_science = wikidb.getCategoryByName("Computer science");
   // vta::Graph g = model.graph(computer_science, 2);
   Category main_topic_rev = wikidb.getCategoryByName("Main topic classifications");
-  size_t depth = 2;
+  size_t depth = 4;
 
+  auto t2  = std::chrono::high_resolution_clock::now();
   model.initIDDFS(main_topic_rev, depth);
+  auto t3  = std::chrono::high_resolution_clock::now();
   model.layout(main_topic_rev, main_window_width, main_window_height, depth);
+  auto t4  = std::chrono::high_resolution_clock::now();
+  auto duration_load_db = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
+  auto duration_build_graph = std::chrono::duration_cast<std::chrono::seconds>(t3 - t2);
+  auto duration_layout_graph = std::chrono::duration_cast<std::chrono::seconds>(t4 - t3);
+  std::cout << "load Database took: " << duration_load_db.count()
+  << "\nbuild Graph took: " << duration_build_graph.count()
+  << "\nlayout Graph took: " << duration_layout_graph.count() << std::endl;
+
 
   // auto fr_map = model.layout_circular(1.0);
   // model.write_layout(fr_map);
