@@ -373,7 +373,6 @@ struct layout_visitor : public boost::default_bfs_visitor
                 // print(child, g, 0, angle_space, dist);
                 // caluclate limits if category has children
                 if(boost::out_degree(v, g) > 0){
-                    g[child].angle = angle_space * index;
                     g[child].deg_prev_cat = g[child].angle - last_cat_angle;
                     g[child].r_bis_lim = g[child].angle - deg_prev_cat/2;
                     g[child].l_bis_lim = g[child].angle + deg_prev_cat/2;
