@@ -293,17 +293,18 @@ struct layout_visitor : public boost::default_bfs_visitor
             g[v].position[1] = 0;
             double angle_space = 2*M_PI / out_degree(v, g);
 
-            // set position for level 1 children;
             int index = 0;
+            // set level because children are yet to be discoverd
             size_t level = g[v].level + 1;
             Vertex prev_cat;
             auto ep = boost::out_edges(v, g);
             using EdgeIt = decltype(ep.first);
             EdgeIt ei;
+            //loop through children level 1
             for(;ep.first != ep.second; ep.first++) {
                 auto child = boost::target(*ep.first, g);
-                // set level because children are yet to be discoverd
 
+                //set position and color of nodes on level 1
                 g[child].position[0] += radius * cos(index * angle_space);
                 g[child].position[1] += radius * sin(index * angle_space);
                 g[child].color = YELLOW_SOFT;
