@@ -53,7 +53,6 @@ class Renderer
 
     float deltaTime;
 
-  protected:
     //Handlers for buffer and shader program
     GLuint _programID;
     GLuint _vaoNode;
