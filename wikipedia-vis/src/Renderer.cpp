@@ -295,6 +295,7 @@ Renderer::resize(int width, int height)
 
   //resize gl Viewport
   glViewport(0, 0, _width, _height);
+  redraw();
 //
 //   glMatrixMode(GL_PROJECTION); // modify the projection matrix
 //   glLoadIdentity();            // load an identity matrix into the projection matrix
@@ -366,6 +367,12 @@ Renderer::redraw()
   // Reload shaders
   _edgeShader->reloadShaders();
   _nodeShader->reloadShaders();
+
+  _projectionMatrix = glm::perspective(
+    glm::radians(_FOV),
+    (GLfloat)_width / (GLfloat)_height,
+    _near, _far
+  );
 
   std::cout << "Reload shaders" << std::endl;
 }

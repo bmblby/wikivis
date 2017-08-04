@@ -325,7 +325,6 @@ struct layout_visitor : public boost::default_bfs_visitor
                 index++;
             }
 
-            // Vertex first_cat = boost::target(*ei, g);
             double remaining_deg = 2*M_PI - _last_cat_angle;
             double deg_to_first = remaining_deg + g[first_cat].angle;
             g[first_cat].r_bis_lim = g[first_cat].angle - deg_to_first/2;
