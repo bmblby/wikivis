@@ -298,8 +298,7 @@ struct layout_visitor : public boost::default_bfs_visitor
             size_t level = g[v].level + 1;
             Vertex prev_cat;
             auto ep = boost::out_edges(v, g);
-            using EdgeIt = decltype(ep.first);
-            EdgeIt ei;
+            Vertex first_cat = boost::target(*ep.first, g);
             //loop through children level 1
             for(;ep.first != ep.second; ep.first++) {
                 auto child = boost::target(*ep.first, g);
@@ -312,8 +311,8 @@ struct layout_visitor : public boost::default_bfs_visitor
                 //calculate bisector and tangent limits
                 g[child].angle = angle_space * index;
                 g[child].deg_prev_cat = g[child].angle - last_cat_angle;
-                g[child].r_bis_lim = g[child].angle - deg_prev_cat/2;
-                g[child].l_bis_lim = g[child].angle + deg_prev_cat/2;
+                g[child].r_bis_lim = g[child].angle - g[child].deg_prev_cat/2;
+                g[child].l_bis_lim = g[child].angle + g[child].deg_prev_cat/2;
                 double arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
                 g[child].l_tan_lim = g[child].angle + (arc_angle/2);
                 g[child].r_tan_lim = g[child].angle - (arc_angle/2);
@@ -321,32 +320,19 @@ struct layout_visitor : public boost::default_bfs_visitor
                 last_cat_angle = g[child].angle;
                 deg_prev_cat = g[child].deg_prev_cat;
 
-                //save last and first category to set limit for first and second cat
-                if(index == out_degree(v, g) -1) {
-                    prev_cat = child;
-                }
-                if(index == 0)
-                    ei = ep.first;
+                _last_cat_angle = g[child].angle;
+
                 index++;
             }
 
-            Vertex first_cat = boost::target(*ei, g);
-            double remaining_deg = 2*M_PI - g[prev_cat].angle;
+            // Vertex first_cat = boost::target(*ei, g);
+            double remaining_deg = 2*M_PI - _last_cat_angle;
             double deg_to_first = remaining_deg + g[first_cat].angle;
             g[first_cat].r_bis_lim = g[first_cat].angle - deg_to_first/2;
             g[first_cat].l_bis_lim = g[first_cat].angle + deg_to_first/2;
             double arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
             g[first_cat].l_tan_lim = g[first_cat].angle + (arc_angle/2);
             g[first_cat].r_tan_lim = g[first_cat].angle - (arc_angle/2);
-
-            ei++;
-            Vertex second_cat = boost::target(*ei, g);
-            g[second_cat].deg_prev_cat = g[second_cat].angle - last_cat_angle;
-            g[second_cat].r_bis_lim = g[second_cat].angle - deg_prev_cat/2;
-            g[second_cat].l_bis_lim = g[second_cat].angle + deg_prev_cat/2;
-            arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
-            g[second_cat].l_tan_lim = g[second_cat].angle + (arc_angle/2);
-            g[second_cat].r_tan_lim = g[second_cat].angle - (arc_angle/2);
 
         }
         else if (g[v].level >= 1) {
