@@ -346,7 +346,11 @@ struct layout_visitor : public boost::default_bfs_visitor
 
             int index = 0;
             int child_lvl = g[v].level + 1;
-            for(auto ep = boost::out_edges(v, g); ep.first != ep.second; ep.first++) {
+            auto ep = boost::out_edges(v, g);
+            Vertex first_cat = boost::target(*ep.first, g);
+            Vertex prev_cat;
+
+            for(; ep.first != ep.second; ep.first++) {
                 auto child = boost::target(*ep.first, g);
                 g[child].position[0] += radius * cos(angle_space * index + r_lim);
                 g[child].position[1] += radius * sin(angle_space * index + r_lim);
@@ -355,8 +359,8 @@ struct layout_visitor : public boost::default_bfs_visitor
                 // caluclate limits if category has children
                 if(boost::out_degree(v, g) > 0){
                     g[child].deg_prev_cat = g[child].angle - last_cat_angle;
-                    g[child].r_bis_lim = g[child].angle - deg_prev_cat/2;
-                    g[child].l_bis_lim = g[child].angle + deg_prev_cat/2;
+                    g[child].r_bis_lim = g[child].angle - g[child].deg_prev_cat/2;
+                    g[child].l_bis_lim = g[child].angle + g[child].deg_prev_cat/2;
                     double arc_angle = 4 * asin(dist * child_lvl /(dist * (child_lvl + 1)));
                     g[child].l_tan_lim = g[child].angle + (arc_angle/2);
                     g[child].r_tan_lim = g[child].angle - (arc_angle/2);
@@ -364,16 +368,27 @@ struct layout_visitor : public boost::default_bfs_visitor
                     last_cat_angle = g[child].angle;
                     deg_prev_cat = g[child].deg_prev_cat;
                 }
+                _last_cat_angle = g[child].deg_prev_cat;
                 index++;
             }
-        }
 
+            double remaining_deg = 2*M_PI - _last_cat_angle;
+            // double deg_to_first = remaining_deg + g[first_cat].angle;
+            double deg_to_first = _last_cat_angle;
+            g[first_cat].r_bis_lim = g[first_cat].angle - deg_to_first/2;
+            g[first_cat].l_bis_lim = g[first_cat].angle + deg_to_first/2;
+            double arc_angle = 4 * asin(dist * child_lvl /(dist * (child_lvl + 1)));
+            g[first_cat].l_tan_lim = g[first_cat].angle + (arc_angle/2);
+            g[first_cat].r_tan_lim = g[first_cat].angle - (arc_angle/2);
+
+        }
     }
 
 
     //member
     size_t _w;
     size_t _h;
+    double _last_cat_angle;
     size_t _depth;
     PosMap& _pmap;
 
