@@ -79,13 +79,10 @@ class Renderer
     float _top;
     float _near;
     float _far;
+    gloost::human_input::MouseState _mouse;
 
     // graph model
     Model& _model;
-
-
-    gloost::Point3 _mouse_pos;
-    gloost::human_input::MouseState _mouse;
 
     // gl ressources
     std::shared_ptr<gloost::gl::ShaderProgram> _edgeShader;

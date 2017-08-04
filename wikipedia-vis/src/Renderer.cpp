@@ -28,7 +28,6 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
   _far(10.0f),
 
   _model(model),
-  _mouse_pos(0.0, 0.0, 0.0),
 
   _edgeShader(nullptr),
   _nodeShader(nullptr),
@@ -355,7 +354,6 @@ void
 Renderer::set_mouse(gloost::human_input::MouseState mouse)
 {
   _mouse = mouse;
-  _mouse_pos = mouse.getPosition();
 }
 
 void
