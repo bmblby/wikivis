@@ -343,11 +343,6 @@ struct layout_visitor : public boost::default_bfs_visitor
             radius += dist * g[v].level;
             double angle_space = (l_lim - r_lim)/out_degree(v, g);
 
-            if(g[v].level == 3) {
-                std::cout << "discovering child: " << g[v].title
-                << " x: " << g[v].position[0]
-                << " y: " << g[v].position[1] << std::endl;
-            }
 
             int index = 0;
             int child_lvl = g[v].level + 1;
@@ -357,7 +352,6 @@ struct layout_visitor : public boost::default_bfs_visitor
                 g[child].position[1] += radius * sin(angle_space * index + r_lim);
                 g[child].angle = angle_space * index + r_lim;
 
-                // print(child, g, 0, angle_space, dist);
                 // caluclate limits if category has children
                 if(boost::out_degree(v, g) > 0){
                     g[child].deg_prev_cat = g[child].angle - last_cat_angle;
@@ -374,11 +368,6 @@ struct layout_visitor : public boost::default_bfs_visitor
             }
         }
 
-        // debug
-        // std::cout << g[v].title
-        // << " x: " << g[v].position[0]
-        // << " y: " << g[v].position[1] << std::endl;
-        // std::cout << g[v].title <<  "<-title : level ->" << g[v].level << std::endl;
     }
 
 
@@ -386,8 +375,6 @@ struct layout_visitor : public boost::default_bfs_visitor
     size_t _w;
     size_t _h;
     size_t _depth;
-    size_t _index = 0;
-    size_t _index1 = 0;
     PosMap& _pmap;
 
 };
