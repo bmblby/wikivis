@@ -22,6 +22,7 @@ struct View
     void beginFrame();
     void endFrame();
     void cleanup();
+    void resize();
 
     //draw
     void drawHomeView();

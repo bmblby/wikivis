@@ -46,6 +46,12 @@ View::cleanup()
 }
 
 void
+View::resize()
+{
+    glfwGetWindowSize(_window, &_width, &_height);
+}
+
+void
 View::drawBubble() const
 {
     int center_x = _width/2;

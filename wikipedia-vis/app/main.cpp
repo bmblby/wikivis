@@ -27,6 +27,7 @@ using namespace nanogui;
 //pointer
 vta::Renderer* renderer_ptr;
 vta::Controller* ctrl_ptr;
+vta::View* view_ptr;
 vta::Gui* guip;
 Screen *screen = nullptr;
 
@@ -151,7 +152,7 @@ int main(int argc, char *argv[])
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
 
   vta::View view(model, main_window);
-  // view.drawHomeView();
+  view_ptr = &view;
 
   vta::Controller ctrl(model, renderer, view, gui);
   ctrl_ptr = &ctrl;
@@ -193,6 +194,7 @@ int main(int argc, char *argv[])
 void resizefun(GLFWwindow* window, int width, int height)
 {
   guip->resizefun(width, height);
+  view_ptr->resize();
   renderer_ptr->resize(width, height);
 }
 
