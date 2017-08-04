@@ -283,7 +283,7 @@ struct layout_visitor : public boost::default_bfs_visitor
     template<typename Vertex, typename Graph>
     void discover_vertex(Vertex v, Graph& g)
     {
-        double radius = .2;
+        double radius = .7;
         double dist = radius/ _depth;
         set_level(v, g);
         if(g[v].level == 0) {
