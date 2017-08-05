@@ -50,6 +50,7 @@ class Controller
     // Toggle if strg-key is pressed
     bool hover_state = false;
     bool zoom_state = true;
+    bool proj_state = true;
     bool _strg_key_pressed;
 };
 

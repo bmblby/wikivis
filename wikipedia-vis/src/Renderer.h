@@ -53,7 +53,6 @@ class Renderer
 
     float deltaTime;
 
-  protected:
     //Handlers for buffer and shader program
     GLuint _programID;
     GLuint _vaoNode;
@@ -67,6 +66,9 @@ class Renderer
     glm::mat4 _viewMatrix;
     glm::mat4 _modelMatrix;
     glm::mat4 _scaleM;
+
+    glm::mat4 _orthoMat;
+    glm::mat4 _perspMat;
 
     //controls
     glm::vec3 _cameraPos;

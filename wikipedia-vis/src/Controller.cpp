@@ -93,9 +93,22 @@ Controller::keyPress(int key, int mods)
             // _renderer.redraw();
             break;
         }
-    case 323: //GLFW_KEY_KP_2
+    case 322: //GLFW_KEY_KP_2
         {
             zoom_state = !zoom_state;
+        }
+
+    case 323: //GLFW_KEY_KP_3
+        {
+            if(proj_state) {
+                _renderer._projectionMatrix = _renderer._orthoMat;
+                std::cout << "Orthogonal Projection\n";
+            }
+            else {
+                _renderer._projectionMatrix = _renderer._perspMat;
+                std::cout << "Perspective Projection\n";
+            }
+            proj_state = !proj_state;
         }
 
         // case 257: // ENTER

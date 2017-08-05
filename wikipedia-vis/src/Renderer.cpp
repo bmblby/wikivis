@@ -16,14 +16,14 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
   _FOV(45.0f),
 
   // ortho projection
-  _left(0),
-  _right(_width),
-  _bottom(_height),
-  _top(0),
-  // _left(-1.0f),
-  // _right(1.0f),
-  // _bottom(-1.0f),
-  // _top(1.0f),
+  // _left(0),
+  // _right(_width),
+  // _bottom(0),
+  // _top(_height),
+  _left(-5.0f),
+  _right(5.0f),
+  _bottom(-5.0f),
+  _top(5.0f),
   _near(0.1f),
   _far(10.0f),
 
@@ -43,21 +43,15 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
   // initalize Model View Projection
 
   // perspective view
-  _projectionMatrix = glm::perspective(
+  _perspMat = glm::perspective(
     glm::radians(_FOV),
     (GLfloat)_width / (GLfloat)_height,
     _near, _far
   );
 
   // orthographic view
-  // _projectionMatrix = glm::ortho(
-  //   _left,
-  //   _right,
-  //   _bottom,
-  //   _top,
-  //   _near,
-  //   _far
-  // );
+  // _orthoMat = glm::ortho(0, _width, 0, _height, _near, _far);
+  _orthoMat = glm::ortho(_left, _right, _bottom, _top, -50.0f, 50.0f);
 
   _viewMatrix = glm::lookAt(
     _cameraPos,
@@ -65,11 +59,8 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
     glm::vec3(0, 1, 0)  // head is up (0,-1,0) is upsidedown
   );
 
-  // translation for orthographic projection
-  // _modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(_width/2, _height/2, 0.0f));
-  // float scale(100.0f);
-  // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(scale, scale, 0.0f));
-
+  _projectionMatrix = _orthoMat;
+  // _projectionMatrix = _perspMat;
   _modelMatrix = glm::mat4(1.0f);
   _MVP = _projectionMatrix * _viewMatrix * _modelMatrix;
 }
