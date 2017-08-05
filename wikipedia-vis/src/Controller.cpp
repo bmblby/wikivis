@@ -64,7 +64,7 @@ Controller::mouseMove(int x, int y, int state)
 void
 Controller::mouseScroll(float yoffset)
 {
-    // Zoom in
+    // Zoom in defautl zoom ortho
     if(zoom_state)
         //BUG no position transaltion
         _renderer.zoom(yoffset);
