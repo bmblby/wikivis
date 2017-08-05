@@ -103,24 +103,25 @@ int main(int argc, char *argv[])
   // used to catch escape key
   glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
 
-
-  // WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
   auto t1  = std::chrono::high_resolution_clock::now();
-  WikiDB wikidb("/media/HDD2/data/database/enwiki2016no-comp");
-
+  WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016no-comp");
+  // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-02-comp");
+  // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-full");
 
   // Graph init
   vta::Model model(wikidb);
-  // Category computer_science = wikidb.getCategoryByName("Computer science");
+  Category computer_science = wikidb.getCategoryByName("Computer science");
   // vta::Graph g = model.graph(computer_science, 2);
-  Category main_topic_rev = wikidb.getCategoryByName("Main topic classifications");
-  size_t depth = 4;
+  Category main_topic = wikidb.getCategoryByName("Main topic classifications");
+  size_t depth = 3;
 
   auto t2  = std::chrono::high_resolution_clock::now();
-  model.initIDDFS(main_topic_rev, depth);
+  model.initIDDFS(computer_science , depth);
   auto t3  = std::chrono::high_resolution_clock::now();
-  model.layout(main_topic_rev, main_window_width, main_window_height, depth);
+  model.layout(computer_science , main_window_width, main_window_height, depth);
   auto t4  = std::chrono::high_resolution_clock::now();
+
+  //time plot
   auto duration_load_db = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
   auto duration_build_graph = std::chrono::duration_cast<std::chrono::seconds>(t3 - t2);
   auto duration_layout_graph = std::chrono::duration_cast<std::chrono::seconds>(t4 - t3);
