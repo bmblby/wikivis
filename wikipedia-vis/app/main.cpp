@@ -108,8 +108,9 @@ int main(int argc, char *argv[])
   glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
 
 
-  // WikiDB wikidb("/dev/shm/wiki-vis-data/pages");
-  WikiDB wikidb("/media/HDD2/data/database/enwiki2016no-comp");
+  WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016no-comp");
+  // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-02-comp");
+  // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-full");
 
 
   // Graph init
