@@ -1,6 +1,6 @@
-[submodule "wikipedia-vis/ext/nanovg"]
-	path = wikipedia-vis/ext/nanovg
-	url = https://github.com/memononen/nanovg
 [submodule "wikipedia-vis/ext/nanogui"]
 	path = wikipedia-vis/ext/nanogui
 	url = https://github.com/wjakob/nanogui
+[submodule "wikipedia-vis/ext/nanovg"]
+	path = wikipedia-vis/ext/nanovg
+	url = https://github.com/bmblby/nanovg.git
