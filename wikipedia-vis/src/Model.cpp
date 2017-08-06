@@ -56,7 +56,7 @@ Model::buildDFS(Graph& g, Category const& cat, size_t depth)
                 continue;
             }
             auto pair = add_cat(g, children.back(), v_parent);
-            g[pair.first].color = YELLOW_SOFT;
+            g[pair.first].color = YELLOW;
             buildDFS(g, children.back(), depth);
             children.pop_back();
         }
@@ -306,7 +306,7 @@ struct layout_visitor : public boost::default_bfs_visitor
                 //set position and color of nodes on level 1
                 g[child].position[0] += radius * cos(index * angle_space);
                 g[child].position[1] += radius * sin(index * angle_space);
-                g[child].color = YELLOW_SOFT;
+                g[child].color = YELLOW;
 
                 //calculate bisector and tangent limits
                 g[child].angle = angle_space * index;

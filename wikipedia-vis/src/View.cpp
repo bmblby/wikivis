@@ -65,11 +65,12 @@ View::set_labels()
             // std::cout << "model pos: " << pos[0] << " : " << pos[1] << std::endl;
             glm::vec3 view_pos = project(pos[0], pos[1]);
 
-            nvgFontSize(_vg, 12.0f);
+            nvgFontSize(_vg, 20.0f);
             nvgFontFace(_vg, "verdana");
-            nvgFillColor(_vg, nvgRGBA(255,255,255,255));
+            nvgFillColor(_vg, nvgRGBA(243,245,248,255));
+            // nvgFillColor(_vg, nvgRGBA(46,59,69,255));
             nvgTextAlign(_vg, NVG_ALIGN_LEFT);
-            nvgText(_vg, view_pos[0], view_pos[1], title.c_str(), NULL);
+            nvgText(_vg, view_pos[0]+4, view_pos[1]+4, title.c_str(), NULL);
         }
     }
 

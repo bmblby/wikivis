@@ -161,7 +161,11 @@ Renderer::display()
     fill_vbos();
 
   // // setup clear color and clear screen
-  glClearColor(0.059f, 0.176f, 0.251f, 0.0f);
+  // glClearColor(0.059f, 0.176f, 0.251f, 0.0f);  //BLUE_BACK
+  // glClearColor(0.918f, 0.933f, 0.949f, 0.9f);  //WHITE_BACK
+  glClearColor(0.298f, 0.333f, 0.361f, 0.9f);  //WHITE_BACK
+
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
