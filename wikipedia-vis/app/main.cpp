@@ -175,9 +175,9 @@ int main(int argc, char *argv[])
 
     // Main Window (Visualization)
     renderer.display();
-    // view.beginFrame();
-    // view.drawBubble();
-    // view.endFrame();
+    view.beginFrame();
+    view.set_labels();
+    view.endFrame();
 
     gui.display();
 

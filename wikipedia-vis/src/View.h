@@ -25,8 +25,7 @@ struct View
     void resize();
 
     //draw
-    void drawHomeView();
-    void drawBubble () const;
+    void set_labels();
 
     void panning(glm::vec3 const& vec);
 
