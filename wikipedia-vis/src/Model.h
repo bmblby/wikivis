@@ -29,17 +29,25 @@
 namespace vta
 {
 //colors
-#define RED_NODE            {.93, .32, .25, .6}
-#define PINK                {.98, .12, 1.0, .6}
-#define YELLOW_SOFT         {1.0, .98, .36, .6}
-#define YELLOW_SUN          {1.0, .99, .0, .9}
-#define GREY_SOFT           {.22, .24, .39, .9}
-#define WHITE               {.95, .97, 1.0, .5}
-#define BLUE_BACK           {.29, .51, .65, .5}
+#define RED_NODE            {0.93, 0.32, 0.25, 0.65}
+#define PINK                {0.98, 0.12, 1.0, 0.9}
+#define YELLOW              {0.96, 0.80, 0.02, 0.9}
+#define WHITE_1               {0.95, 0.97, 1.0, 0.9}
+#define BLUE_SOFT           {0.32, 0.60, 0.83, 0.9}
+#define GREEN_SOFT          {0.18, 0.67, 0.64, 0.9}
+#define BLUE_BACK           {0.059, 0.176, 0.251, 0.2}
+
+// https://color.adobe.com/Dark-UI-color-theme-7388200/edit/?copy=true
+#define GREY_0           {0.125, 0.145, 0.161, 0.9}
+#define GREY_1           {0.196, 0.220, 0.239, 0.9}
+#define GREY_2           {0.298, 0.333, 0.361, 0.9}
+#define WHITE_0          {0.953, 0.961, 0.973, 0.9}
+#define BLUE_0           {0.0, 0.608, 1.0, 0.9}
+
 
 using Point = boost::square_topology<>::point_type;
 struct CatProp {
-    CatProp(): color(RED_NODE) {}
+    CatProp(): color(BLUE_SOFT) {}
     uint32_t index;
     uint32_t revid;
     std::string title;
@@ -60,7 +68,7 @@ struct CatProp {
 };
 
 struct EdgeProp {
-  EdgeProp(): color(WHITE) {}
+  EdgeProp(): color(GREY_1) {}
   static uint32_t weight;
   std::array<float, 4> mutable color;
 };
@@ -97,7 +105,7 @@ class Model
     add_cat(Graph& g,
                 Category const& cat,
                 Vertex const& parent,
-                std::array<float, 4> color = RED_NODE
+                std::array<float, 4> color = BLUE_SOFT
     );
 
     //layouts with BGL

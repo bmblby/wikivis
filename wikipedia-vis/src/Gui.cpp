@@ -14,6 +14,7 @@ Gui::Gui(GLFWwindow* window, Model& model):
     _screen = new nanogui::Screen();
     _screen->initialize(_glfwWindow, true);
 
+    glfwGetWindowSize(_glfwWindow, &_width, &_height);
     _gui = new nanogui::FormHelper(_screen);
 }
 
@@ -65,10 +66,9 @@ Gui::search_box(glm::vec3 pos, int width, int height)
         Category cat;
         if(_model.find(name, cat)) {
             std::cout << "Found cat: " << cat.title << "\n";
-            _model.initGraph(cat, depth);
+            _model.initIDDFS(cat, depth);
+            _model.layout(cat, _width, _height, depth);
             _model._dirty = true;
-            auto fr_map = _model.layout_FR();
-            _model.write_layout(fr_map);
             return true;
         } else {
             std::cout << "Input not found please try again\n";

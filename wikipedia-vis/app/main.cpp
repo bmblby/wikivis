@@ -167,8 +167,6 @@ int main(int argc, char *argv[])
     double currentTime = glfwGetTime();
     float deltaTime = float(currentTime - lastTime);
     renderer.deltaTime = deltaTime;
-    glClearColor(0.059f, 0.176f, 0.251f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Main Window (Visualization)
     renderer.display();
