@@ -152,7 +152,10 @@ int main(int argc, char *argv[])
   guip = &gui;
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
 
-  vta::View view(model, main_window);
+  vta::View view(model, main_window,
+    renderer._modelMatrix,
+    renderer._viewMatrix,
+    renderer._projectionMatrix);
   view_ptr = &view;
 
   vta::Controller ctrl(model, renderer, view, gui);

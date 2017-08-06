@@ -18,7 +18,7 @@ struct View
 {
     // class constructor
     // View(Model& model,  Gui& gui, GLFWwindow* window);
-    View(Model& model,  GLFWwindow* window);
+    View(Model& model,  GLFWwindow* window, glm::mat4 m, glm::mat4 view, glm::mat4 proj);
     void beginFrame();
     void endFrame();
     void cleanup();
@@ -30,10 +30,15 @@ struct View
 
     void panning(glm::vec3 const& vec);
 
+    glm::vec3 project(double x, double y);
+
     //member
     Model& _model;
     GLFWwindow* _window;
     NVGcontext* _vg;
+    glm::mat4 _model_mat;
+    glm::mat4 _view_mat;
+    glm::mat4 _proj_mat;
 
     // Gui& _gui;
     int _width;

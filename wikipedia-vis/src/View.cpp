@@ -7,8 +7,11 @@ namespace vta
 {
 
 // View::View(Model& model, Gui& gui, GLFWwindow* window):
-View::View(Model& model, GLFWwindow* window):
+View::View(Model& model, GLFWwindow* window, glm::mat4 m, glm::mat4 view, glm::mat4 proj):
 _model(model),
+_model_mat(m),
+_view_mat(view),
+_proj_mat(proj),
 _window(window)
 // _gui(gui)
 {
@@ -88,12 +91,14 @@ View::drawBubble() const
 }
 
 
-void
-View::drawHomeView()
+glm::vec3
+View::project(double x, double y)
 {
-  // _gui.search_box(glm::vec3(10, 10, 0), 45, 25);
-  // _gui.display();
-
+    glm::vec3 m_pos = glm::vec3(x, y, 0);
+    // std::cout << "model pos (" << glm::to_string(m_pos) << ")\n";
+    glm::vec3 s_pos = glm::project(m_pos, _model_mat * _view_mat, _proj_mat, glm::vec4(0, 0, _width, _height));
+    // std::cout << "glm proj: (" << glm::to_string(s_pos) << ")\n";
+    return s_pos;
 }
 
 } // namspace vta
