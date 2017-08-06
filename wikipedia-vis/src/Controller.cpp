@@ -98,6 +98,7 @@ Controller::keyPress(int key, int mods)
         }
     case 322: //GLFW_KEY_KP_2
         {
+            //default state FOV
             zoom_state = !zoom_state;
             if(zoom_state)
                 std::cout << "zoomFOV activ!\n";
@@ -105,6 +106,19 @@ Controller::keyPress(int key, int mods)
                 std::cout << "zoom(scale) activ!\n";
         }
 
+    case 323: //GLFW_KEY_KP_3
+        {
+            //default state perspective
+            proj_state = !proj_state;
+            if(proj_state) {
+                _renderer._projectionMatrix = _renderer._perspMat;
+                std::cout << "Perspective Projection\n";
+            }
+            else {
+                _renderer._projectionMatrix = _renderer._orthoMat;
+                std::cout << "Orthogonal Projection\n";
+            }
+        }
         // case 257: // ENTER
         // {
         //     // open wikipage of selected node
