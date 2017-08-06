@@ -104,15 +104,13 @@ int main(int argc, char *argv[])
   glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
 
   auto t1  = std::chrono::high_resolution_clock::now();
-  WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016no-comp");
-  // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-02-comp");
+  // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016no-comp");
+  WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-02-comp");
   // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-full");
 
   // Graph init
   vta::Model model(wikidb);
   Category computer_science = wikidb.getCategoryByName("Computer science");
-  // vta::Graph g = model.graph(computer_science, 2);
-  Category main_topic = wikidb.getCategoryByName("Main topic classifications");
   size_t depth = 3;
 
   auto t2  = std::chrono::high_resolution_clock::now();
