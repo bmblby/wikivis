@@ -7,7 +7,7 @@ namespace vta
 {
 
 // View::View(Model& model, Gui& gui, GLFWwindow* window):
-View::View(Model& model, GLFWwindow* window, glm::mat4 m, glm::mat4 view, glm::mat4 proj):
+View::View(Model& model, GLFWwindow* window, glm::mat4& m, glm::mat4& view, glm::mat4& proj):
 _model(model),
 _model_mat(m),
 _view_mat(view),
@@ -63,8 +63,8 @@ View::set_labels()
             auto title = _model._graph[*vp.first].title;
             auto pos = _model._graph[*vp.first].position;
             // std::cout << "model pos: " << pos[0] << " : " << pos[1] << std::endl;
-            glm::vec3 view_pos = project( _model._graph[*vp.first].position[0], _model._graph[*vp.first].position[1]);
-            // std::cout << glm::to_string(view_pos) << std::endl;
+            glm::vec3 view_pos = project(pos[0], pos[1]);
+
             nvgFontSize(_vg, 12.0f);
             nvgFontFace(_vg, "verdana");
             nvgFillColor(_vg, nvgRGBA(255,255,255,255));
@@ -80,7 +80,7 @@ View::project(double x, double y)
 {
     glm::vec3 m_pos = glm::vec3(x, y, 0);
     // std::cout << "model pos (" << glm::to_string(m_pos) << ")\n";
-    glm::vec3 s_pos = glm::project(m_pos, _model_mat * _view_mat, _proj_mat, glm::vec4(0, 0, _width, _height));
+    glm::vec3 s_pos = glm::project(m_pos, _model_mat * _view_mat, _proj_mat, glm::vec4(_width, _height, -_width, -_height));
     // std::cout << "glm proj: (" << glm::to_string(s_pos) << ")\n";
     return s_pos;
 }

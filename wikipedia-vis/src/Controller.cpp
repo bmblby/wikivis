@@ -54,7 +54,6 @@ Controller::mouseMove(int x, int y, int state)
     if(_mouse.getButtonState(GLOOST_MOUSESTATE_BUTTON0) ) {
         glm::vec3 vec = glm::vec3(x - _start.x, y - _start.y, 0.0);
         glm::vec3 inv_vec(-vec.x, -vec.y, -vec.z);
-        // _view.panning(inv_vec);
         _renderer.translate(inv_vec);
     }
     if(hover_state == true)
