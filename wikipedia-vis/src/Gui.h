@@ -42,6 +42,8 @@ class Gui
     nanogui::Window* _window;
     nanogui::FormHelper* _gui;
 
+    int _width;
+    int _height;
 };
 
 } // namespace vta
