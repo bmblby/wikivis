@@ -53,7 +53,6 @@ class Renderer
 
     float deltaTime;
 
-  protected:
     //Handlers for buffer and shader program
     GLuint _programID;
     GLuint _vaoNode;
@@ -66,6 +65,10 @@ class Renderer
     glm::mat4 _projectionMatrix;
     glm::mat4 _viewMatrix;
     glm::mat4 _modelMatrix;
+    glm::mat4 _scaleM;
+
+    glm::mat4 _orthoMat;
+    glm::mat4 _perspMat;
 
     //controls
     glm::vec3 _cameraPos;
@@ -79,13 +82,10 @@ class Renderer
     float _top;
     float _near;
     float _far;
+    gloost::human_input::MouseState _mouse;
 
     // graph model
     Model& _model;
-
-
-    gloost::Point3 _mouse_pos;
-    gloost::human_input::MouseState _mouse_state;
 
     // gl ressources
     std::shared_ptr<gloost::gl::ShaderProgram> _edgeShader;

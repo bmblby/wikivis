@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <chrono>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -26,6 +27,7 @@ using namespace nanogui;
 //pointer
 vta::Renderer* renderer_ptr;
 vta::Controller* ctrl_ptr;
+vta::View* view_ptr;
 vta::Gui* guip;
 Screen *screen = nullptr;
 
@@ -37,12 +39,6 @@ void cursorposfun(GLFWwindow* window, double xpos, double ypos);
 void keyfun(GLFWwindow* window, int key, int scancode, int action, int mods);
 void charfun(GLFWwindow* window, unsigned int codepoint);
 void glfw_errorfun(int error, const char* description);
-
-GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path);
-
-template<typename Graph, typename PositionMap>
-void dump_graph_layout(std::string name, const Graph& g, PositionMap position);
-
 
 int main(int argc, char *argv[])
 {
@@ -107,27 +103,35 @@ int main(int argc, char *argv[])
   // used to catch escape key
   glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
 
-
-  WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016no-comp");
-  // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-02-comp");
+  auto t1  = std::chrono::high_resolution_clock::now();
+  // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016no-comp");
+  WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-02-comp");
   // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016-full");
-
 
   // Graph init
   vta::Model model(wikidb);
-  // Category computer_science = wikidb.getCategoryByName("Computer science");
-  // vta::Graph g = model.graph(computer_science, 2);
-  Category main_topic_rev = wikidb.getCategoryByName("Main topic classifications");
+  Category computer_science = wikidb.getCategoryByName("Computer science");
+  size_t depth = 3;
+  auto t2  = std::chrono::high_resolution_clock::now();
+  model.initIDDFS(computer_science , depth);
+  auto t3  = std::chrono::high_resolution_clock::now();
+  model.layout(computer_science , main_window_width, main_window_height, depth);
+  auto t4  = std::chrono::high_resolution_clock::now();
+
+  //time plot
+  auto duration_load_db = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
+  auto duration_build_graph = std::chrono::duration_cast<std::chrono::seconds>(t3 - t2);
+  auto duration_layout_graph = std::chrono::duration_cast<std::chrono::seconds>(t4 - t3);
+  std::cout << "load Database took: " << duration_load_db.count()
+  << "\nbuild Graph took: " << duration_build_graph.count()
+  << "\nlayout Graph took: " << duration_layout_graph.count() << std::endl;
 
 
-  // Category main_topic_rev = wikidb.getCategoryByRevid(685314943);
-  model.initGraph(main_topic_rev, 2);
-  auto fr_map = model.layout_circular(1.0);
-  model.write_layout(fr_map);
+  // auto fr_map = model.layout_circular(1.0);
+  // model.write_layout(fr_map);
 
   // dump graph layout to file
-  // auto pos_map = get(&vta::CatProp::position, model._graph);
-  // model.dump_graph(g, "test_dump");
+  model.dump_graph("test_dump");
 
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;
@@ -145,8 +149,11 @@ int main(int argc, char *argv[])
   guip = &gui;
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
 
-  vta::View view(model, main_window);
-  // view.drawHomeView();
+  vta::View view(model, main_window,
+    renderer._modelMatrix,
+    renderer._viewMatrix,
+    renderer._projectionMatrix);
+  view_ptr = &view;
 
   vta::Controller ctrl(model, renderer, view, gui);
   ctrl_ptr = &ctrl;
@@ -164,9 +171,9 @@ int main(int argc, char *argv[])
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Main Window (Visualization)
-    // renderer.display();
+    renderer.display();
     view.beginFrame();
-    view.drawBubble();
+    view.set_labels();
     view.endFrame();
 
     gui.display();
@@ -188,6 +195,7 @@ int main(int argc, char *argv[])
 void resizefun(GLFWwindow* window, int width, int height)
 {
   guip->resizefun(width, height);
+  view_ptr->resize();
   renderer_ptr->resize(width, height);
 }
 

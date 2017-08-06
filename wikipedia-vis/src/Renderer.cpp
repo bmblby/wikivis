@@ -16,19 +16,18 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
   _FOV(45.0f),
 
   // ortho projection
-  _left(0),
-  _right(_width),
-  _bottom(_height),
-  _top(0),
-  // _left(-1.0f),
-  // _right(1.0f),
-  // _bottom(-1.0f),
-  // _top(1.0f),
+  // _left(0),
+  // _right(_width),
+  // _bottom(0),
+  // _top(_height),
+  _left(-5.0f),
+  _right(5.0f),
+  _bottom(-5.0f),
+  _top(5.0f),
   _near(0.1f),
   _far(10.0f),
 
   _model(model),
-  _mouse_pos(0.0, 0.0, 0.0),
 
   _edgeShader(nullptr),
   _nodeShader(nullptr),
@@ -43,34 +42,29 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
 
   // initalize Model View Projection
 
-  // perspective view
-  _projectionMatrix = glm::perspective(
-    glm::radians(_FOV),
-    (GLfloat)_width / (GLfloat)_height,
-    _near, _far
-  );
-
-  // orthographic view
-  // _projectionMatrix = glm::ortho(
-  //   _left,
-  //   _right,
-  //   _bottom,
-  //   _top,
-  //   _near,
-  //   _far
-  // );
-
   _viewMatrix = glm::lookAt(
     _cameraPos,
     glm::vec3(0, 0, 0), // direction where the camera is looking
     glm::vec3(0, 1, 0)  // head is up (0,-1,0) is upsidedown
   );
 
+  //setup orthogonal and perspective projection
+  _perspMat = glm::perspective(
+    glm::radians(_FOV),
+    (GLfloat)_width / (GLfloat)_height,
+    _near, _far
+  );
+
+  // _orthoMat = glm::ortho(0, _width, 0, _height, _near, _far);
+  _orthoMat = glm::ortho(_left, _right, _bottom, _top, -50.0f, 50.0f);
   // translation for orthographic projection
   // _modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(_width/2, _height/2, 0.0f));
   // float scale(100.0f);
   // _modelMatrix = glm::scale(_modelMatrix, glm::vec3(scale, scale, 0.0f));
 
+  // set default projection
+  // _projectionMatrix = _orthoMat;
+  _projectionMatrix = _perspMat;
   _modelMatrix = glm::mat4(1.0f);
   _MVP = _projectionMatrix * _viewMatrix * _modelMatrix;
 }
@@ -97,7 +91,6 @@ Renderer::initialize()
   // _nodeShader->attachShaderFile(GLOOST_SHADERPROGRAM_GEOMETRY_SHADER, node_g);
 
   // gen VAOs and VBOs
-  // _programID = LoadShaders( "SimpleTransform.vertexshader", "SimpleColor.fragmentshader" );
   glGenVertexArrays(1, &_vaoNode);
   glGenBuffers(1, &_vboNode);
   glGenVertexArrays(1, &_vaoEdge);
@@ -295,16 +288,12 @@ Renderer::resize(int width, int height)
 
   //resize gl Viewport
   glViewport(0, 0, _width, _height);
-//
-//   glMatrixMode(GL_PROJECTION); // modify the projection matrix
-//   glLoadIdentity();            // load an identity matrix into the projection matrix
-//   // glOrtho(0, width, height, 0, 0.1f, 100.0f); // create new projection matrix
-//   // glOrtho(0, width, 0, height, -1.0f, 1.0f); // create new projection matrix
-//
-//   /// Important!!! You need to switch back to the model-view matrix
-//   /// or else your OpenGL calls are modifying the projection matrix!
-//   glMatrixMode(GL_MODELVIEW); // return to the model matrix
-//   glLoadIdentity();
+  redraw();
+  // _projectionMatrix = glm::perspective(
+  //   glm::radians(_FOV),
+  //   (GLfloat)_width / (GLfloat)_height,
+  //   _near, _far
+  // );
 }
 
 /// Update view from ctrl
@@ -319,7 +308,7 @@ Renderer::zoomFOV(float yoffset)
         _FOV = 1.0f;
     if(_FOV >= 90.0f)
         _FOV = 90.0f;
-    // std::cout << "FOV: " << _FOV << "\n";
+
     _projectionMatrix = glm::perspective(
         glm::radians(_FOV),
         (GLfloat)_width / (GLfloat)_height,
@@ -336,25 +325,24 @@ Renderer::zoom(float yoffset)
         scale = 0.9f;
     else
         scale = 1.1f;
+    _scaleM = glm::scale(_scaleM, glm::vec3(scale, scale, 0.0f));
     _modelMatrix = glm::scale(_modelMatrix, glm::vec3(scale, scale, 0.0f));
-
 }
 
 void
 Renderer::translate(glm::vec3 vec)
 {
-    vec = vec * (_mousespeed * 0.5);
-    _modelMatrix = glm::translate(_modelMatrix, vec);
+    vec = glm::vec3(vec.x /_width*2, vec.y/_height*2, 0.0);
+    auto trans = glm::translate(glm::mat4(1.0), vec);
+    _modelMatrix = trans * _scaleM;
     //debug
-    // std::cout << "translate vector: " << glm::to_string(vec)<< "\n ";
-
+    // std::cout << "modelMatrix " << glm::to_string(_modelMatrix)<< "\n\n";
 }
 
 void
 Renderer::set_mouse(gloost::human_input::MouseState mouse)
 {
-  _mouse_state = mouse;
-  _mouse_pos = mouse.getPosition();
+  _mouse = mouse;
 }
 
 void
@@ -366,6 +354,11 @@ Renderer::redraw()
   // Reload shaders
   _edgeShader->reloadShaders();
   _nodeShader->reloadShaders();
+
+  _projectionMatrix = glm::perspective(
+    glm::radians(_FOV),
+    (GLfloat)_width / (GLfloat)_height, _near, _far
+  );
 
   std::cout << "Reload shaders" << std::endl;
 }

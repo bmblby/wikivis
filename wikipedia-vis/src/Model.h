@@ -1,6 +1,8 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include <math.h>
+
 //glm
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -10,6 +12,8 @@
 #include <boost/graph/subgraph.hpp>
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/graphviz.hpp>
+//layout
+#include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/fruchterman_reingold.hpp>
 #include <boost/graph/circle_layout.hpp>
 #include <boost/graph/random_layout.hpp>
@@ -28,6 +32,7 @@ namespace vta
 #define RED_NODE            {.93, .32, .25, .6}
 #define PINK                {.98, .12, 1.0, .6}
 #define YELLOW_SOFT         {1.0, .98, .36, .6}
+#define YELLOW_SUN          {1.0, .99, .0, .9}
 #define GREY_SOFT           {.22, .24, .39, .9}
 #define WHITE               {.95, .97, 1.0, .5}
 #define BLUE_BACK           {.29, .51, .65, .5}
@@ -42,17 +47,22 @@ struct CatProp {
     size_t num_categories;
 
     //Layout properties
-    enum {white, grey, black, root};
-    int tag = white;
-    size_t level = 0;
-    Point position;
-    std::array<float, 4> color;
+    size_t mutable level = 0;
+    Point mutable position;
+    double mutable angle;
+    double mutable r_bis_lim;
+    double mutable l_bis_lim;
+    double mutable r_tan_lim;
+    double mutable l_tan_lim;
+    double mutable deg_prev_cat;
+    double mutable deg_next_cat;
+    std::array<float, 4> mutable color;
 };
 
 struct EdgeProp {
   EdgeProp(): color(WHITE) {}
   static uint32_t weight;
-  std::array<float, 4> color;
+  std::array<float, 4> mutable color;
 };
 
 //TODO:0 choose final graph params
@@ -90,12 +100,14 @@ class Model
                 std::array<float, 4> color = RED_NODE
     );
 
-    //layouts
+    //layouts with BGL
     using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
     PosMap layout_circular(double const& radius);
     PosMap layout_FR();
     PosMap layout_random();
     void write_layout(PosMap pos_map);
+    //layout with visitor
+    PosMap layout(Category const& cat, size_t width, size_t height, size_t depth);
 
 
     //getter
@@ -110,7 +122,7 @@ class Model
 
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
-    bool dump_graph(Graph& g, std::string filename) const;
+    bool dump_graph(std::string filename) const;
 
     // Member
     size_t _max_depth;

@@ -24,7 +24,7 @@ class Controller
     void mouseRelease(int x, int y, int btn, int mods);
     void mouseMove(int x, int y, int state);
     void mouseScroll(float);
-    void reset_mouse_state();
+    void reset_mouse();
 
     // key input
     void keyPress(int key, int mods);
@@ -42,10 +42,15 @@ class Controller
     Gui& _gui;
 
     // holding the current mouse state
-    gloost::human_input::MouseState _mouse_state;
+    glm::vec3 _start;
+    glm::vec3 _last = glm::vec3(0,0,0);
+    gloost::human_input::MouseState _mouse;
     gloost::Vector3 _key_state;
 
     // Toggle if strg-key is pressed
+    bool hover_state = false;
+    bool zoom_state = true;
+    bool proj_state = true;
     bool _strg_key_pressed;
 };
 
