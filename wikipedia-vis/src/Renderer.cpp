@@ -295,16 +295,11 @@ Renderer::resize(int width, int height)
   //resize gl Viewport
   glViewport(0, 0, _width, _height);
   redraw();
-//
-//   glMatrixMode(GL_PROJECTION); // modify the projection matrix
-//   glLoadIdentity();            // load an identity matrix into the projection matrix
-//   // glOrtho(0, width, height, 0, 0.1f, 100.0f); // create new projection matrix
-//   // glOrtho(0, width, 0, height, -1.0f, 1.0f); // create new projection matrix
-//
-//   /// Important!!! You need to switch back to the model-view matrix
-//   /// or else your OpenGL calls are modifying the projection matrix!
-//   glMatrixMode(GL_MODELVIEW); // return to the model matrix
-//   glLoadIdentity();
+  // _projectionMatrix = glm::perspective(
+  //   glm::radians(_FOV),
+  //   (GLfloat)_width / (GLfloat)_height,
+  //   _near, _far
+  // );
 }
 
 /// Update view from ctrl
@@ -336,18 +331,18 @@ Renderer::zoom(float yoffset)
         scale = 0.9f;
     else
         scale = 1.1f;
+    _scaleM = glm::scale(_scaleM, glm::vec3(scale, scale, 0.0f));
     _modelMatrix = glm::scale(_modelMatrix, glm::vec3(scale, scale, 0.0f));
-
 }
 
 void
 Renderer::translate(glm::vec3 vec)
 {
-    vec = glm::vec3(vec.x /1000, vec.y/1000, 0.0);
-    _modelMatrix = glm::translate(glm::mat4(1.0f), vec);
+    vec = glm::vec3(vec.x /_width*2, vec.y/_height*2, 0.0);
+    auto trans = glm::translate(glm::mat4(1.0), vec);
+    _modelMatrix = trans * _scaleM;
     //debug
-    // std::cout << "ModelMatrix: " << glm::to_string(_modelMatrix)<< "\n ";
-
+    // std::cout << "modelMatrix " << glm::to_string(_modelMatrix)<< "\n\n";
 }
 
 void

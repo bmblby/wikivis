@@ -65,6 +65,7 @@ class Renderer
     glm::mat4 _projectionMatrix;
     glm::mat4 _viewMatrix;
     glm::mat4 _modelMatrix;
+    glm::mat4 _scaleM;
 
     //controls
     glm::vec3 _cameraPos;
