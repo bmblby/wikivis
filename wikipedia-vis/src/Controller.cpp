@@ -57,7 +57,8 @@ Controller::mouseMove(int x, int y, int state)
         // _view.panning(inv_vec);
         _renderer.translate(inv_vec);
     }
-    hover(x, y);
+    if(hover_state == true)
+        hover(x, y);
 }
 
 void
@@ -81,43 +82,35 @@ Controller::reset_mouse()
 void
 Controller::keyPress(int key, int mods)
 {
-  // http://www.glfw.org/docs/latest/group__keys.html
+    // http://www.glfw.org/docs/latest/group__keys.html
     switch (key)
     {
-      case 82: //GLFW_KEY_R
-      {
-        _renderer.redraw();
-        break;
-      }
+        case 321: //GLFW_KEY_KP_1
+        {
+            hover_state = !hover_state;
+            if(hover_state)
+                std::cout << "activate hover!\n";
+            else
+                std::cout << "deactivate hover!\n";
+            break;
+        }
 
-      case 257: // ENTER
-      {
-        // open wikipage of selected node
-  //      if (_highlight_nodes_mode)
-  //      {
-  //        // Open firefox window with corresponding wikipedia article
-  //        std::string url = "http://en.wikipedia.org/w/index.php?oldid=" + boost::lexical_cast<std::string>(_highlighted_node->_article.revid);
-  //        std::string command = "firefox " + url;
-  //
-  //        system(command.c_str());
-  //      }
-        break;
-      }
+        // case 257: // ENTER
+        // {
+        //     // open wikipage of selected node
+        //     if (_highlight_nodes_mode)
+        //     {
+        //         // Open firefox window with corresponding wikipedia article
+        //         std::string url = "http://en.wikipedia.org/w/index.php?oldid=" + boost::lexical_cast<std::string>(_highlighted_node->_article.revid);
+        //         std::string command = "firefox " + url;
+        //
+        //         system(command.c_str());
+        //     }
+        //     break;
+        // }
 
-      case 341: // strg
-      {
-        _strg_key_pressed = true;
-
-        break;
-      }
-
-      case 256: // ESC
-      {
-        break;
-      }
-
-      default:
-      {}
+        default:
+            {}
     }
 }
 

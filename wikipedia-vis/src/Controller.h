@@ -48,6 +48,7 @@ class Controller
     gloost::Vector3 _key_state;
 
     // Toggle if strg-key is pressed
+    bool hover_state = false;
     bool _strg_key_pressed;
 };
 
