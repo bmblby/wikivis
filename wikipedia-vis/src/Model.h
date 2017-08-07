@@ -56,7 +56,7 @@ struct CatProp {
 
     //Layout properties
     size_t mutable level = 0;
-    Point mutable position;
+    Point mutable pos;
     double mutable angle;
     double mutable r_bis_lim;
     double mutable l_bis_lim;

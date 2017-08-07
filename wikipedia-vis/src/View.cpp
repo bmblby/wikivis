@@ -61,7 +61,7 @@ View::set_labels()
     for(; vp.first != vp.second; vp.first++) {
         if(_model._graph[*vp.first].level == 1) {
             auto title = _model._graph[*vp.first].title;
-            auto pos = _model._graph[*vp.first].position;
+            auto pos = _model._graph[*vp.first].pos;
             // std::cout << "model pos: " << pos[0] << " : " << pos[1] << std::endl;
             glm::vec3 view_pos = project(pos[0], pos[1]);
 
