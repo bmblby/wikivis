@@ -115,7 +115,7 @@ class Model
     PosMap layout_random();
     void write_layout(PosMap pos_map);
     //layout with visitor
-    PosMap layout(Category const& cat, size_t width, size_t height, size_t depth);
+    PosMap layout(Category const& cat, size_t width, size_t height, size_t depth, float radius);
 
 
     //getter
@@ -134,6 +134,7 @@ class Model
 
     // Member
     size_t _max_depth;
+    float _r;
     Vertex _root;
     Graph _graph;
     WikiDB& _wikidb;

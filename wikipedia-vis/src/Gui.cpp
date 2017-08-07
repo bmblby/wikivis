@@ -67,7 +67,7 @@ Gui::search_box(glm::vec3 pos, int width, int height)
         if(_model.find(name, cat)) {
             std::cout << "Found cat: " << cat.title << "\n";
             _model.initIDDFS(cat, depth);
-            _model.layout(cat, _width, _height, depth);
+            _model.layout(cat, _width, _height, depth, 0.7f);   //0.7 radius
             _model._dirty = true;
             return true;
         } else {

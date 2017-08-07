@@ -251,8 +251,8 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
 struct layout_visitor : public boost::default_bfs_visitor
 {
     template<typename PosMap>
-    layout_visitor(size_t width, size_t height, size_t depth, PosMap& pos_map)
-    :_w(width), _h(height), _depth(depth), _pmap(pos_map){}
+    layout_visitor(size_t width, size_t height, size_t depth, float radius, PosMap& pos_map)
+    :_w(width), _h(height), _depth(depth), _pmap(pos_map), _r(radius){}
 
     template<typename Vertex, typename Graph>
     void set_level(Vertex v, Graph& g) {
@@ -283,7 +283,7 @@ struct layout_visitor : public boost::default_bfs_visitor
     template<typename Vertex, typename Graph>
     void discover_vertex(Vertex v, Graph& g)
     {
-        double radius = .7;
+        float radius = _r;
         double dist = radius/ _depth;
         set_level(v, g);
         if(g[v].level == 0) {
@@ -389,19 +389,21 @@ struct layout_visitor : public boost::default_bfs_visitor
     size_t _h;
     double _last_cat_angle;
     size_t _depth;
+    float _r;
     PosMap& _pmap;
 
 };
 
 // boost::property_map<Graph, Point CatProp::*>::type
 PosMap
-Model::layout(Category const& cat, size_t width, size_t height, size_t depth)
+Model::layout(Category const& cat, size_t width, size_t height, size_t depth, float radius)
 {
+    _r = radius;
     auto p = in_graph(_graph, cat);
     if(p.first) {
         Vertex start = p.second;
         PosMap pos_map;
-        layout_visitor vis(width, height, depth, pos_map);
+        layout_visitor vis(width, height, depth, radius, pos_map);
         breadth_first_search(_graph, start, visitor(vis));
     }
     return get(&vta::CatProp::position, _graph);
