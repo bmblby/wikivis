@@ -81,7 +81,9 @@ View::project(double x, double y)
 {
     glm::vec3 m_pos = glm::vec3(x, y, 0);
     // std::cout << "model pos (" << glm::to_string(m_pos) << ")\n";
-    glm::vec3 s_pos = glm::project(m_pos, _model_mat * _view_mat, _proj_mat, glm::vec4(_width, _height, -_width, -_height));
+    // invert model matrix to fit nanovg projection
+    glm::mat4 model_mat = glm::scale(_model_mat, glm::vec3(1, -1, 1));
+    glm::vec3 s_pos = glm::project(m_pos, model_mat * _view_mat, _proj_mat, glm::vec4(0, 0, _width, _height));
     // std::cout << "glm proj: (" << glm::to_string(s_pos) << ")\n";
     return s_pos;
 }
