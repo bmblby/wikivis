@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <nanovg.h>
+#include <glm/glm.hpp>
 
 // vta
 #include "Model.h"
@@ -43,6 +44,7 @@ struct View
     float _pxRatio;
     int _font;
 
+    size_t _max_depth;
 };
 
 } // namespace vta
