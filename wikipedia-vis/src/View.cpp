@@ -59,18 +59,37 @@ View::set_labels()
 {
     auto vp = boost::vertices(_model._graph);
     for(; vp.first != vp.second; vp.first++) {
-        if(_model._graph[*vp.first].level == 1) {
-            auto title = _model._graph[*vp.first].title;
-            auto pos = _model._graph[*vp.first].pos;
-            // std::cout << "model pos: " << pos[0] << " : " << pos[1] << std::endl;
-            glm::vec3 view_pos = project(pos[0], pos[1]);
+        auto title = _model._graph[*vp.first].title;
+        auto pos = _model._graph[*vp.first].pos;
+        // std::cout << "model pos: " << pos[0] << " : " << pos[1] << std::endl;
+        glm::vec3 view_pos = project(pos[0], pos[1]);
 
+        if(_model._graph[*vp.first].level == 1) {
             nvgFontSize(_vg, 20.0f);
             nvgFontFace(_vg, "verdana");
             nvgFillColor(_vg, nvgRGBA(243,245,248,255));
             // nvgFillColor(_vg, nvgRGBA(46,59,69,255));
             nvgTextAlign(_vg, NVG_ALIGN_LEFT);
             nvgText(_vg, view_pos[0]+4, view_pos[1]+4, title.c_str(), NULL);
+        }
+        if(_model._graph[*vp.first].level == _model._max_depth) {
+            nvgSave(_vg);
+            nvgTranslate(_vg, view_pos[0], view_pos[1]);
+            float radius =_model._r + (_model._r / _model._max_depth) * 2;
+            float rad = acos(pos[0]/radius);
+            if(pos[1] < 0) {
+                rad = 2*M_PI -rad;
+            }
+            nvgRotate(_vg, rad);
+
+            nvgSave(_vg);
+            nvgFontSize(_vg, 12.0f);
+            nvgFontFace(_vg, "verdana");
+            nvgFillColor(_vg, nvgRGBA(243,245,248,255));
+            nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+            nvgText(_vg, 0, 0, title.c_str(), NULL);
+            nvgRestore(_vg);
+            nvgRestore(_vg);
         }
     }
 
