@@ -112,10 +112,12 @@ int main(int argc, char *argv[])
   vta::Model model(wikidb);
   Category computer_science = wikidb.getCategoryByName("Computer science");
   size_t depth = 3;
+  float radius = 0.7f;
+
   auto t2  = std::chrono::high_resolution_clock::now();
   model.initIDDFS(computer_science , depth);
   auto t3  = std::chrono::high_resolution_clock::now();
-  model.layout(computer_science , main_window_width, main_window_height, depth);
+  model.layout(computer_science , main_window_width, main_window_height, depth, radius);
   auto t4  = std::chrono::high_resolution_clock::now();
 
   //time plot

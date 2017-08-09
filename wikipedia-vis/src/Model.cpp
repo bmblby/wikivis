@@ -82,6 +82,7 @@ Model::initIDDFS(Category const& root, size_t depth)
 {
     Graph g;
     enum {white, grey, black};
+    _max_depth = depth;
     for(size_t i = 0; i <= depth; ++i) {
         Vertex v;
         buildDLS(g, root, v, i);
@@ -146,7 +147,6 @@ Model::expand(Category const& cat)
     // only expand leave categories
 
     //search vertex of cat in graph
-    Vertex parent;
     auto revid_map = get(&vta::CatProp::revid, _graph);
     for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {
         auto vertex = *vp.first;
@@ -154,26 +154,34 @@ Model::expand(Category const& cat)
         if(revid == cat.revid and out_degree(vertex, _graph) == 0) {
             std::cout << "title: " << _graph[vertex].title
                 << " out degree: "  << out_degree(vertex, _graph) << std::endl;
-            parent = vertex;
 
-            auto children = _wikidb.getCategoryChildren(cat.index);
-            std::cout << "number of children : " << children.size() << std::endl;
-
-            double x_parent = _graph[parent].position[0];
-            double y_parent = _graph[parent].position[1];
-            std::cout << "xpos parent: " << _graph[parent].position[0] << std::endl;
-            std::cout << "ypos parent: " << _graph[parent].position[1] << std::endl;
+            float radius = _r;
             size_t i = 0;
-            float radius = 0.1f;
-            double two_pi_over_n = 2 * 3.14 / children.size();
+            int lvl = _graph[vertex].level + 1;
+            float dist = radius/_max_depth;
+            float last_cat_angle = 0.0f;
+            float deg_prev_cat = 0.0f;
+
+            double l_lim = std::min(_graph[vertex].l_bis_lim, _graph[vertex].l_tan_lim);
+            double r_lim = std::max(_graph[vertex].r_bis_lim, _graph[vertex].r_tan_lim);
+            radius += dist * (lvl - 1);
+            // double angle_space = (l_lim - r_lim)/out_degree(vertex, _graph);
+            double angle_space = (l_lim - r_lim);///_graph[vertex].num_categories;
+
 
             // add vertex for every children to graph
+            auto children = _wikidb.getCategoryChildren(cat.index);
             std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
             for(auto const& child : children) {
-                auto pair = add_cat(_graph, child, parent);
-                // std::cout << "child title: " << _graph[vert].title << std::endl;
-                _graph[pair.first].position[0] += radius * cos(i * two_pi_over_n);
-                _graph[pair.first].position[1] += radius * sin(i * two_pi_over_n);
+                auto pair = add_cat(_graph, child, vertex);
+                _graph[pair.first].pos[0] += radius * cos(angle_space * i + r_lim);
+                _graph[pair.first].pos[1] += radius * sin(angle_space * i + r_lim);
+                std::cout << "radius: " << radius
+                            << " angle_space: " << angle_space
+                            << " l_lim: " << l_lim
+                            << " r_lim: " << r_lim << std::endl;
+                std::cout << "position: " << _graph[pair.first].pos[0] << " : "
+                << _graph[pair.first].pos[1] << std::endl;
                 ++i;
             }
             break;
@@ -185,7 +193,7 @@ Model::expand(Category const& cat)
 
 std::pair<Vertex, EdgePair>
 Model::add_cat(Graph& g, Category const& cat,
-            Vertex const& parent, std::array<float, 4> color)
+                        Vertex const& parent, std::array<float, 4> color)
 {
     Vertex v = add_vertex(g);
     g[v].index = cat.index;
@@ -194,8 +202,10 @@ Model::add_cat(Graph& g, Category const& cat,
     g[v].num_articles = _wikidb.getArticleChildren(cat.index).size();
     g[v].num_categories = _wikidb.getArticleChildren(cat.index).size();
 
-    g[v].position[0] = g[parent].position[0];
-    g[v].position[1] = g[parent].position[1];
+    // g[v].pos[0] = g[parent].pos[0];
+    // g[v].pos[1] = g[parent].pos[1];
+    g[v].pos[0] = 0;
+    g[v].pos[1] = 0;
     g[v].color = color;
     EdgePair ep0 = add_edge(parent, v, g);
 
@@ -206,7 +216,7 @@ Model::add_cat(Graph& g, Category const& cat,
 boost::property_map<Graph, Point CatProp::*>::type
 Model::layout_circular(double const& radius)
 {
-    auto pos_map = get(&CatProp::position, _graph);
+    auto pos_map = get(&CatProp::pos, _graph);
     boost::circle_graph_layout(_graph, pos_map, radius);
     return pos_map;
 }
@@ -217,7 +227,7 @@ Model::layout_FR()
     using Topology = boost::circle_topology<boost::mt19937>;
     using Position = Topology::point_type;
 
-    auto pos_map = get(&CatProp::position, _graph);
+    auto pos_map = get(&CatProp::pos, _graph);
     Topology topo;
     boost::random_graph_layout(_graph, pos_map, topo);
     boost::fruchterman_reingold_force_directed_layout(
@@ -229,7 +239,7 @@ Model::layout_FR()
 boost::property_map<Graph, Point CatProp::*>::type
 Model::layout_random()
 {
-    auto pos_map = get(&CatProp::position, _graph);
+    auto pos_map = get(&CatProp::pos, _graph);
     boost::square_topology<boost::mt19937> topo;
     boost::random_graph_layout(_graph, pos_map, topo);
     return pos_map;
@@ -241,8 +251,8 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
     typename boost::graph_traits<Graph>::vertex_iterator vi, vi_end;
     for (boost::tie(vi, vi_end) = vertices(_graph); vi != vi_end; ++vi) {
         boost::graph_traits<Graph>::vertex_descriptor vertex = *vi;
-        _graph[vertex].position[0] = pos_map[vertex][0];
-        _graph[vertex].position[1] = pos_map[vertex][1];
+        _graph[vertex].pos[0] = pos_map[vertex][0];
+        _graph[vertex].pos[1] = pos_map[vertex][1];
         std::cout << pos_map[vertex][0] << " "
         << pos_map[vertex][1] << std::endl;
     }
@@ -251,8 +261,8 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
 struct layout_visitor : public boost::default_bfs_visitor
 {
     template<typename PosMap>
-    layout_visitor(size_t width, size_t height, size_t depth, PosMap& pos_map)
-    :_w(width), _h(height), _depth(depth), _pmap(pos_map){}
+    layout_visitor(size_t width, size_t height, size_t depth, float radius, PosMap& pos_map)
+    :_w(width), _h(height), _depth(depth), _pmap(pos_map), _r(radius){}
 
     template<typename Vertex, typename Graph>
     void set_level(Vertex v, Graph& g) {
@@ -281,105 +291,86 @@ struct layout_visitor : public boost::default_bfs_visitor
     }
 
     template<typename Vertex, typename Graph>
+    float set_boundaries(Vertex v, Graph& g, float dist, int level, int index, double angle_space, double r_lim)
+    {
+        g[v].angle = angle_space * index + r_lim;
+        g[v].deg_prev_cat = g[v].angle - _last_cat_angle;
+        g[v].r_bis_lim = g[v].angle - g[v].deg_prev_cat/2;
+        g[v].l_bis_lim = g[v].angle + g[v].deg_prev_cat/2;
+
+        double arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
+        g[v].l_tan_lim = g[v].angle + (arc_angle/2);
+        g[v].r_tan_lim = g[v].angle - (arc_angle/2);
+        // _last_cat_angle = g[v].angle;
+
+        // print(v, g, arc_angle, angle_space, dist);
+        return  g[v].angle;
+    }
+
+    template<typename Vertex, typename Graph>
+    void reset_first(Vertex v, Graph& g, float dist, int level, double deg_to_first)
+    {
+        g[v].r_bis_lim = g[v].angle - deg_to_first/2;
+        g[v].l_bis_lim = g[v].angle + deg_to_first/2;
+        double arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
+        g[v].l_tan_lim = g[v].angle + (arc_angle/2);
+        g[v].r_tan_lim = g[v].angle - (arc_angle/2);
+    }
+
+    template<typename Vertex, typename Graph>
     void discover_vertex(Vertex v, Graph& g)
     {
-        double radius = .7;
+        int index = 0;
+        float radius = _r;
+        int level = g[v].level + 1;
         double dist = radius/ _depth;
+        double deg_to_first;
         set_level(v, g);
+
         if(g[v].level == 0) {
-            float last_cat_angle  = 0.0f;
-            float deg_prev_cat = 0.0f;
-            g[v].position[0] = 0;
-            g[v].position[1] = 0;
+            g[v].pos[0] = 0;
+            g[v].pos[1] = 0;
             double angle_space = 2*M_PI / out_degree(v, g);
 
-            int index = 0;
-            // set level because children are yet to be discoverd
-            size_t level = g[v].level + 1;
-            Vertex prev_cat;
             auto ep = boost::out_edges(v, g);
             Vertex first_cat = boost::target(*ep.first, g);
-            //loop through children level 1
             for(;ep.first != ep.second; ep.first++) {
                 auto child = boost::target(*ep.first, g);
 
                 //set position and color of nodes on level 1
-                g[child].position[0] += radius * cos(index * angle_space);
-                g[child].position[1] += radius * sin(index * angle_space);
+                g[child].pos[0] += radius * cos(index * angle_space);
+                g[child].pos[1] += radius * sin(index * angle_space);
                 g[child].color = YELLOW;
 
                 //calculate bisector and tangent limits
-                g[child].angle = angle_space * index;
-                g[child].deg_prev_cat = g[child].angle - last_cat_angle;
-                g[child].r_bis_lim = g[child].angle - g[child].deg_prev_cat/2;
-                g[child].l_bis_lim = g[child].angle + g[child].deg_prev_cat/2;
-                double arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
-                g[child].l_tan_lim = g[child].angle + (arc_angle/2);
-                g[child].r_tan_lim = g[child].angle - (arc_angle/2);
-
-                last_cat_angle = g[child].angle;
-                deg_prev_cat = g[child].deg_prev_cat;
-
-                _last_cat_angle = g[child].angle;
-
+                _last_cat_angle = set_boundaries(child, g, dist, level, index, angle_space, 0);
+                deg_to_first = g[child].deg_prev_cat;
                 index++;
             }
-
-            double remaining_deg = 2*M_PI - _last_cat_angle;
-            double deg_to_first = remaining_deg + g[first_cat].angle;
-            g[first_cat].r_bis_lim = g[first_cat].angle - deg_to_first/2;
-            g[first_cat].l_bis_lim = g[first_cat].angle + deg_to_first/2;
-            double arc_angle = 4 * asin(dist * level /(dist * (level + 1)));
-            g[first_cat].l_tan_lim = g[first_cat].angle + (arc_angle/2);
-            g[first_cat].r_tan_lim = g[first_cat].angle - (arc_angle/2);
-
+            reset_first(first_cat, g, dist, level, deg_to_first);
+            _last_cat_angle = 0;
         }
         else if (g[v].level >= 1) {
-            float last_cat_angle  = 0.0f;
-            float deg_prev_cat = 0.0f;
+            _last_cat_angle  = 0.0f;
             double l_lim = std::min(g[v].l_bis_lim, g[v].l_tan_lim);
             double r_lim = std::max(g[v].r_bis_lim, g[v].r_tan_lim);
             radius += dist * g[v].level;
             double angle_space = (l_lim - r_lim)/out_degree(v, g);
 
-
-            int index = 0;
-            int child_lvl = g[v].level + 1;
             auto ep = boost::out_edges(v, g);
             Vertex first_cat = boost::target(*ep.first, g);
-            Vertex prev_cat;
-
             for(; ep.first != ep.second; ep.first++) {
                 auto child = boost::target(*ep.first, g);
-                g[child].position[0] += radius * cos(angle_space * index + r_lim);
-                g[child].position[1] += radius * sin(angle_space * index + r_lim);
-                g[child].angle = angle_space * index + r_lim;
-
+                g[child].pos[0] += radius * cos(angle_space * index + r_lim);
+                g[child].pos[1] += radius * sin(angle_space * index + r_lim);
                 // caluclate limits if category has children
                 if(boost::out_degree(v, g) > 0){
-                    g[child].deg_prev_cat = g[child].angle - last_cat_angle;
-                    g[child].r_bis_lim = g[child].angle - g[child].deg_prev_cat/2;
-                    g[child].l_bis_lim = g[child].angle + g[child].deg_prev_cat/2;
-                    double arc_angle = 4 * asin(dist * child_lvl /(dist * (child_lvl + 1)));
-                    g[child].l_tan_lim = g[child].angle + (arc_angle/2);
-                    g[child].r_tan_lim = g[child].angle - (arc_angle/2);
-
-                    last_cat_angle = g[child].angle;
-                    deg_prev_cat = g[child].deg_prev_cat;
+                    _last_cat_angle = set_boundaries(child, g, dist, level, index, angle_space, r_lim);
                 }
-                _last_cat_angle = g[child].deg_prev_cat;
+                deg_to_first = g[child].deg_prev_cat;
                 index++;
             }
-
-            double remaining_deg = 2*M_PI - _last_cat_angle;
-            // double deg_to_first = remaining_deg + g[first_cat].angle;
-            double deg_to_first = _last_cat_angle;
-            g[first_cat].r_bis_lim = g[first_cat].angle - deg_to_first/2;
-            g[first_cat].l_bis_lim = g[first_cat].angle + deg_to_first/2;
-            double arc_angle = 4 * asin(dist * child_lvl /(dist * (child_lvl + 1)));
-            g[first_cat].l_tan_lim = g[first_cat].angle + (arc_angle/2);
-            g[first_cat].r_tan_lim = g[first_cat].angle - (arc_angle/2);
-
+            reset_first(first_cat, g, dist, level, deg_to_first);
         }
     }
 
@@ -387,30 +378,33 @@ struct layout_visitor : public boost::default_bfs_visitor
     //member
     size_t _w;
     size_t _h;
-    double _last_cat_angle;
+    double _last_cat_angle = 0;
+    double _deg_prev_cat = 0;
     size_t _depth;
+    float _r;
     PosMap& _pmap;
 
 };
 
 // boost::property_map<Graph, Point CatProp::*>::type
 PosMap
-Model::layout(Category const& cat, size_t width, size_t height, size_t depth)
+Model::layout(Category const& cat, size_t width, size_t height, size_t depth, float radius)
 {
+    _r = radius;
     auto p = in_graph(_graph, cat);
     if(p.first) {
         Vertex start = p.second;
         PosMap pos_map;
-        layout_visitor vis(width, height, depth, pos_map);
+        layout_visitor vis(width, height, depth, radius, pos_map);
         breadth_first_search(_graph, start, visitor(vis));
     }
-    return get(&vta::CatProp::position, _graph);
+    return get(&vta::CatProp::pos, _graph);
 
     // debug
     // for(auto vp = vertices(_graph); vp.first != vp.second; vp.first++) {
     //     std::cout << _graph[*vp.first].title
-    //     << " x: " << _graph[*vp.first].position[0]
-    //     << " y: " << _graph[*vp.first].position[1] << std::endl;
+    //     << " x: " << _graph[*vp.first].pos[0]
+    //     << " y: " << _graph[*vp.first].pos[1] << std::endl;
     //  }
 }
 
@@ -427,8 +421,8 @@ Model::get_nodes() const
   for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
     Vertex vertex = *vp.first;
     glm::vec3 pos;
-    pos[0] = (float)_graph[vertex].position[0];
-    pos[1] = (float)_graph[vertex].position[1];
+    pos[0] = (float)_graph[vertex].pos[0];
+    pos[1] = (float)_graph[vertex].pos[1];
     pos[2] = 0.0f;
     std::array<float, 4> color = _graph[vertex].color;
     Pair node_prop(pos, color);
@@ -457,12 +451,12 @@ Model::get_edges() const
         auto prop_target = get(&vta::CatProp::title, _graph, target);
         // std::cout << prop_source << " to " << prop_target << std::endl;
         glm::vec3 source_pos;
-        source_pos[0] = _graph[source].position[0];
-        source_pos[1] = _graph[source].position[1];
+        source_pos[0] = _graph[source].pos[0];
+        source_pos[1] = _graph[source].pos[1];
         source_pos[2] = 0.0f;
         glm::vec3 target_pos;
-        target_pos[0] = _graph[target].position[0];
-        target_pos[1] = _graph[target].position[1];
+        target_pos[0] = _graph[target].pos[0];
+        target_pos[1] = _graph[target].pos[1];
         target_pos[2] = 0.0f;
         auto edge_color = _graph[edge].color;
         Tuple tuple(source_pos, target_pos, edge_color);
@@ -494,7 +488,7 @@ Model::find(std::string const& cat, Category& category) const
 bool
 Model::pos2cat(glm::vec3 target, Category& cat) const
 {
-    auto pos_map = get(&vta::CatProp::position, _graph);
+    auto pos_map = get(&vta::CatProp::pos, _graph);
     for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {
         auto vertex_iter = vp.first;
         auto point = get(pos_map, *vertex_iter);
@@ -583,7 +577,7 @@ Model::dump_graph(std::string filename) const
   auto t_map = boost::get(&vta::CatProp::title, _graph);
   auto i_map = boost::get(&vta::CatProp::index, _graph);
   auto r_map = boost::get(&vta::CatProp::revid, _graph);
-  auto p_map = boost::get(&vta::CatProp::position, _graph);
+  auto p_map = boost::get(&vta::CatProp::pos, _graph);
 
   auto level_map = boost::get(&vta::CatProp::level, _graph);
   auto l_bis_map = boost::get(&vta::CatProp::l_bis_lim, _graph);

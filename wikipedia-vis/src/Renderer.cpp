@@ -45,7 +45,7 @@ Renderer::Renderer(Model& model, GLfloat width, GLfloat height):
   _viewMatrix = glm::lookAt(
     _cameraPos,
     glm::vec3(0, 0, 0), // direction where the camera is looking
-    glm::vec3(0, 1, 0)  // head is up (0,-1,0) is upsidedown
+    glm::vec3(0, -1, 0)  // head is up (0,-1,0) is upsidedown
   );
 
   //setup orthogonal and perspective projection
@@ -273,9 +273,9 @@ glm::vec3
 Renderer::screen2modelSpace(glm::vec3 pos) const
 {
     GLfloat win_z;
-    glReadPixels(pos[0], _height - pos[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
+    glReadPixels(pos[0], pos[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
     // subtract height diffrent origin in glfw then in opengl
-    glm::vec3 screen_pos(pos[0], _height -pos[1], win_z);
+    glm::vec3 screen_pos(pos[0], pos[1], win_z);
     // std::cout << "screen space position: (" << glm::to_string(screen_pos) << ")\n";
 
     //unproject screen space
