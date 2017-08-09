@@ -273,9 +273,9 @@ glm::vec3
 Renderer::screen2modelSpace(glm::vec3 pos) const
 {
     GLfloat win_z;
-    glReadPixels(pos[0], pos[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
+    glReadPixels(pos[0], _height - pos[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
     // subtract height diffrent origin in glfw then in opengl
-    glm::vec3 screen_pos(pos[0], pos[1], win_z);
+    glm::vec3 screen_pos(pos[0], _height - pos[1], win_z);
     // std::cout << "screen space position: (" << glm::to_string(screen_pos) << ")\n";
 
     //unproject screen space
