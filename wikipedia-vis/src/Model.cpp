@@ -318,7 +318,7 @@ struct layout_visitor : public boost::default_bfs_visitor
     }
 
     template<typename Vertex, typename Graph>
-    void discover_vertex(Vertex v, Graph& g)
+    void equal_radial(Vertex v, Graph& g)
     {
         int index = 0;
         float radius = _r;
@@ -372,6 +372,12 @@ struct layout_visitor : public boost::default_bfs_visitor
             }
             reset_first(first_cat, g, dist, level, deg_to_first);
         }
+    }
+
+    template<typename Vertex, typename Graph>
+    void discover_vertex(Vertex v, Graph& g)
+    {
+        equal_radial(v, g);
     }
 
 
