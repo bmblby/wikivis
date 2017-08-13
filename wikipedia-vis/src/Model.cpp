@@ -392,7 +392,28 @@ struct layout_visitor : public boost::default_bfs_visitor
 
 };
 
-// boost::property_map<Graph, Point CatProp::*>::type
+struct width_visitor : public boost::default_dfs_visitor
+{
+    width_visitor(){}
+    template<typename Vertex, typename Graph>
+    void discover_vertex(Vertex v, Graph& g)
+    {
+        g[v].wideness = 1;
+    }
+
+    template<typename Vertex, typename Graph>
+    void finish_vertex(Vertex v, Graph& g)
+    {
+        // std::cout << "parent: " << g[v].title;
+        for(auto ep = out_edges(v, g); ep.first != ep.second; ++ep.first) {
+            Vertex child = target(*ep.first, g);
+            // std::cout << "\n\tchildren: " <<  g[child].title;
+            g[v].wideness = g[v].wideness + g[child].wideness;
+        }
+        // std::cout << std::endl;
+    }
+};
+
 PosMap
 Model::layout(Category const& cat, size_t width, size_t height, size_t depth, float radius)
 {
@@ -401,6 +422,11 @@ Model::layout(Category const& cat, size_t width, size_t height, size_t depth, fl
     if(p.first) {
         Vertex start = p.second;
         PosMap pos_map;
+        width_visitor set_width;
+        depth_first_search(_graph, visitor(set_width));
+        // free_tree_layout free_tree;
+        //depth_first_search(_graph, visitor(free_tree));
+
         layout_visitor vis(width, height, depth, radius, pos_map);
         breadth_first_search(_graph, start, visitor(vis));
     }
@@ -514,13 +540,13 @@ Model::pos2cat(glm::vec3 target, Category& cat) const
 }
 
 // Dump graph to file with graphviz
-template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class NextDegCatMap, class PrevDegCatMap>
+template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
 class vertex_writer
 {
     public:
-        vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm, LevelMap lm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, NextDegCatMap ndcm, PrevDegCatMap pdcm):
-        _tm(tm), _im(im), _rm(rm), _pm(pm), _level(lm), _lbm(lbm), _rbm(rbm), _ltm(ltm),
-        _rtm(rtm), _ndcm(ndcm), _pdcm(pdcm)
+        vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm):
+        _tm(tm), _im(im), _rm(rm), _pm(pm), _level(lm), _wm(wm), _lbm(lbm), _rbm(rbm), _ltm(ltm),
+        _rtm(rtm), _pdcm(pdcm)
         {}
 
         void operator()(std::ostream& out, Vertex const& v) const {
@@ -530,11 +556,11 @@ class vertex_writer
             << "title=\"" << _tm(v) << "\", "
             << "position=\"" << point[0] << "," << point[1] << "\", "
             << "level=\"" << _level(v) << "\", "
+            << "width=\"" << _wm(v) << "\", "
             << "lbis=\"" << _lbm(v) << "\", "
             << "rbis=\"" << _rbm(v) << "\", "
             << "ltan=\"" << _ltm(v) << "\", "
             << "rtan=\"" << _rtm(v) << "\", "
-            << "ndc=\"" << _ndcm(v) << "\", "
             << "pdc=\"" << _pdcm(v) << "\"]";
         }
     private:
@@ -543,18 +569,18 @@ class vertex_writer
         RevidMap _rm;
         PositionMap _pm;
         LevelMap _level;
+        WidthMap _wm;
         LBisMap _lbm;
         RBisMap _rbm;
         LTanMap _ltm;
         RTanMap _rtm;
-        NextDegCatMap _ndcm;
         PrevDegCatMap _pdcm;
 };
 
-template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class NextDegCatMap, class PrevDegCatMap>
-inline vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, LBisMap,  RBisMap,  LTanMap,  RTanMap, NextDegCatMap, PrevDegCatMap>
-make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p, LevelMap lm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, NextDegCatMap ndcm, PrevDegCatMap pdcm) {
-    return vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap,  LBisMap,  RBisMap,  LTanMap,  RTanMap, NextDegCatMap, PrevDegCatMap>(t, i, r, p, lm, lbm, rbm, ltm, rtm, ndcm, pdcm);
+template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
+inline vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap, LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>
+make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm) {
+    return vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap,  LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>(t, i, r, p, lm, wm, lbm, rbm, ltm, rtm, pdcm);
 }
 
 template <class TitleMap>
@@ -586,18 +612,18 @@ Model::dump_graph(std::string filename) const
   auto p_map = boost::get(&vta::CatProp::pos, _graph);
 
   auto level_map = boost::get(&vta::CatProp::level, _graph);
+  auto width_map = boost::get(&vta::CatProp::wideness, _graph);
   auto l_bis_map = boost::get(&vta::CatProp::l_bis_lim, _graph);
   auto r_bis_map = boost::get(&vta::CatProp::r_bis_lim, _graph);
   auto l_tan_map = boost::get(&vta::CatProp::l_tan_lim, _graph);
   auto r_tan_map = boost::get(&vta::CatProp::r_tan_lim, _graph);
-  auto deg_next_map = boost::get(&vta::CatProp::deg_next_cat, _graph);
   auto deg_prev_map = boost::get(&vta::CatProp::deg_prev_cat, _graph);
 
   boost::default_writer dw;
   std::ofstream file(filename);
   if(file.is_open()) {
     boost::write_graphviz(file, _graph,
-    make_vertex_writer(t_map, i_map, r_map, p_map, level_map, l_bis_map, r_bis_map, l_tan_map, r_tan_map, deg_next_map, deg_prev_map),
+    make_vertex_writer(t_map, i_map, r_map, p_map, level_map, width_map, l_bis_map, r_bis_map, l_tan_map, r_tan_map, deg_prev_map),
     //   make_edge_writer(t_map));
     dw);
     return  true;
