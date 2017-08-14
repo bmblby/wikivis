@@ -398,19 +398,17 @@ struct width_visitor : public boost::default_dfs_visitor
     template<typename Vertex, typename Graph>
     void discover_vertex(Vertex v, Graph& g)
     {
-        g[v].wideness = 1;
+        if(out_degree(v, g) == 0)
+            g[v].wideness = 1;
     }
 
     template<typename Vertex, typename Graph>
     void finish_vertex(Vertex v, Graph& g)
     {
-        // std::cout << "parent: " << g[v].title;
         for(auto ep = out_edges(v, g); ep.first != ep.second; ++ep.first) {
             Vertex child = target(*ep.first, g);
-            // std::cout << "\n\tchildren: " <<  g[child].title;
-            g[v].wideness = g[v].wideness + g[child].wideness;
+            g[v].wideness += g[child].wideness;
         }
-        // std::cout << std::endl;
     }
 };
 
