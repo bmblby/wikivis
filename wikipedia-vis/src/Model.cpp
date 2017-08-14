@@ -379,6 +379,58 @@ struct layout_visitor : public boost::default_bfs_visitor
     PosMap& _pmap;
 };
 
+glm::vec3
+Model::pol2cart(float r, float phi) {
+    glm::vec3 v;
+    v.x = r * cos(phi);
+    v.y = r * sin(phi);
+    return v;
+}
+
+std::pair<float, float>
+Model::cart2pol(glm::vec3 p) {
+    std::pair<float, float> pol;
+    pol.first = hypot(p.x, p.y);
+    pol.second = atan2(p.x, p.y);
+    return pol;
+}
+
+float
+Model::tau(float rho) {
+    return 2*acos(rho / (rho + _r) );
+}
+
+void
+Model::free_tree(Vertex v, float rho, float a1, float a2)
+{
+    std::cout << _graph[v].title << std::endl;
+    float s;
+    float alpha;
+
+    std::cout << "radius: " << rho << " angle: " << (a1 + a2 )/2 << std::endl;
+    auto cart = pol2cart(rho, (a1 + a2) );
+    std::cout << cart.x << cart.y << std::endl;
+    _graph[v].pos[0] = cart.x;
+    _graph[v].pos[1] = cart.y;
+
+    if(out_degree(v, _graph) == 0)
+        return;
+
+    if(tau(rho) < a2 -a1) {
+        s = tau(rho) / _graph[v].wideness;
+        alpha = (a1 + a2 - tau(rho))/2;
+    }
+    else {
+        s = (a2 - a1)/_graph[v].wideness;
+        alpha = a1;
+    }
+    for(auto ep = out_edges(v, _graph); ep.first != ep.second; ++ep.first) {
+        auto child = target(*ep.first, _graph);
+        free_tree(child, rho + _r, alpha, alpha + s * _graph[child].wideness);
+        alpha = alpha + s * _graph[child].wideness;
+    }
+}
+
 struct level_visitor : public boost::default_bfs_visitor
 {
     template<typename Vertex, typename Graph>

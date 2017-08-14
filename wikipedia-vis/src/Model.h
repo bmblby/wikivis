@@ -117,6 +117,10 @@ class Model
     void write_layout(PosMap pos_map);
     //layout with visitor
     PosMap layout(Category const& cat, size_t width, size_t height, size_t depth, float radius);
+    glm::vec3 pol2cart(float, float);
+    std::pair<float, float> cart2pol(glm::vec3 p);
+    float tau(float);
+    void free_tree(Vertex v, float, float, float);
 
 
     //getter
