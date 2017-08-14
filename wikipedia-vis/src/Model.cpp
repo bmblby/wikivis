@@ -265,16 +265,6 @@ struct layout_visitor : public boost::default_bfs_visitor
     :_w(width), _h(height), _depth(depth), _pmap(pos_map), _r(radius){}
 
     template<typename Vertex, typename Graph>
-    void set_level(Vertex v, Graph& g) {
-        if(in_degree(v, g) != 0) {
-            auto ep = boost::in_edges(v, g);
-            auto parent = boost::source(*ep.first, g);
-            int test = g[parent].level;
-            g[v].level = test + 1;
-        }
-    }
-
-    template<typename Vertex, typename Graph>
     void print(Vertex child, Graph g, double arc_angle, double angle_space, double dist)
     {
         std::cout << g[child].title << " bisector limits: "
@@ -325,7 +315,6 @@ struct layout_visitor : public boost::default_bfs_visitor
         int level = g[v].level + 1;
         double dist = radius/ _depth;
         double deg_to_first;
-        set_level(v, g);
 
         if(g[v].level == 0) {
             g[v].pos[0] = 0;
@@ -380,7 +369,6 @@ struct layout_visitor : public boost::default_bfs_visitor
         equal_radial(v, g);
     }
 
-
     //member
     size_t _w;
     size_t _h;
@@ -389,7 +377,19 @@ struct layout_visitor : public boost::default_bfs_visitor
     size_t _depth;
     float _r;
     PosMap& _pmap;
+};
 
+struct level_visitor : public boost::default_bfs_visitor
+{
+    template<typename Vertex, typename Graph>
+    void discover_vertex(Vertex v, Graph& g) {
+        if(in_degree(v, g) != 0) {
+            auto ep = boost::in_edges(v, g);
+            auto parent = boost::source(*ep.first, g);
+            int test = g[parent].level;
+            g[v].level = test + 1;
+        }
+    }
 };
 
 struct width_visitor : public boost::default_dfs_visitor
@@ -422,6 +422,8 @@ Model::layout(Category const& cat, size_t width, size_t height, size_t depth, fl
     if(p.first) {
         Vertex start = p.second;
         PosMap pos_map;
+        level_visitor set_level;
+        breadth_first_search(_graph, start, visitor(set_level));
         width_visitor set_width;
         depth_first_search(_graph, visitor(set_width));
         // free_tree_layout free_tree;
