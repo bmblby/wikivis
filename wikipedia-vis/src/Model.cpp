@@ -403,19 +403,14 @@ Model::tau(float rho) {
 void
 Model::free_tree(Vertex v, float rho, float a1, float a2)
 {
-    std::cout << _graph[v].title << std::endl;
     float s;
     float alpha;
-
-    std::cout << "radius: " << rho << " angle: " << (a1 + a2 )/2 << std::endl;
     auto cart = pol2cart(rho, (a1 + a2) );
-    std::cout << cart.x << cart.y << std::endl;
     _graph[v].pos[0] = cart.x;
     _graph[v].pos[1] = cart.y;
 
     if(out_degree(v, _graph) == 0)
         return;
-
     if(tau(rho) < a2 -a1) {
         s = tau(rho) / _graph[v].wideness;
         alpha = (a1 + a2 - tau(rho))/2;
