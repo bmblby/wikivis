@@ -33,15 +33,14 @@ Gui::contains(double x, double y)
 void
 Gui::search_box(glm::vec3 pos, int width, int height)
 {
-    _window = _gui->addWindow(Eigen::Vector2i(0, 0),
-        "Search Category");
+    _window = _gui->addWindow(Eigen::Vector2i(0, 0), "");
     _window->setPosition(Eigen::Vector2i(pos[0], pos[1]));
     _window->setLayout(new BoxLayout(
         Orientation::Horizontal,
         Alignment::Middle, 4, 4));
 
     TextBox* textbox = new TextBox(_window);
-    textbox->setFixedSize(Eigen::Vector2i(120, 20));
+    textbox->setFixedSize(Eigen::Vector2i(250, 20));
     textbox->setFontSize(16);
     textbox->setAlignment(TextBox::Alignment::Left);
     textbox->setEditable(true);
@@ -60,17 +59,24 @@ Gui::search_box(glm::vec3 pos, int width, int height)
     intBox->setValueIncrement(1);
 
     Button* b = new Button(_window, "Go!");
+    auto default_col = b->backgroundColor();
     b->setCallback([=] {
         std::string name = textbox->value();
         size_t depth = intBox->value();
         Category cat;
+        std::string root = _model._graph[_model._root].title;
+        if(name == root)
+            std::cout << "don't build new graph\n";
         if(_model.find(name, cat)) {
             std::cout << "Found cat: " << cat.title << "\n";
             _model.initIDDFS(cat, depth);
             _model.layout(cat, _width, _height, depth, 0.7f);   //0.7 radius
             _model._dirty = true;
+            b->setBackgroundColor(default_col);
             return true;
         } else {
+            textbox->setValue("please try another category");
+            b->setBackgroundColor(Color(230,0,0,255));
             std::cout << "Input not found please try again\n";
             return false;
         }
