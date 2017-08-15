@@ -39,7 +39,7 @@ class Gui
 
     nanogui::Screen* _screen;
     nanogui::Widget* _widget;
-    nanogui::Window* _window;
+    nanogui::Window* _searchBox;
     nanogui::FormHelper* _gui;
 
     int _width;
