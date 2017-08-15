@@ -73,21 +73,9 @@ View::set_labels()
             nvgText(_vg, view_pos[0]+4, view_pos[1]+4, title.c_str(), NULL);
         }
         if(_model._graph[*vp.first].level == _model._max_depth) {
-            float angle = atan2(pos[1], pos[0]);
-            std::cout << "angle: " << angle << std::endl;
-            std::cout << "pos: " << pos[0] << " : " << pos[1] << std::endl;
-
             nvgSave(_vg);
             nvgTranslate(_vg, view_pos[0], view_pos[1]);
-
-            // float radius =_model._r + (_model._r / _model._max_depth) * 2;
-            // float rad = acos(pos[0]/radius);
-            // if(pos[1] < 0) {
-            //     rad = 2*M_PI -rad;
-            // }
-            // nvgRotate(_vg, rad);
-
-            // nvgSave(_vg);
+            float angle = atan2(pos[1], pos[0]);
             nvgRotate(_vg, angle);
 
             nvgSave(_vg);
