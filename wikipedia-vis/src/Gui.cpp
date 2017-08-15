@@ -88,6 +88,23 @@ Gui::search_box(glm::vec3 pos, int width, int height)
 }
 
 void
+Gui::slider_threshold(glm::vec3 pos, int width)
+{
+    _sliderBox = _gui->addWindow(Eigen::Vector2i(0, 0), "");
+    _sliderBox->setPosition(Eigen::Vector2i(pos[0], pos[1]));
+    _sliderBox->setLayout(new BoxLayout(
+        Orientation::Horizontal,
+        Alignment::Middle, 4, 4));
+    Slider* s = new Slider(_sliderBox);
+    s->setValue(0.5f);
+    s->setFixedWidth(width);
+    // s->setCallback([])
+
+
+    _screen->performLayout();
+}
+
+void
 Gui::display()
 {
    _screen->drawContents();
@@ -99,6 +116,8 @@ void
 Gui::resizefun(int width, int height)
 {
     _screen->resizeCallbackEvent(width, height);
+    _width = width;
+    _height = height;
 }
 
 void

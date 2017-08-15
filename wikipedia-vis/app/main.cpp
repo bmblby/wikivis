@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
   vta::Gui gui(main_window, model);
   guip = &gui;
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
+  gui.slider_threshold(glm::vec3(10, 50, 0), 200);
 
   vta::View view(model, main_window,
     renderer._modelMatrix,
