@@ -476,11 +476,11 @@ Model::layout(Category const& cat, size_t width, size_t height, size_t depth, fl
         breadth_first_search(_graph, start, visitor(set_level));
         width_visitor set_width;
         depth_first_search(_graph, visitor(set_width));
-        // free_tree_layout free_tree;
-        //depth_first_search(_graph, visitor(free_tree));
 
-        layout_visitor vis(width, height, depth, radius, pos_map);
-        breadth_first_search(_graph, start, visitor(vis));
+        free_tree(p.second, _graph[p.second].pos[0], _graph[p.second].pos[1], 2*M_PI);
+
+        // layout_visitor vis(width, height, depth, radius, pos_map);
+        // breadth_first_search(_graph, start, visitor(vis));
     }
     return get(&vta::CatProp::pos, _graph);
 
