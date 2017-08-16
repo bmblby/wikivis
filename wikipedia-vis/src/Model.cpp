@@ -102,8 +102,8 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].title = cat.title;
             g[v].color = PINK;
 
-            g[v].num_articles = _wikidb.getArticleChildren(cat.index).size();
-            g[v].num_categories = _wikidb.getArticleChildren(cat.index).size();
+            g[v].num_articles = _wikidb.getChildrenArtID(cat.index).size();
+            g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
             _root = v;
         }
         else if(!in_graph(g, cat).first){
@@ -434,7 +434,7 @@ Model::numbers()
     for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
         // sum_articles += _graph[*vp.first].num_articles;
         auto index = _graph[*vp.first].index;
-        auto cat = _wikidb.getArticleChildIDs(index);
+        auto cat = _wikidb.getChildrenArtID(index);
         for(auto i : cat){
             _articles.insert(i);
         }

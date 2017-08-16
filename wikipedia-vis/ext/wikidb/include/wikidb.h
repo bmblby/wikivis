@@ -62,9 +62,9 @@ class WikiDB {
 
 	std::vector<Article> getArticleChildren(uint32_t index) const;
 	std::vector<Category> getCategoryChildren(uint32_t index) const;
-    std::vector<uint32_t> getArticleChildIDs(uint32_t index) const;
-    std::vector<uint32_t> getCategoryChildIDs(uint32_t index) const;
-    std::vector<SimPair> getComparisons(uint32_t index) const;
+    std::vector<uint32_t> getChildrenArtID(uint32_t index) const;
+    std::vector<uint32_t> getChildrenCatID(uint32_t index) const;
+    std::vector<SimPair> getComparisons(uint32_t revid) const;
 
 	int sizeArticles() const;
 	int sizeCategories() const;
