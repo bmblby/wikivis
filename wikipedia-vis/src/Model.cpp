@@ -427,6 +427,31 @@ Model::free_tree(Vertex v, float rho, float a1, float a2)
 }
 
 void
+Model::article_threshold(float value)
+{
+    uint32_t sim_val = value *1000;
+    std::cout << "current slider value: " << value << std::endl;
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+        auto index_cat = _graph[*vp.first].index;
+        auto articles = _wikidb.getChildrenArtID(index_cat);
+        for(auto art : articles) {
+            auto comp = _wikidb.getComparisons(art);
+            for(auto sp : comp) {
+                // std::cout << sp.getSim() << std::endl;
+                if(sp.getSim() >= sim_val and
+                _articles.find(sp.getIndex()) != _articles.end()) {
+                    // std::cout << sp.getIndex() << std::endl;
+                    _graph[*vp.first].color = YELLOW;
+                    break;
+                }
+                else {
+                    _graph[*vp.first].color = BLUE_0;
+                }
+            }
+        }
+    }
+}
+
 void
 Model::numbers()
 {

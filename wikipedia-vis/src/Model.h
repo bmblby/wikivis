@@ -122,6 +122,8 @@ class Model
     float tau(float);
     void free_tree(Vertex v, float, float, float);
 
+    //article
+    void article_threshold(float v);
     void numbers();
 
     //getter
