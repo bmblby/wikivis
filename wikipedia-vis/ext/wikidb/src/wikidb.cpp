@@ -408,6 +408,42 @@ WikiDB::getCategoryChildren(uint32_t index) const {
 	return catChildren;
 }
 
+std::vector<uint32_t>
+WikiDB::getChildrenArtID(uint32_t index) const
+{
+	dbQuery q;
+	q = "index=", index;
+	dbCursor<Category> catCur;
+	catCur.select(q);
+    std::vector<uint32_t> articles;
+	std::vector<uint32_t> children = catCur->getChildren();
+	for(auto it = children.rbegin(); it != children.rend(); ++it) {
+		if(this->articleExistsRevid(*it)) {
+            auto art = getArticleByRevid(*it);
+            articles.push_back(art.index);
+        }
+	}
+	return articles;
+}
+
+std::vector<uint32_t>
+WikiDB::getChildrenCatID(uint32_t index) const
+{
+	dbQuery q;
+	q = "index=", index;
+	dbCursor<Category> catCur;
+	catCur.select(q);
+    std::vector<uint32_t> categories;
+	std::vector<uint32_t> children = catCur->getChildren();
+	for(auto it = children.rbegin(); it != children.rend(); ++it) {
+		if(this->categoryExistsRevid(*it)) {
+            auto cat = getCategoryByRevid(*it);
+            categories.push_back(cat.index);
+        }
+	}
+	return categories;
+}
+
 std::vector<SimPair>
 WikiDB::getComparisons(uint32_t index) const {
     dbCursor<Article> articleCursor;

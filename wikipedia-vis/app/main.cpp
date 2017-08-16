@@ -128,12 +128,12 @@ int main(int argc, char *argv[])
   << "\nbuild Graph took: " << duration_build_graph.count()
   << "\nlayout Graph took: " << duration_layout_graph.count() << std::endl;
 
-
   // auto fr_map = model.layout_circular(1.0);
   // model.write_layout(fr_map);
 
   // dump graph layout to file
   model.dump_graph("test_dump");
+  model.numbers();
 
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;
@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
   vta::Gui gui(main_window, model);
   guip = &gui;
   gui.search_box(glm::vec3(10, 10, 0), 45, 25);
+  gui.slider_threshold(glm::vec3(10, 50, 0), 200);
 
   vta::View view(model, main_window,
     renderer._modelMatrix,

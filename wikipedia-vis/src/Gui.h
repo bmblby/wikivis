@@ -21,6 +21,7 @@ class Gui
 
     bool contains(double x, double y);
     void search_box(glm::vec3 pos, int width, int height);
+    void slider_threshold(glm::vec3 pos, int width);
     void display();
 
     // Callbacks
@@ -39,7 +40,8 @@ class Gui
 
     nanogui::Screen* _screen;
     nanogui::Widget* _widget;
-    nanogui::Window* _window;
+    nanogui::Window* _searchBox;
+    nanogui::Window* _sliderBox;
     nanogui::FormHelper* _gui;
 
     int _width;

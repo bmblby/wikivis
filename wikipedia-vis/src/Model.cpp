@@ -102,8 +102,8 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].title = cat.title;
             g[v].color = PINK;
 
-            g[v].num_articles = _wikidb.getArticleChildren(cat.index).size();
-            g[v].num_categories = _wikidb.getArticleChildren(cat.index).size();
+            g[v].num_articles = _wikidb.getChildrenArtID(cat.index).size();
+            g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
             _root = v;
         }
         else if(!in_graph(g, cat).first){
@@ -403,19 +403,14 @@ Model::tau(float rho) {
 void
 Model::free_tree(Vertex v, float rho, float a1, float a2)
 {
-    std::cout << _graph[v].title << std::endl;
     float s;
     float alpha;
-
-    std::cout << "radius: " << rho << " angle: " << (a1 + a2 )/2 << std::endl;
     auto cart = pol2cart(rho, (a1 + a2) );
-    std::cout << cart.x << cart.y << std::endl;
     _graph[v].pos[0] = cart.x;
     _graph[v].pos[1] = cart.y;
 
     if(out_degree(v, _graph) == 0)
         return;
-
     if(tau(rho) < a2 -a1) {
         s = tau(rho) / _graph[v].wideness;
         alpha = (a1 + a2 - tau(rho))/2;
@@ -430,6 +425,50 @@ Model::free_tree(Vertex v, float rho, float a1, float a2)
         alpha = alpha + s * _graph[child].wideness;
     }
 }
+
+void
+Model::article_threshold(float value)
+{
+    uint32_t sim_val = value *1000;
+    std::cout << "current slider value: " << value << std::endl;
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+        auto index_cat = _graph[*vp.first].index;
+        auto articles = _wikidb.getChildrenArtID(index_cat);
+        for(auto art : articles) {
+            auto comp = _wikidb.getComparisons(art);
+            for(auto sp : comp) {
+                // std::cout << sp.getSim() << std::endl;
+                if(sp.getSim() >= sim_val and
+                _articles.find(sp.getIndex()) != _articles.end()) {
+                    // std::cout << sp.getIndex() << std::endl;
+                    _graph[*vp.first].color = YELLOW;
+                    break;
+                }
+                else {
+                    _graph[*vp.first].color = BLUE_0;
+                }
+            }
+        }
+    }
+}
+
+void
+Model::numbers()
+{
+    int sum_articles = 0;
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+        // sum_articles += _graph[*vp.first].num_articles;
+        auto index = _graph[*vp.first].index;
+        auto cat = _wikidb.getChildrenArtID(index);
+        for(auto i : cat){
+            _articles.insert(i);
+        }
+    }
+    sum_articles = _articles.size();
+    std::cout << "number of Categories: " << num_vertices(_graph) << std::endl;
+    std::cout << "number of Articles: " << sum_articles << std::endl;
+}
+
 
 struct level_visitor : public boost::default_bfs_visitor
 {

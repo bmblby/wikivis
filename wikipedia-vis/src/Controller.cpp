@@ -50,13 +50,14 @@ Controller::mouseMove(int x, int y, int state)
     _mouse.setPosition((float) x, (float) y);
     if(_gui.contains(x, y))
         _gui.cursorfun(x, y);
-
-    if(_mouse.getButtonState(GLOOST_MOUSESTATE_BUTTON0) ) {
-        glm::vec3 vec = glm::vec3(x - _start.x, y - _start.y, 0.0);
-        _renderer.translate(vec);
+    else {
+        if(_mouse.getButtonState(GLOOST_MOUSESTATE_BUTTON0) ) {
+            glm::vec3 vec = glm::vec3(x - _start.x, y - _start.y, 0.0);
+            _renderer.translate(vec);
+        }
+        if(hover_state == true)
+            hover(x, y);
     }
-    if(hover_state == true)
-        hover(x, y);
 }
 
 void
