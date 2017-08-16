@@ -35,26 +35,24 @@ R"(createdb.
 	  createdb parents <DatabaseName> <revid2parentsFilename>
 	  createdb comparisons <DatabaseName> <simMatrixDir> [ <threshold> ]
 	  createdb debug <DatabaseName> <parents>
-	  createdb info <DatabaseName> <article> <category>
+	  createdb info <DatabaseName> <revid>
 
 	Options:
 	  -h --help	Show this screen.
 	  --version	Show version.
 )";
 
-void info(std::string const& db_filename, std::string const& article_rev, std::string const& category_rev) {
+void info(std::string const& db_filename, std::string const& revision) {
     WikiDB wikidb(db_filename);
-	uint32_t revid = std::stoi(article_rev);
-	uint32_t revid1 = std::stoi(category_rev);
-	Article article;
-	Category category;
-	if (revid != 0) {
+	uint32_t revid = std::stoi(revision);
+	if(wikidb.articleExistsRevid(revid)) {
+		Article article;
 		article = wikidb.getArticleByRevid(revid);
 		std::cout << article;
 	}
-
-	if (revid1 != 0) {
-		category = wikidb.getCategoryByRevid(revid1);
+	if(wikidb.categoryExistsRevid(revid)) {
+		Category category;
+		category = wikidb.getCategoryByRevid(revid);
 		std::cout << category ;
 	}
 }
@@ -274,7 +272,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (args["info"].asBool()) {
-        info(args["<DatabaseName>"].asString(), args["<article>"].asString(), args["<category>"].asString());
+        info(args["<DatabaseName>"].asString(), args["<revid>"].asString());
     }
 
     if (args["debug"].asBool()) {
