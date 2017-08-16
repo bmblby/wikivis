@@ -128,12 +128,12 @@ int main(int argc, char *argv[])
   << "\nbuild Graph took: " << duration_build_graph.count()
   << "\nlayout Graph took: " << duration_layout_graph.count() << std::endl;
 
-
   // auto fr_map = model.layout_circular(1.0);
   // model.write_layout(fr_map);
 
   // dump graph layout to file
   model.dump_graph("test_dump");
+  model.numbers();
 
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;

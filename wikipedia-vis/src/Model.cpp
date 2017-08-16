@@ -426,6 +426,25 @@ Model::free_tree(Vertex v, float rho, float a1, float a2)
     }
 }
 
+void
+void
+Model::numbers()
+{
+    int sum_articles = 0;
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+        // sum_articles += _graph[*vp.first].num_articles;
+        auto index = _graph[*vp.first].index;
+        auto cat = _wikidb.getArticleChildIDs(index);
+        for(auto i : cat){
+            _articles.insert(i);
+        }
+    }
+    sum_articles = _articles.size();
+    std::cout << "number of Categories: " << num_vertices(_graph) << std::endl;
+    std::cout << "number of Articles: " << sum_articles << std::endl;
+}
+
+
 struct level_visitor : public boost::default_bfs_visitor
 {
     template<typename Vertex, typename Graph>

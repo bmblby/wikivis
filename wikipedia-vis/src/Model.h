@@ -122,6 +122,7 @@ class Model
     float tau(float);
     void free_tree(Vertex v, float, float, float);
 
+    void numbers();
 
     //getter
     std::vector<std::pair< glm::vec3,
@@ -144,6 +145,7 @@ class Model
     Graph _graph;
     WikiDB& _wikidb;
 
+    std::set<uint32_t> _articles;
     bool _dirty;
 
 };
