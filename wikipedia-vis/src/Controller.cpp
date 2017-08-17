@@ -173,8 +173,10 @@ Controller::hover(int x, int y) const
 {
     auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
     Category cat;
-    if(_model.pos2cat(vec, cat))
-        std::cout << cat << std::endl;
+    if(_model.pos2cat(vec, cat)) {
+        _view._hover_cat = cat.title;
+        std::cout << cat;
+    }
 }
 
 } // namespace vta
