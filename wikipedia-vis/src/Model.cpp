@@ -27,8 +27,6 @@ Model::initGraph(Category const& root, size_t depth)
 Graph
 Model::buildDFS(Graph& g, Category const& cat, size_t depth)
 {
-    enum {white, grey, black, root};
-
     Vertex v_parent;
     if(depth == _max_depth) {
         //coloring for debuging purposes
@@ -36,7 +34,6 @@ Model::buildDFS(Graph& g, Category const& cat, size_t depth)
         g[v_parent].index = cat.index;
         g[v_parent].revid = cat.revid;
         g[v_parent].title = cat.title;
-        g[v_parent].color = PINK;
 
         g[v_parent].num_articles = _wikidb.getArticleChildren(cat.index).size();
         g[v_parent].num_categories = _wikidb.getArticleChildren(cat.index).size();
@@ -81,7 +78,6 @@ void
 Model::initIDDFS(Category const& root, size_t depth)
 {
     Graph g;
-    enum {white, grey, black};
     _max_depth = depth;
     for(size_t i = 0; i <= depth; ++i) {
         Vertex v;
@@ -95,7 +91,6 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
 {
     if(depth == 0) {
         if(num_vertices(g) == 0) {
-            enum {white, grey, black, root};
             v = add_vertex(g);
             g[v].index = cat.index;
             g[v].revid = cat.revid;
@@ -442,10 +437,8 @@ Model::article_threshold(float value)
         for(auto art : articles) {
             auto comp = _wikidb.getComparisons(art);
             for(auto sp : comp) {
-                // std::cout << sp.getSim() << std::endl;
                 if(sp.getSim() >= sim_val and
                 _articles.find(sp.getIndex()) != _articles.end()) {
-                    // std::cout << sp.getIndex() << std::endl;
                     _graph[*vp.first].color = YELLOW;
                     break;
                 }
@@ -504,9 +497,6 @@ Model::layout(Category const& cat, size_t width, size_t height, size_t depth, fl
         depth_first_search(_graph, visitor(set_width));
 
         free_tree(p.second, _graph[p.second].pos[0], _graph[p.second].pos[1], 2*M_PI);
-
-        // layout_visitor vis(width, height, depth, radius, pos_map);
-        // breadth_first_search(_graph, start, visitor(vis));
     }
     return get(&vta::CatProp::pos, _graph);
 
@@ -544,10 +534,6 @@ Model::get_nodes() const
 std::vector<std::tuple<const glm::vec3, const glm::vec3, const std::array<float, 4> > >
 Model::get_edges() const
 {
-    // using EdgeIt = boost::graph_traits<Graph>::edge_iterator;
-    // using Edge = boost::graph_traits<Graph>::edge_descriptor;
-    // using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
-    // EdgeIt ei, ei_end;
     using Tuple = std::tuple<const glm::vec3,
                              const glm::vec3,
                              const std::array<float, 4>>;
