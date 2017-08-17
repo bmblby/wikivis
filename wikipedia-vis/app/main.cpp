@@ -65,14 +65,14 @@ int main(int argc, char *argv[])
 
   // GLFW main window init
   #ifdef wall
-  int main_window_width = 3840;
-  int main_window_height = 2130;
-  GLFWwindow* main_window = glfwCreateWindow(main_window_width, main_window_height  * 2,
+  int main_width = 3840;
+  int main_height = 2130;
+  GLFWwindow* main_window = glfwCreateWindow(main_width, main_height  * 2,
                                 "VisualTextAnalytics", NULL, NULL);
   #else
-  int main_window_width = 1024 ;
-  int main_window_height = 768;
-  GLFWwindow* main_window = glfwCreateWindow(main_window_width, main_window_height,
+  int main_width = 1024 ;
+  int main_height = 2139;
+  GLFWwindow* main_window = glfwCreateWindow(main_width, main_height,
                                 "VisualTextAnalytics", NULL, NULL);
   #endif
   if (main_window == nullptr)
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
   glfwSetWindowPos(main_window, 0, 0);
-  glfwGetFramebufferSize(main_window, &main_window_width, &main_window_height);
+  glfwGetFramebufferSize(main_window, &main_width, &main_height);
 
   //callback functions for glfw main window
   glfwMakeContextCurrent(main_window);
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
   auto t2  = std::chrono::high_resolution_clock::now();
   model.initIDDFS(computer_science , depth);
   auto t3  = std::chrono::high_resolution_clock::now();
-  model.layout(computer_science , main_window_width, main_window_height, depth, radius);
+  model.layout(computer_science , main_width, main_height, depth, radius);
   auto t4  = std::chrono::high_resolution_clock::now();
 
   //time plot
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   // dump graph layout to file
   model.dump_graph("test_dump");
 
-  vta::Renderer renderer(model, main_window_width, main_window_height);
+  vta::Renderer renderer(model, main_width, main_height);
   renderer_ptr = &renderer;
   if (!renderer.initialize())
   {
@@ -142,14 +142,14 @@ int main(int argc, char *argv[])
     std::cerr << "error initializing shaders for vis" << std::endl;
     exit(EXIT_FAILURE);
   }
-  renderer.resize(main_window_width, main_window_height); // initial resize
+  renderer.resize(main_width, main_height); // initial resize
 
 
   glfwMakeContextCurrent(main_window);
   vta::Gui gui(main_window, model);
   guip = &gui;
-  gui.search_box(glm::vec3(10, 10, 0), 45, 25);
-  gui.slider_threshold(glm::vec3(10, 50, 0), 200);
+  gui.search_box(glm::vec3(main_width-370, 10, 0), 45, 25);
+  gui.slider_threshold(glm::vec3(main_width-220, 50, 0), 200);
 
   vta::View view(model, main_window,
     renderer._modelMatrix,
