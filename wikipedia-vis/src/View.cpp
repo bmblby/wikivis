@@ -92,13 +92,15 @@ View::HUD()
     std::string cat_num = std::to_string(_model._categories.size());
     std::string cat = "categories: " + cat_num;
     std::string art = "articles: " + std::to_string(_model._articles.size());
-    nvgTranslate(_vg, 5, _height - 40);
-    nvgFontSize(_vg, 16.0f);
+    nvgTranslate(_vg, 5, _height - 50);
+    nvgFontSize(_vg, 20.0f);
     nvgFontFace(_vg, "verdana");
     nvgFillColor(_vg, nvgRGBA(243,245,248,255));
     nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+    nvgText(_vg, 0, 0, _hover_cat.c_str(), NULL);
+    nvgTranslate(_vg, 0, 20);
     nvgText(_vg, 0, 0, cat.c_str(), NULL);
-    nvgTranslate(_vg, 5, 20);
+    nvgTranslate(_vg, 0, 20);
     nvgText(_vg, 0, 0, art.c_str(), NULL);
 }
 
