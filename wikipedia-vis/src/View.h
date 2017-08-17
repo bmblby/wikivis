@@ -27,6 +27,7 @@ struct View
 
     //draw
     void set_labels();
+    void HUD();
 
     glm::vec3 project(double x, double y);
 

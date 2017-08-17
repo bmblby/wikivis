@@ -175,6 +175,7 @@ int main(int argc, char *argv[])
     renderer.display();
     view.beginFrame();
     view.set_labels();
+    view.HUD();
     view.endFrame();
 
     gui.display();
