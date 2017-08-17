@@ -27,6 +27,7 @@ struct View
 
     //draw
     void set_labels();
+    void HUD();
 
     glm::vec3 project(double x, double y);
 
@@ -43,8 +44,8 @@ struct View
     int _height;
     float _pxRatio;
     int _font;
-
     size_t _max_depth;
+    std::string _hover_cat;
 };
 
 } // namespace vta

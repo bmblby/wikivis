@@ -165,7 +165,6 @@ Renderer::display()
   // glClearColor(0.918f, 0.933f, 0.949f, 0.9f);  //WHITE_BACK
   glClearColor(0.298f, 0.333f, 0.361f, 0.9f);  //WHITE_BACK
 
-
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);

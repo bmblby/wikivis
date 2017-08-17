@@ -36,7 +36,7 @@ void
 Gui::search_box(glm::vec3 pos, int width, int height)
 {
     _searchBox = _gui->addWindow(Eigen::Vector2i(0, 0), "");
-    _searchBox->setPosition(Eigen::Vector2i(pos[0], pos[1]));
+    _searchBox->setPosition(Eigen::Vector2i(_width - 370, 10));
     _searchBox->setLayout(new BoxLayout(
         Orientation::Horizontal,
         Alignment::Middle, 4, 4));
@@ -91,7 +91,7 @@ void
 Gui::slider_threshold(glm::vec3 pos, int width)
 {
     _sliderBox = _gui->addWindow(Eigen::Vector2i(0, 0), "");
-    _sliderBox->setPosition(Eigen::Vector2i(pos[0], pos[1]));
+    _sliderBox->setPosition(Eigen::Vector2i(_width - 220, pos[1]));
     _sliderBox->setLayout(new BoxLayout(
         Orientation::Horizontal,
         Alignment::Middle, 4, 4));
@@ -101,7 +101,6 @@ Gui::slider_threshold(glm::vec3 pos, int width)
     s->setCallback([=](float value) {
         _model.article_threshold(value);
     });
-
 
     _screen->performLayout();
 }
@@ -114,12 +113,24 @@ Gui::display()
     // _screen->drawAll();
     _screen->setVisible(true);
 }
+
+void
+Gui::redraw()
+{
+    // destroy all elements
+    _screen->disposeWindow(_searchBox);
+    _screen->disposeWindow(_sliderBox);
+    search_box(glm::vec3(_width-370, 10, 0), 45, 25);
+    slider_threshold(glm::vec3(_width-220, 50, 0), 200);
+}
+
 void
 Gui::resizefun(int width, int height)
 {
     _screen->resizeCallbackEvent(width, height);
     _width = width;
     _height = height;
+    redraw();
 }
 
 void

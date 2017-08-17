@@ -23,6 +23,7 @@ class Gui
     void search_box(glm::vec3 pos, int width, int height);
     void slider_threshold(glm::vec3 pos, int width);
     void display();
+    void redraw();
 
     // Callbacks
     void resizefun(int width, int height);

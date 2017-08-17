@@ -124,7 +124,6 @@ class Model
 
     //article
     void article_threshold(float v);
-    void numbers();
 
     //getter
     std::vector<std::pair< glm::vec3,
@@ -148,6 +147,7 @@ class Model
     WikiDB& _wikidb;
 
     std::set<uint32_t> _articles;
+    std::set<uint32_t> _categories;
     bool _dirty;
 
 };
