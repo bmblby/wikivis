@@ -102,7 +102,10 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].title = cat.title;
             g[v].color = PINK;
 
-            g[v].num_articles = _wikidb.getChildrenArtID(cat.index).size();
+            _categories.insert(cat.index);
+            std::vector<uint32_t> child_art = _wikidb.getChildrenArtID(cat.index);
+            std::copy(child_art.begin(), child_art.end(), std::inserter(_articles, _articles.end()));
+            g[v].num_articles = child_art.size();
             g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
             _root = v;
         }
@@ -199,11 +202,13 @@ Model::add_cat(Graph& g, Category const& cat,
     g[v].index = cat.index;
     g[v].revid = cat.revid;
     g[v].title = cat.title;
-    g[v].num_articles = _wikidb.getArticleChildren(cat.index).size();
-    g[v].num_categories = _wikidb.getArticleChildren(cat.index).size();
 
-    // g[v].pos[0] = g[parent].pos[0];
-    // g[v].pos[1] = g[parent].pos[1];
+    _categories.insert(cat.index);
+    std::vector<uint32_t> child_art = _wikidb.getChildrenArtID(cat.index);
+    std::copy(child_art.begin(), child_art.end(), std::inserter(_articles, _articles.end()));
+    g[v].num_articles = child_art.size();
+    g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
+
     g[v].pos[0] = 0;
     g[v].pos[1] = 0;
     g[v].color = color;
@@ -451,23 +456,6 @@ Model::article_threshold(float value)
         }
     }
 }
-
-void
-Model::numbers()
-{
-    int sum_articles = 0;
-    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
-        // sum_articles += _graph[*vp.first].num_articles;
-        auto index = _graph[*vp.first].index;
-        auto cat = _wikidb.getChildrenArtID(index);
-        _categories.insert(index);
-        for(auto i : cat){
-            _articles.insert(i);
-        }
-    }
-    std::cout << "number of Categories: " << num_vertices(_graph) << std::endl;
-}
-
 
 struct level_visitor : public boost::default_bfs_visitor
 {

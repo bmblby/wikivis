@@ -124,7 +124,6 @@ class Model
 
     //article
     void article_threshold(float v);
-    void numbers();
 
     //getter
     std::vector<std::pair< glm::vec3,

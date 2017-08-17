@@ -133,7 +133,6 @@ int main(int argc, char *argv[])
 
   // dump graph layout to file
   model.dump_graph("test_dump");
-  model.numbers();
 
   vta::Renderer renderer(model, main_window_width, main_window_height);
   renderer_ptr = &renderer;
