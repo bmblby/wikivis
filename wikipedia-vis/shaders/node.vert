@@ -30,6 +30,6 @@ out vData
 void main()
 {
   gl_Position = Projection * View * Model * vec4(in_position, 1.0);
-  gl_PointSize = 5.0f;
+  gl_PointSize = 8.0f;
   vertex.color = in_color;
 }
