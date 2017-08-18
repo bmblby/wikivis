@@ -23,7 +23,7 @@ Controller::mousePress(int x, int y, int btn, int mods)
     Category cat;
     auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
     if(_model.pos2cat(vec, cat) and btn == 0) {
-        _model.expand(cat);
+        _model.expandCat(cat);
         // std::cout << cat;
     }
     _mouse.setButtonState(btn, true);

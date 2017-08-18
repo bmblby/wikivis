@@ -101,7 +101,7 @@ class Model
     Graph buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth);
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
 
-    void expand(Category const& cat);
+    void expandCat(Category const& cat);
     std::pair<Vertex, EdgePair>
     add_cat(Graph& g,
                 Category const& cat,

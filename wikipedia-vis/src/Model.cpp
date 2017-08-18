@@ -139,7 +139,7 @@ Model::in_graph(Graph& g, Category const& cat) const
 }
 
 void
-Model::expand(Category const& cat)
+Model::expandCat(Category const& cat)
 {
     // write fucntion to exapnd clicked category
     // only expand leave categories
