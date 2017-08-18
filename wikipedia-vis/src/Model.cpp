@@ -189,6 +189,25 @@ Model::expandCat(Category const& cat)
     std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
 }
 
+void
+Model::expand_leaves(int depth)
+{
+    do {
+        for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+            if(out_degree(*vp.first, _graph) == 0) {
+                auto index = _graph[*vp.first].index;
+                auto children = _wikidb.getCategoryChildren(index);
+                // std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
+                for(auto const& child : children) {
+                    auto pair = add_cat(_graph, child, *vp.first);
+                }
+            }
+        }
+        depth--;
+    } while (depth >= 0);
+
+}
+
 std::pair<Vertex, EdgePair>
 Model::add_cat(Graph& g, Category const& cat,
                         Vertex const& parent, std::array<float, 4> color)
