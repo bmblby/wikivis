@@ -83,7 +83,6 @@ Gui::search_box(glm::vec3 pos, int width, int height)
             return false;
         }
     } );
-
     _screen->performLayout();
 }
 

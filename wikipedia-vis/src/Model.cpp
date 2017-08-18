@@ -469,19 +469,6 @@ Model::article_threshold(float value)
         }
     }
 }
-//
-// struct level_visitor : public boost::default_bfs_visitor
-// {
-//     template<typename Vertex, typename Graph>
-//     void discover_vertex(Vertex v, Graph& g) {
-//         if(in_degree(v, g) != 0) {
-//             auto ep = boost::in_edges(v, g);
-//             auto parent = boost::source(*ep.first, g);
-//             int test = g[parent].level;
-//             g[v].level = test + 1;
-//         }
-//     }
-// };
 
 struct width_visitor : public boost::default_dfs_visitor
 {
@@ -511,8 +498,6 @@ Model::layout(Category const& cat, size_t width, size_t height, size_t depth, fl
     if(p.first) {
         Vertex start = p.second;
         PosMap pos_map;
-        // level_visitor set_level;
-        // breadth_first_search(_graph, start, visitor(set_level));
         width_visitor set_width;
         depth_first_search(_graph, visitor(set_width));
 
