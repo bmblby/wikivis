@@ -79,6 +79,8 @@ Model::initIDDFS(Category const& root, size_t depth)
 {
     Graph g;
     _max_depth = depth;
+    _articles.clear();
+    _categories.clear();
     for(size_t i = 0; i <= depth; ++i) {
         Vertex v;
         buildDLS(g, root, v, i);
@@ -204,7 +206,7 @@ Model::expand_leaves(int depth)
             }
         }
         depth--;
-    } while (depth >= 0);
+    } while (depth >= 1);
 
 }
 
@@ -494,6 +496,7 @@ PosMap
 Model::layout(Category const& cat, size_t width, size_t height, size_t depth, float radius)
 {
     _r = radius;
+    _max_depth = depth;
     auto p = in_graph(_graph, cat);
     if(p.first) {
         Vertex start = p.second;
