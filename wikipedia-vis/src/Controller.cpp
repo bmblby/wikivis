@@ -10,7 +10,10 @@ _view(view),
 _gui(gui),
 _mouse(),
 _key_state(),
-_strg_key_pressed(false)
+_hover_state(true),
+_zoom_state(true),
+_proj_state(true),
+_strg_press(false)
 {}
 
 void
@@ -67,7 +70,7 @@ Controller::mouseMove(int x, int y, int state)
             glm::vec3 vec = glm::vec3(x - _start.x, y - _start.y, 0.0);
             _renderer.translate(vec);
         }
-        if(hover_state == true)
+        if(_hover_state == true)
             hover(x, y);
     }
 }
@@ -76,7 +79,7 @@ void
 Controller::mouseScroll(float yoffset)
 {
     // Zoom in
-    if(zoom_state)
+    if(_zoom_state)
         //BUG no position transaltion
         _renderer.zoomFOV(yoffset);
     else
@@ -100,8 +103,8 @@ Controller::keyPress(int key, int mods)
     {
         case 321: //GLFW_KEY_KP_1
         {
-            hover_state = !hover_state;
-            if(hover_state)
+            _hover_state = !_hover_state;
+            if(_hover_state)
                 std::cout << "activate hover!\n";
             else
                 std::cout << "deactivate hover!\n";
@@ -110,8 +113,8 @@ Controller::keyPress(int key, int mods)
     case 322: //GLFW_KEY_KP_2
         {
             //default state FOV
-            zoom_state = !zoom_state;
-            if(zoom_state)
+            _zoom_state = !_zoom_state;
+            if(_zoom_state)
                 std::cout << "zoomFOV activ!\n";
             else
                 std::cout << "zoom(scale) activ!\n";
@@ -120,8 +123,8 @@ Controller::keyPress(int key, int mods)
     case 323: //GLFW_KEY_KP_3
         {
             //default state perspective
-            proj_state = !proj_state;
-            if(proj_state) {
+            _proj_state = !_proj_state;
+            if(_proj_state) {
                 _renderer._projectionMatrix = _renderer._perspMat;
                 std::cout << "Perspective Projection\n";
             }
@@ -129,6 +132,11 @@ Controller::keyPress(int key, int mods)
                 _renderer._projectionMatrix = _renderer._orthoMat;
                 std::cout << "Orthogonal Projection\n";
             }
+        }
+
+    case 341:
+        {
+            _strg_press = true;
         }
         // case 257: // ENTER
         // {
@@ -156,7 +164,7 @@ Controller::keyRelease(int key, int mods)
   {
     case 341: // strg
     {
-      _strg_key_pressed = false;
+      _strg_press= false;
       break;
     }
   }
