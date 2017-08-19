@@ -23,8 +23,20 @@ Controller::mousePress(int x, int y, int btn, int mods)
     Category cat;
     auto vec = _renderer.screen2modelSpace(glm::vec3(x, y, 0.0));
     if(_model.pos2cat(vec, cat) and btn == 0) {
-        _model.expandCat(cat);
-        // std::cout << cat;
+        if(_mouse.getButtonState(btn)) {
+            std::cout << _mouse.getButtonState(btn) << std::endl;
+            static auto before = std::chrono::high_resolution_clock::now();
+            auto now = std::chrono::high_resolution_clock::now();
+            double diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - before).count();
+            before = now;
+            if(diff_ms > 10 and diff_ms < 200) {
+                std::cout << "double click!!";
+                // _model.expandCat(cat);
+                std::cout << "show underlying articles or expand to more categories!";
+            }
+        }
+        std::cout << "set cat in focus threshold!" std::endl;
+        // _model.expandCat(cat);
     }
     _mouse.setButtonState(btn, true);
     if(_mouse.getButtonState(btn)){

@@ -128,9 +128,6 @@ int main(int argc, char *argv[])
   << "\nbuild Graph took: " << duration_build_graph.count()
   << "\nlayout Graph took: " << duration_layout_graph.count() << std::endl;
 
-  // auto fr_map = model.layout_circular(1.0);
-  // model.write_layout(fr_map);
-
   // dump graph layout to file
   model.dump_graph("test_dump");
 
@@ -176,7 +173,6 @@ int main(int argc, char *argv[])
     view.set_labels();
     view.HUD();
     view.endFrame();
-
     gui.display();
 
     glfwSwapBuffers(main_window);
