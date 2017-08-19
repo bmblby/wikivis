@@ -80,7 +80,6 @@ Controller::mouseScroll(float yoffset)
 {
     if(_strg_press) {
         _renderer.rotate_z(yoffset);
-        _view.set_labels();
     }
     else
         zoom(yoffset);

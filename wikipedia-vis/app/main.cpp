@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
     // Main Window (Visualization)
     renderer.display();
     view.beginFrame();
-    view.set_labels();
+    view.label_free_tree();
     view.HUD();
     view.endFrame();
     gui.display();
