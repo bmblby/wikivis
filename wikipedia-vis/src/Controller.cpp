@@ -134,9 +134,14 @@ Controller::keyPress(int key, int mods)
             }
         }
 
-    case 341:
+    case 341: //
         {
             _strg_press = true;
+        }
+
+    case 82: //GLFW_KEY_R
+        {
+            _renderer.redraw();
         }
         // case 257: // ENTER
         // {
