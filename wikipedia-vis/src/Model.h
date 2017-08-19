@@ -100,6 +100,7 @@ class Model
     void initIDDFS(Category const& root, size_t depth);
     Graph buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth);
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
+    std::pair<bool, Vertex> in_graph(Graph& g, uint32 index) const;
 
     void expandCat(Category const& cat);
     void expand_leaves(int depth);

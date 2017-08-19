@@ -140,6 +140,17 @@ Model::in_graph(Graph& g, Category const& cat) const
     return std::make_pair(false, v);
 }
 
+std::pair<bool, Vertex>
+Model::in_graph(Graph& g, uint32_t index)
+{
+    for(auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
+        if(g[*vp.first].index == index)
+            return std::make_pair(true, *vp.first);
+    }
+    Vertex v;
+    return std::make_pair(false, v);
+}
+
 void
 Model::expandCat(Category const& cat)
 {
