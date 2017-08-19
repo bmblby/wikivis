@@ -40,6 +40,7 @@ class Renderer
     // update functions from controller
     void zoomFOV(float yoffset);
     void zoom(float yoffset);
+    void rotate_z(float yoffset);
     void translate(glm::vec3 vec);
     void set_mouse(gloost::human_input::MouseState mouse);
     void redraw();
@@ -66,6 +67,8 @@ class Renderer
     glm::mat4 _viewMatrix;
     glm::mat4 _modelMatrix;
     glm::mat4 _scaleM;
+    glm::mat4 _rotateM;
+    glm::mat4 _transM;
 
     glm::mat4 _orthoMat;
     glm::mat4 _perspMat;
