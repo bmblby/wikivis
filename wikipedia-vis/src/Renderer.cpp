@@ -336,9 +336,9 @@ Renderer::rotate_z(float yoffset)
 {
     float angle_deg;
     if(yoffset<0)
-        angle_deg = -0.25f;
+        angle_deg = -0.05f;
     else
-        angle_deg = 0.25f;
+        angle_deg = 0.05f;
     _modelMatrix = glm::rotate(_modelMatrix, angle_deg, glm::vec3(0, 0, 1));
 }
 
