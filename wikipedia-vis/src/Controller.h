@@ -24,6 +24,7 @@ class Controller
     void mouseRelease(int x, int y, int btn, int mods);
     void mouseMove(int x, int y, int state);
     void mouseScroll(float);
+    void zoom(float);
     void reset_mouse();
 
     // key input

@@ -38,7 +38,7 @@ Controller::mousePress(int x, int y, int btn, int mods)
                 std::cout << "show underlying articles or expand to more categories!";
             }
         }
-        std::cout << "set cat in focus threshold!" std::endl;
+        std::cout << "set cat in focus threshold!" << std::endl;
         // _model.expandCat(cat);
     }
     _mouse.setButtonState(btn, true);
@@ -77,6 +77,17 @@ Controller::mouseMove(int x, int y, int state)
 
 void
 Controller::mouseScroll(float yoffset)
+{
+    if(_strg_press) {
+        _renderer.rotate_z(yoffset);
+        _view.set_labels();
+    }
+    else
+        zoom(yoffset);
+}
+
+void
+Controller::zoom(float yoffset)
 {
     // Zoom in
     if(_zoom_state)

@@ -40,6 +40,7 @@ class Renderer
     // update functions from controller
     void zoomFOV(float yoffset);
     void zoom(float yoffset);
+    void rotate_z(float yoffset);
     void translate(glm::vec3 vec);
     void set_mouse(gloost::human_input::MouseState mouse);
     void redraw();
