@@ -79,6 +79,8 @@ Model::initIDDFS(Category const& root, size_t depth)
 {
     Graph g;
     _max_depth = depth;
+    _articles.clear();
+    _categories.clear();
     for(size_t i = 0; i <= depth; ++i) {
         Vertex v;
         buildDLS(g, root, v, i);
@@ -95,7 +97,7 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].index = cat.index;
             g[v].revid = cat.revid;
             g[v].title = cat.title;
-            g[v].color = PINK;
+            g[v].level = 0;
 
             _categories.insert(cat.index);
             std::vector<uint32_t> child_art = _wikidb.getChildrenArtID(cat.index);
@@ -139,7 +141,7 @@ Model::in_graph(Graph& g, Category const& cat) const
 }
 
 void
-Model::expand(Category const& cat)
+Model::expandCat(Category const& cat)
 {
     // write fucntion to exapnd clicked category
     // only expand leave categories
@@ -189,6 +191,25 @@ Model::expand(Category const& cat)
     std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
 }
 
+void
+Model::expand_leaves(int depth)
+{
+    do {
+        for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+            if(out_degree(*vp.first, _graph) == 0) {
+                auto index = _graph[*vp.first].index;
+                auto children = _wikidb.getCategoryChildren(index);
+                // std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
+                for(auto const& child : children) {
+                    auto pair = add_cat(_graph, child, *vp.first);
+                }
+            }
+        }
+        depth--;
+    } while (depth >= 1);
+
+}
+
 std::pair<Vertex, EdgePair>
 Model::add_cat(Graph& g, Category const& cat,
                         Vertex const& parent, std::array<float, 4> color)
@@ -197,6 +218,7 @@ Model::add_cat(Graph& g, Category const& cat,
     g[v].index = cat.index;
     g[v].revid = cat.revid;
     g[v].title = cat.title;
+    g[v].level = g[parent].level + 1;
 
     _categories.insert(cat.index);
     std::vector<uint32_t> child_art = _wikidb.getChildrenArtID(cat.index);
@@ -450,19 +472,6 @@ Model::article_threshold(float value)
     }
 }
 
-struct level_visitor : public boost::default_bfs_visitor
-{
-    template<typename Vertex, typename Graph>
-    void discover_vertex(Vertex v, Graph& g) {
-        if(in_degree(v, g) != 0) {
-            auto ep = boost::in_edges(v, g);
-            auto parent = boost::source(*ep.first, g);
-            int test = g[parent].level;
-            g[v].level = test + 1;
-        }
-    }
-};
-
 struct width_visitor : public boost::default_dfs_visitor
 {
     width_visitor(){}
@@ -487,12 +496,11 @@ PosMap
 Model::layout(Category const& cat, size_t width, size_t height, size_t depth, float radius)
 {
     _r = radius;
+    _max_depth = depth;
     auto p = in_graph(_graph, cat);
     if(p.first) {
         Vertex start = p.second;
         PosMap pos_map;
-        level_visitor set_level;
-        breadth_first_search(_graph, start, visitor(set_level));
         width_visitor set_width;
         depth_first_search(_graph, visitor(set_width));
 

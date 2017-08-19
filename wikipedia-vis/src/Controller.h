@@ -24,6 +24,7 @@ class Controller
     void mouseRelease(int x, int y, int btn, int mods);
     void mouseMove(int x, int y, int state);
     void mouseScroll(float);
+    void zoom(float);
     void reset_mouse();
 
     // key input
@@ -48,10 +49,10 @@ class Controller
     gloost::Vector3 _key_state;
 
     // Toggle if strg-key is pressed
-    bool hover_state = false;
-    bool zoom_state = true;
-    bool proj_state = true;
-    bool _strg_key_pressed;
+    bool _hover_state;
+    bool _zoom_state;
+    bool _proj_state;
+    bool _strg_press;
 };
 
 } // namespace vta

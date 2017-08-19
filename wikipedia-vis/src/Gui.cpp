@@ -51,13 +51,13 @@ Gui::search_box(glm::vec3 pos, int width, int height)
     auto intBox = new IntBox<int>(_searchBox);
     intBox->setEditable(true);
     intBox->setFixedSize(Eigen::Vector2i(50, 20));
-    intBox->setValue(2);
+    intBox->setValue(_model._max_depth);
     // intBox->setUnits("depth");
     intBox->setDefaultValue("0");
     intBox->setFontSize(16);
     intBox->setFormat("[1-9][0-9]*");
     intBox->setSpinnable(true);
-    intBox->setMinMaxValues(0, 5);
+    intBox->setMinMaxValues(1, 10);
     intBox->setValueIncrement(1);
 
     Button* b = new Button(_searchBox, "Go!");
@@ -67,12 +67,23 @@ Gui::search_box(glm::vec3 pos, int width, int height)
         size_t depth = intBox->value();
         Category cat;
         std::string root = _model._graph[_model._root].title;
-        if(name == root)
+        if(name == root) {
+            _model.find(name, cat);
             std::cout << "don't build new graph\n";
-        if(_model.find(name, cat)) {
+            if(depth > _model._max_depth) {
+                _model.expand_leaves(depth - _model._max_depth);
+                _model.layout(cat, _width, _height, depth, _model._r);   //0.7 radius
+                _model._dirty = true;
+            }
+            else if(depth < _model._max_depth) {
+                std::cout << "hide categories!!\n";
+            }
+
+        }
+        else if(_model.find(name, cat)) {
             std::cout << "Found cat: " << cat.title << "\n";
             _model.initIDDFS(cat, depth);
-            _model.layout(cat, _width, _height, depth, 0.7f);   //0.7 radius
+            _model.layout(cat, _width, _height, depth, _model._r);   //0.7 radius
             _model._dirty = true;
             b->setBackgroundColor(default_col);
             return true;
@@ -82,8 +93,7 @@ Gui::search_box(glm::vec3 pos, int width, int height)
             std::cout << "Input not found please try again\n";
             return false;
         }
-    } );
-
+    });
     _screen->performLayout();
 }
 

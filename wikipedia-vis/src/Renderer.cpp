@@ -158,7 +158,6 @@ Renderer::display()
     fill_vbos();
     _model._dirty = false;
   }
-    fill_vbos();
 
   // // setup clear color and clear screen
   // glClearColor(0.059f, 0.176f, 0.251f, 0.0f);  //BLUE_BACK
@@ -333,11 +332,23 @@ Renderer::zoom(float yoffset)
 }
 
 void
+Renderer::rotate_z(float yoffset)
+{
+    float angle_deg;
+    if(yoffset<0)
+        angle_deg = -0.05f;
+    else
+        angle_deg = 0.05f;
+    _rotateM = glm::rotate(_rotateM, angle_deg, glm::vec3(0, 0, 1));
+    _modelMatrix = glm::rotate(_modelMatrix, angle_deg, glm::vec3(0, 0, 1));
+}
+
+void
 Renderer::translate(glm::vec3 vec)
 {
     vec = glm::vec3(vec.x /_width*2, vec.y/_height*2, 0.0);
-    auto trans = glm::translate(glm::mat4(1.0), vec);
-    _modelMatrix = trans * _scaleM;
+    _transM = glm::translate(glm::mat4(1.0), vec);
+    _modelMatrix = _transM * _rotateM * _scaleM;
     //debug
     // std::cout << "modelMatrix " << glm::to_string(_modelMatrix)<< "\n\n";
 }

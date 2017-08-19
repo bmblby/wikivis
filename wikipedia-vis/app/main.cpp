@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
   GLFWwindow* main_window = glfwCreateWindow(main_width, main_height  * 2,
                                 "VisualTextAnalytics", NULL, NULL);
   #else
-  int main_width = 1024 ;
+  int main_width = 3840/2 ;
   int main_height = 2139;
   GLFWwindow* main_window = glfwCreateWindow(main_width, main_height,
                                 "VisualTextAnalytics", NULL, NULL);
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     std::cerr << "Failed to create glfwWindow. " << std::endl;
     exit(EXIT_FAILURE);
   }
-  glfwSetWindowPos(main_window, 0, 0);
+  glfwSetWindowPos(main_window, main_width, 0);
   glfwGetFramebufferSize(main_window, &main_width, &main_height);
 
   //callback functions for glfw main window
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   vta::Model model(wikidb);
   Category computer_science = wikidb.getCategoryByName("Computer science");
   size_t depth = 3;
-  float radius = 0.7f;
+  float radius = 0.2f;
 
   auto t2  = std::chrono::high_resolution_clock::now();
   model.initIDDFS(computer_science , depth);
@@ -127,9 +127,6 @@ int main(int argc, char *argv[])
   std::cout << "load Database took: " << duration_load_db.count()
   << "\nbuild Graph took: " << duration_build_graph.count()
   << "\nlayout Graph took: " << duration_layout_graph.count() << std::endl;
-
-  // auto fr_map = model.layout_circular(1.0);
-  // model.write_layout(fr_map);
 
   // dump graph layout to file
   model.dump_graph("test_dump");
@@ -173,10 +170,9 @@ int main(int argc, char *argv[])
     // Main Window (Visualization)
     renderer.display();
     view.beginFrame();
-    view.set_labels();
+    view.label_free_tree();
     view.HUD();
     view.endFrame();
-
     gui.display();
 
     glfwSwapBuffers(main_window);
