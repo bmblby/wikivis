@@ -67,6 +67,8 @@ class Renderer
     glm::mat4 _viewMatrix;
     glm::mat4 _modelMatrix;
     glm::mat4 _scaleM;
+    glm::mat4 _rotateM;
+    glm::mat4 _transM;
 
     glm::mat4 _orthoMat;
     glm::mat4 _perspMat;
