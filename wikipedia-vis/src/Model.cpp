@@ -141,7 +141,7 @@ Model::in_graph(Graph& g, Category const& cat) const
 }
 
 std::pair<bool, Vertex>
-Model::in_graph(Graph& g, uint32_t index)
+Model::in_graph(Graph& g, uint32_t index) const
 {
     for(auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
         if(g[*vp.first].index == index)
