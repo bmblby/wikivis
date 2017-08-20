@@ -595,6 +595,7 @@ Model::fill_data(Category const& cat, Vertex v)
     for(auto i : articles) {
         _simM[i] = _wikidb.getComparisons(i);
         _cat2art.insert(std::make_pair(v, i));
+        _art2cat.insert(std::make_pair(i, v));
     }
     return articles.size();
 }
