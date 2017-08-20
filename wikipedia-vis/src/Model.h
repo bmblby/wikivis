@@ -127,6 +127,7 @@ class Model
 
     //article
     void threshold(float v);
+    void focus_cat(uint32_t index, float threshold);
 
     //getter
     std::vector<std::pair< glm::vec3,

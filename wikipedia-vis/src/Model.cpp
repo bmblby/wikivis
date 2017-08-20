@@ -490,6 +490,50 @@ Model::threshold(float value)
     _dirty = true;
 }
 
+void
+Model::focus_cat(uint32_t index, float threshold)
+{
+    uint32_t sim_val = threshold *1000;
+    std::cout << "current slider value: " << sim_val << std::endl;
+    //reset all categories
+    for(auto cat : _cat2art)
+        _graph[cat.first].color = BLUE_0;
+    std::vector<std::pair<uint32_t, SimPair>> pair_vec;
+    std::set<uint32_t> source;
+    std::set<uint32_t> target;
+
+    // find articles inside cat
+    auto p = in_graph(_graph, index);
+    auto articles = _cat2art.equal_range(p.second);
+    for(auto it = articles.first; it != articles.second; ++it) {
+        source.insert(it->second);
+    }
+    std::cout << "source size: " << source.size() << std::endl;
+
+    // find target_articles in simMatrix
+    for(auto it = _simM.begin(); it != _simM.end(); ++it) {
+        for(auto sp : it->second) {
+            if(sp.getSim() >= sim_val) {
+                if(source.find(sp.getIndex()) != source.end()) {
+                    pair_vec.push_back(std::make_pair(it->first, sp));
+                    target.insert(sp.getIndex());
+                }
+            }
+        }
+    }
+    std::cout << "target size: " << target.size() << std::endl;
+
+    //color categories with target_articles
+    for(auto i : target) {
+        if(_art2cat.find(i) != _art2cat.end()) {
+            auto cat = _art2cat.find(i)->second;
+            std::cout << _graph[cat].title << std::endl;
+            _graph[cat].color = YELLOW;
+        }
+    }
+    _dirty = true;
+}
+
 struct width_visitor : public boost::default_dfs_visitor
 {
     width_visitor(){}
