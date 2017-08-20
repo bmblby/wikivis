@@ -33,7 +33,7 @@ class Gui
     void keyfun(int key, int scancode, int action, int mods);
     void charfun(unsigned int codepoint);
 
-
+    float _threshold = 0.5;
   protected:
     // Controller* _ctrl;
     Model& _model;

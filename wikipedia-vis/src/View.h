@@ -35,9 +35,9 @@ struct View
     Model& _model;
     GLFWwindow* _window;
     NVGcontext* _vg;
-    glm::mat4& _model_mat;
-    glm::mat4& _view_mat;
-    glm::mat4& _proj_mat;
+    glm::mat4& _modelM;
+    glm::mat4& _viewM;
+    glm::mat4& _projM;
 
     // Gui& _gui;
     int _width;

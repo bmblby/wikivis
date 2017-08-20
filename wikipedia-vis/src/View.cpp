@@ -9,9 +9,9 @@ namespace vta
 // View::View(Model& model, Gui& gui, GLFWwindow* window):
 View::View(Model& model, GLFWwindow* window, glm::mat4& m, glm::mat4& view, glm::mat4& proj):
 _model(model),
-_model_mat(m),
-_view_mat(view),
-_proj_mat(proj),
+_modelM(m),
+_viewM(view),
+_projM(proj),
 _window(window)
 // _gui(gui)
 {
@@ -61,7 +61,7 @@ View::label_free_tree()
     for(; vp.first != vp.second; vp.first++) {
         auto title = _model._graph[*vp.first].title;
         auto pos = _model._graph[*vp.first].pos;
-        auto pos_model = _model_mat * glm::vec4(pos[0], pos[1], 0, 0);
+        auto pos_model = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
         //debug
         // std::cout << "title: " << title;
         // std::cout << "local pos: " << pos[0] << " : " << pos[1] << std::endl;
@@ -97,7 +97,7 @@ View::HUD()
 {
     std::string cat_num = std::to_string(_model._categories.size());
     std::string cat = "categories: " + cat_num;
-    std::string art = "articles: " + std::to_string(_model._articles.size());
+    std::string art = "articles: " + std::to_string(_model._simM.size());
     nvgTranslate(_vg, 5, 20);
     nvgFontSize(_vg, 20.0f);
     nvgFontFace(_vg, "verdana");
@@ -116,8 +116,8 @@ View::project(double x, double y)
     glm::vec3 m_pos = glm::vec3(x, y, 0);
     // std::cout << "model pos (" << glm::to_string(m_pos) << ")\n";
     // invert model matrix to fit nanovg projection
-    glm::mat4 model_mat = glm::scale(_model_mat, glm::vec3(1, -1, 1));
-    glm::vec3 s_pos = glm::project(m_pos, model_mat * _view_mat, _proj_mat, glm::vec4(0, 0, _width, _height));
+    glm::mat4 modelM = glm::scale(_modelM, glm::vec3(1, -1, 1));
+    glm::vec3 s_pos = glm::project(m_pos, modelM * _viewM, _projM, glm::vec4(0, 0, _width, _height));
     // std::cout << "glm proj: (" << glm::to_string(s_pos) << ")\n";
     return s_pos;
 }

@@ -38,8 +38,8 @@ Controller::mousePress(int x, int y, int btn, int mods)
                 std::cout << "show underlying articles or expand to more categories!";
             }
         }
-        std::cout << "set cat in focus threshold!" << std::endl;
-        // _model.expandCat(cat);
+        std::cout << "focus on: "<< cat.title << std::endl;
+        _model.focus_cat(cat.index, _gui._threshold);
     }
     _mouse.setButtonState(btn, true);
     if(_mouse.getButtonState(btn)){
