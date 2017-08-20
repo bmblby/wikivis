@@ -19,7 +19,7 @@ Model::initGraph(Category const& root, size_t depth)
 {
    Graph g;
    _max_depth = depth;
-   _articles.clear();
+   _cat2art.clear();
    _categories.clear();
    buildDFS(g, root, depth);
    _graph = g;
@@ -81,8 +81,9 @@ Model::initIDDFS(Category const& root, size_t depth)
 {
     Graph g;
     _max_depth = depth;
-    _articles.clear();
+    _cat2art.clear();
     _categories.clear();
+    _simM.clear();
     for(size_t i = 0; i <= depth; ++i) {
         Vertex v;
         buildDLS(g, root, v, i);
@@ -102,7 +103,6 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].level = 0;
 
             // fill _art, _cat and _simM
-            _categories.insert(cat.index);
             auto art_size = fill_data(cat);
             g[v].num_articles = art_size;
             g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();

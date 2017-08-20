@@ -152,7 +152,7 @@ class Model
 
     //data
     std::map<uint32_t, std::vector<SimPair>> _simM;
-    std::set<uint32_t>  _articles;
+    std::multimap<Vertex, uint32_t>  _cat2art;
     std::set<uint32_t> _categories;
     bool _dirty;
 

@@ -97,7 +97,7 @@ View::HUD()
 {
     std::string cat_num = std::to_string(_model._categories.size());
     std::string cat = "categories: " + cat_num;
-    std::string art = "articles: " + std::to_string(_model._articles.size());
+    std::string art = "articles: " + std::to_string(_model._simM.size());
     nvgTranslate(_vg, 5, 20);
     nvgFontSize(_vg, 20.0f);
     nvgFontFace(_vg, "verdana");
