@@ -19,6 +19,8 @@ Model::initGraph(Category const& root, size_t depth)
 {
    Graph g;
    _max_depth = depth;
+   _articles.clear();
+   _categories.clear();
    buildDFS(g, root, depth);
    _graph = g;
    std::cout << "number of vertices: " << num_vertices(_graph) << "\n";
