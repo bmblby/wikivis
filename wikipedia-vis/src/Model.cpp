@@ -9,6 +9,7 @@ using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
 
 Model::Model(WikiDB& wikidb)
 :
+  _threshold(1.0),
   _dirty(true),
   _wikidb(wikidb),
   _graph()

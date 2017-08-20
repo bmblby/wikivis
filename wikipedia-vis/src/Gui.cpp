@@ -101,18 +101,31 @@ void
 Gui::slider_threshold(glm::vec3 pos, int width)
 {
     _sliderBox = _gui->addWindow(Eigen::Vector2i(0, 0), "");
-    _sliderBox->setPosition(Eigen::Vector2i(_width - 220, pos[1]));
+    _sliderBox->setPosition(Eigen::Vector2i(_width - 270, pos[1]));
     _sliderBox->setLayout(new BoxLayout(
         Orientation::Horizontal,
         Alignment::Middle, 4, 4));
+
     Slider* s = new Slider(_sliderBox);
-    s->setValue(0.5f);
+
+    auto textBox = new FloatBox<float>(_sliderBox);
+    // textBox->setEditable(true);
+    textBox->setFixedSize(Eigen::Vector2i(50, 20));
+    textBox->setValue(_model._threshold);
+    textBox->setFontSize(16);
+    // textBox->setFormat("[1-9][0-9]*");
+    // textBox->setSpinnable(true);
+    // textBox->setMinMaxValues(0.2, 1.0);
+    // textBox->setValueIncrement(0.01);
+
+    s->setValue(_model._threshold);
     s->setFixedWidth(width);
     s->setCallback([=](float value) {
+        textBox->setValue(value);
         _model.threshold(value);
+        _model._threshold;
         _threshold = value;
     });
-
     _screen->performLayout();
 }
 

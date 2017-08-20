@@ -145,6 +145,7 @@ class Model
     bool dump_graph(std::string filename) const;
 
     // Member
+    float _threshold;
     size_t _max_depth;
     float _r;
     Vertex _root;
