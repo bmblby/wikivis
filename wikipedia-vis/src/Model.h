@@ -148,7 +148,9 @@ class Model
     Graph _graph;
     WikiDB& _wikidb;
 
-    std::set<uint32_t> _articles;
+    //data
+    std::map<uint32_t, std::vector<SimPair>> _simM;
+    std::set<uint32_t>  _articles;
     std::set<uint32_t> _categories;
     bool _dirty;
 
