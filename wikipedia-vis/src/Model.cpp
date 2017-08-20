@@ -462,24 +462,32 @@ void
 Model::threshold(float value)
 {
     uint32_t sim_val = value *1000;
-    std::cout << "current slider value: " << value << std::endl;
-    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
-        auto index_cat = _graph[*vp.first].index;
-        auto articles = _wikidb.getChildrenArtID(index_cat);
-        for(auto art : articles) {
-            auto comp = _wikidb.getComparisons(art);
-            for(auto sp : comp) {
-                if(sp.getSim() >= sim_val and
-                _articles.find(sp.getIndex()) != _articles.end()) {
-                    _graph[*vp.first].color = YELLOW;
-                    break;
-                }
-                else {
-                    _graph[*vp.first].color = BLUE_0;
+    // std::cout << "current slider value: " << sim_val << std::endl;
+
+    //reset all categories
+    for(auto cat : _cat2art)
+        _graph[cat.first].color = BLUE_0;
+    std::vector<std::pair<uint32_t, SimPair>> pair_vec;
+    std::set<uint32_t> target;
+
+    //find articles with over threshold
+    for(auto it = _simM.begin(); it != _simM.end(); ++it) {
+        for(auto sp : it->second) {
+            if(sp.getSim() >= sim_val) {
+                if(_simM.find(sp.getIndex()) != _simM.end()) {
+                    pair_vec.push_back(std::make_pair(it->first, sp));
+                    target.insert(sp.getIndex());
+                    target.insert(it->first);
                 }
             }
         }
     }
+    //color cat with article in set
+    for(auto cat : _cat2art) {
+        if(target.find(cat.second) != target.end())
+            _graph[cat.first].color = YELLOW;
+    }
+    _dirty = true;
 }
 
 struct width_visitor : public boost::default_dfs_visitor
