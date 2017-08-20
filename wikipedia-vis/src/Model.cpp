@@ -99,10 +99,10 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].title = cat.title;
             g[v].level = 0;
 
+            // fill _art, _cat and _simM
             _categories.insert(cat.index);
-            std::vector<uint32_t> child_art = _wikidb.getChildrenArtID(cat.index);
-            std::copy(child_art.begin(), child_art.end(), std::inserter(_articles, _articles.end()));
-            g[v].num_articles = child_art.size();
+            auto art_size = fill_data(cat);
+            g[v].num_articles = art_size;
             g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
             _root = v;
         }
@@ -230,18 +230,16 @@ Model::add_cat(Graph& g, Category const& cat,
     g[v].revid = cat.revid;
     g[v].title = cat.title;
     g[v].level = g[parent].level + 1;
-
-    _categories.insert(cat.index);
-    std::vector<uint32_t> child_art = _wikidb.getChildrenArtID(cat.index);
-    std::copy(child_art.begin(), child_art.end(), std::inserter(_articles, _articles.end()));
-    g[v].num_articles = child_art.size();
-    g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
-
     g[v].pos[0] = 0;
     g[v].pos[1] = 0;
     g[v].color = color;
     EdgePair ep0 = add_edge(parent, v, g);
 
+    //fill _art, _cat and _simM
+    _categories.insert(cat.index);
+    auto art_size = fill_data(cat);
+    g[v].num_articles = art_size;
+    g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
     std::pair<Vertex, EdgePair> p(v, ep0);
     return p;
 }
@@ -578,6 +576,17 @@ Model::get_edges() const
         edge_vec.push_back(tuple);
     }
     return edge_vec;
+}
+
+uint32_t
+Model::fill_data(Category const& cat)
+{
+    _categories.insert(cat.index);
+    std::vector<uint32_t> articles = _wikidb.getChildrenArtID(cat.index);
+    std::copy(articles.begin(), articles.end(), std::inserter(_articles, _articles.begin()));
+    for(auto art : articles)
+        _simM[art] = _wikidb.getComparisons(art);
+    return articles.size();
 }
 
 bool

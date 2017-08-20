@@ -137,6 +137,7 @@ class Model
                          const std::array<float, 4>>>
     get_edges() const;
 
+    uint32_t fill_data(Category const& cat);
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
     bool dump_graph(std::string filename) const;
