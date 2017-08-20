@@ -126,7 +126,7 @@ class Model
     void free_tree(Vertex v, float, float, float);
 
     //article
-    void article_threshold(float v);
+    void threshold(float v);
 
     //getter
     std::vector<std::pair< glm::vec3,

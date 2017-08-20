@@ -460,7 +460,7 @@ Model::free_tree(Vertex v, float rho, float a1, float a2)
 }
 
 void
-Model::article_threshold(float value)
+Model::threshold(float value)
 {
     uint32_t sim_val = value *1000;
     std::cout << "current slider value: " << value << std::endl;

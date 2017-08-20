@@ -109,7 +109,7 @@ Gui::slider_threshold(glm::vec3 pos, int width)
     s->setValue(0.5f);
     s->setFixedWidth(width);
     s->setCallback([=](float value) {
-        _model.article_threshold(value);
+        _model.threshold(value);
     });
 
     _screen->performLayout();
