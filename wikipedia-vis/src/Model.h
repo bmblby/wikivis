@@ -95,11 +95,13 @@ class Model
     // class constructor
     Model(WikiDB&);
 
+    // build tree
     void initGraph(Category const& root, size_t depth = 2);
     Graph buildDFS(Graph& g, Category const& cat, size_t depth);
     void initIDDFS(Category const& root, size_t depth);
     Graph buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth);
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
+    std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
 
     void expandCat(Category const& cat);
     void expand_leaves(int depth);
@@ -124,7 +126,8 @@ class Model
     void free_tree(Vertex v, float, float, float);
 
     //article
-    void article_threshold(float v);
+    void threshold(float v);
+    void focus_cat(uint32_t index, float threshold);
 
     //getter
     std::vector<std::pair< glm::vec3,
@@ -136,6 +139,7 @@ class Model
                          const std::array<float, 4>>>
     get_edges() const;
 
+    uint32_t fill_data(Category const& cat, Vertex v);
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
     bool dump_graph(std::string filename) const;
@@ -147,7 +151,10 @@ class Model
     Graph _graph;
     WikiDB& _wikidb;
 
-    std::set<uint32_t> _articles;
+    //data
+    std::map<uint32_t, std::vector<SimPair>> _simM;
+    std::multimap<Vertex, uint32_t>  _cat2art;
+    std::multimap<uint32_t, Vertex>  _art2cat;
     std::set<uint32_t> _categories;
     bool _dirty;
 

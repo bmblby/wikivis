@@ -19,6 +19,8 @@ Model::initGraph(Category const& root, size_t depth)
 {
    Graph g;
    _max_depth = depth;
+   _cat2art.clear();
+   _categories.clear();
    buildDFS(g, root, depth);
    _graph = g;
    std::cout << "number of vertices: " << num_vertices(_graph) << "\n";
@@ -79,8 +81,9 @@ Model::initIDDFS(Category const& root, size_t depth)
 {
     Graph g;
     _max_depth = depth;
-    _articles.clear();
+    _cat2art.clear();
     _categories.clear();
+    _simM.clear();
     for(size_t i = 0; i <= depth; ++i) {
         Vertex v;
         buildDLS(g, root, v, i);
@@ -99,10 +102,9 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].title = cat.title;
             g[v].level = 0;
 
-            _categories.insert(cat.index);
-            std::vector<uint32_t> child_art = _wikidb.getChildrenArtID(cat.index);
-            std::copy(child_art.begin(), child_art.end(), std::inserter(_articles, _articles.end()));
-            g[v].num_articles = child_art.size();
+            // fill _art, _cat and _simM
+            auto art_size = fill_data(cat, v);
+            g[v].num_articles = art_size;
             g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
             _root = v;
         }
@@ -135,6 +137,17 @@ Model::in_graph(Graph& g, Category const& cat) const
             or g[*vp.first].title == cat.title) {
                 return std::make_pair(true, *vp.first);
             }
+    }
+    Vertex v;
+    return std::make_pair(false, v);
+}
+
+std::pair<bool, Vertex>
+Model::in_graph(Graph& g, uint32_t index) const
+{
+    for(auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
+        if(g[*vp.first].index == index)
+            return std::make_pair(true, *vp.first);
     }
     Vertex v;
     return std::make_pair(false, v);
@@ -219,18 +232,15 @@ Model::add_cat(Graph& g, Category const& cat,
     g[v].revid = cat.revid;
     g[v].title = cat.title;
     g[v].level = g[parent].level + 1;
-
-    _categories.insert(cat.index);
-    std::vector<uint32_t> child_art = _wikidb.getChildrenArtID(cat.index);
-    std::copy(child_art.begin(), child_art.end(), std::inserter(_articles, _articles.end()));
-    g[v].num_articles = child_art.size();
-    g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
-
     g[v].pos[0] = 0;
     g[v].pos[1] = 0;
     g[v].color = color;
     EdgePair ep0 = add_edge(parent, v, g);
 
+    //fill _art, _cat and _simM
+    auto art_size = fill_data(cat, v);
+    g[v].num_articles = art_size;
+    g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
     std::pair<Vertex, EdgePair> p(v, ep0);
     return p;
 }
@@ -449,27 +459,79 @@ Model::free_tree(Vertex v, float rho, float a1, float a2)
 }
 
 void
-Model::article_threshold(float value)
+Model::threshold(float value)
 {
     uint32_t sim_val = value *1000;
-    std::cout << "current slider value: " << value << std::endl;
-    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
-        auto index_cat = _graph[*vp.first].index;
-        auto articles = _wikidb.getChildrenArtID(index_cat);
-        for(auto art : articles) {
-            auto comp = _wikidb.getComparisons(art);
-            for(auto sp : comp) {
-                if(sp.getSim() >= sim_val and
-                _articles.find(sp.getIndex()) != _articles.end()) {
-                    _graph[*vp.first].color = YELLOW;
-                    break;
-                }
-                else {
-                    _graph[*vp.first].color = BLUE_0;
+    // std::cout << "current slider value: " << sim_val << std::endl;
+
+    //reset all categories
+    for(auto cat : _cat2art)
+        _graph[cat.first].color = BLUE_0;
+    std::vector<std::pair<uint32_t, SimPair>> pair_vec;
+    std::set<uint32_t> target;
+
+    //find articles with over threshold
+    for(auto it = _simM.begin(); it != _simM.end(); ++it) {
+        for(auto sp : it->second) {
+            if(sp.getSim() >= sim_val) {
+                if(_simM.find(sp.getIndex()) != _simM.end()) {
+                    pair_vec.push_back(std::make_pair(it->first, sp));
+                    target.insert(sp.getIndex());
+                    target.insert(it->first);
                 }
             }
         }
     }
+    //color cat with article in set
+    for(auto cat : _cat2art) {
+        if(target.find(cat.second) != target.end())
+            _graph[cat.first].color = YELLOW;
+    }
+    _dirty = true;
+}
+
+void
+Model::focus_cat(uint32_t index, float threshold)
+{
+    uint32_t sim_val = threshold *1000;
+    std::cout << "current slider value: " << sim_val << std::endl;
+    //reset all categories
+    for(auto cat : _cat2art)
+        _graph[cat.first].color = BLUE_0;
+    std::vector<std::pair<uint32_t, SimPair>> pair_vec;
+    std::set<uint32_t> source;
+    std::set<uint32_t> target;
+
+    // find articles inside cat
+    auto p = in_graph(_graph, index);
+    auto articles = _cat2art.equal_range(p.second);
+    for(auto it = articles.first; it != articles.second; ++it) {
+        source.insert(it->second);
+    }
+    std::cout << "source size: " << source.size() << std::endl;
+
+    // find target_articles in simMatrix
+    for(auto it = _simM.begin(); it != _simM.end(); ++it) {
+        for(auto sp : it->second) {
+            if(sp.getSim() >= sim_val) {
+                if(source.find(sp.getIndex()) != source.end()) {
+                    pair_vec.push_back(std::make_pair(it->first, sp));
+                    target.insert(sp.getIndex());
+                }
+            }
+        }
+    }
+    std::cout << "target size: " << target.size() << std::endl;
+
+    //color categories with target_articles
+    for(auto i : target) {
+        if(_art2cat.find(i) != _art2cat.end()) {
+            auto cat = _art2cat.find(i)->second;
+            std::cout << _graph[cat].title << std::endl;
+            _graph[cat].color = YELLOW;
+        }
+    }
+    _dirty = true;
 }
 
 struct width_visitor : public boost::default_dfs_visitor
@@ -567,6 +629,19 @@ Model::get_edges() const
         edge_vec.push_back(tuple);
     }
     return edge_vec;
+}
+
+uint32_t
+Model::fill_data(Category const& cat, Vertex v)
+{
+    _categories.insert(cat.index);
+    std::vector<uint32_t> articles = _wikidb.getChildrenArtID(cat.index);
+    for(auto i : articles) {
+        _simM[i] = _wikidb.getComparisons(i);
+        _cat2art.insert(std::make_pair(v, i));
+        _art2cat.insert(std::make_pair(i, v));
+    }
+    return articles.size();
 }
 
 bool
