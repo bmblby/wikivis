@@ -95,19 +95,21 @@ View::label_free_tree()
 void
 View::HUD()
 {
-    std::string cat_num = std::to_string(_model._categories.size());
-    std::string cat = "categories: " + cat_num;
+    //string to show
+    std::string cat = "categories: " + std::to_string(_model._categories.size());;
     std::string art = "articles: " + std::to_string(_model._simM.size());
-    nvgTranslate(_vg, 5, 20);
+
     nvgFontSize(_vg, 20.0f);
     nvgFontFace(_vg, "verdana");
     nvgFillColor(_vg, nvgRGBA(243,245,248,255));
     nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+
+    nvgTranslate(_vg, 5, 20);
+    nvgText(_vg, 0, 0, _hover_cat.c_str(), NULL);
+    nvgTranslate(_vg, 0, 20);
     nvgText(_vg, 0, 0, cat.c_str(), NULL);
     nvgTranslate(_vg, 0, 20);
     nvgText(_vg, 0, 0, art.c_str(), NULL);
-    nvgTranslate(_vg, 0, 20);
-    nvgText(_vg, 0, 0, _hover_cat.c_str(), NULL);
 }
 
 glm::vec3
