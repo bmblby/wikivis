@@ -88,18 +88,17 @@ View::label_free_tree()
 {
     auto vp = boost::vertices(_model._graph);
     for(; vp.first != vp.second; vp.first++) {
-        auto title = _model._graph[*vp.first].title;
-        auto pos = _model._graph[*vp.first].pos;
-        auto pos_model = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
-        //debug
-        // std::cout << "title: " << title;
-        // std::cout << "local pos: " << pos[0] << " : " << pos[1] << std::endl;
-        // std::cout << "model pos: " << pos_model[0] << " : " << pos_model[1] << std::endl;
-        glm::vec3 view_pos = project(pos[0], pos[1]);
         size_t level = _model._graph[*vp.first].level;
         if(level == _model._max_depth or level == 1) {
-            float angle = atan2(pos_model[1], pos_model[0]);
-            set_label(view_pos, title, angle);
+            auto title = _model._graph[*vp.first].title;
+            auto index = _model._graph[*vp.first].index;
+            auto pos = _model._graph[*vp.first].pos;
+
+            auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+            float angle = atan2(posM[1], posM[0]);
+
+            auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
+            labels.insert(std::make_pair(index, pair));
 
             //debug
             // break;
