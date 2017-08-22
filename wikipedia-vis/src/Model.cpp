@@ -185,8 +185,10 @@ Model::expandCat(Category const& cat)
             auto children = _wikidb.getCategoryChildren(cat.index);
             if(children.size() > 0) {
                 for(auto child : children) {
-                    std::cout << child.title << std::endl;
-                    auto p = add_cat(_graph, child, parent_v);
+                    if(_categories.find(child.index) == _categories.end()) {
+                        auto pair = add_cat(_graph, child, parent_v);
+                    }
+                    else {std::cout << child.title << "already in tree";}
                 }
             }
             else {std::cout << cat <<"\nno children!\n";}
@@ -199,14 +201,16 @@ Model::expandCat(Category const& cat)
 void
 Model::expand_leaves(int depth)
 {
+    _max_depth += depth;
     do {
         for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
             if(out_degree(*vp.first, _graph) == 0) {
                 auto index = _graph[*vp.first].index;
                 auto children = _wikidb.getCategoryChildren(index);
-                // std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
                 for(auto const& child : children) {
-                    auto pair = add_cat(_graph, child, *vp.first);
+                    if(_categories.find(child.index) == _categories.end()) {
+                        auto pair = add_cat(_graph, child, *vp.first);
+                    }
                 }
             }
         }
