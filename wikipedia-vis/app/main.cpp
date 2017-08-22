@@ -142,18 +142,18 @@ int main(int argc, char *argv[])
   renderer.resize(main_width, main_height); // initial resize
 
 
-  glfwMakeContextCurrent(main_window);
-  vta::Gui gui(main_window, model);
-  guip = &gui;
-  gui.search_box(glm::vec3(main_width-370, 10, 0), 45, 25);
-  gui.slider_threshold(glm::vec3(main_width-220, 50, 0), 200);
-
   vta::View view(model, main_window,
     renderer._modelMatrix,
     renderer._viewMatrix,
     renderer._projectionMatrix);
   view_ptr = &view;
   view.label_free_tree();
+
+  glfwMakeContextCurrent(main_window);
+  vta::Gui gui(main_window, model, view);
+  guip = &gui;
+  gui.search_box(glm::vec3(main_width-370, 10, 0), 45, 25);
+  gui.slider_threshold(glm::vec3(main_width-220, 50, 0), 200);
 
   vta::Controller ctrl(model, renderer, view, gui);
   ctrl_ptr = &ctrl;

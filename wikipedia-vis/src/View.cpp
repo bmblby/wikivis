@@ -92,6 +92,7 @@ View::set_label(glm::vec3 const& pos, std::string const& title, float angle)
 void
 View::label_free_tree()
 {
+    labels.clear();
     auto vp = boost::vertices(_model._graph);
     for(; vp.first != vp.second; vp.first++) {
         size_t level = _model._graph[*vp.first].level;
@@ -105,9 +106,6 @@ View::label_free_tree()
 
             auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
             labels.insert(std::make_pair(index, pair));
-
-            //debug
-            // break;
         }
     }
 }

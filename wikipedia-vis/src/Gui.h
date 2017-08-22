@@ -8,6 +8,7 @@
 
 // #include "Controller.h"
 #include "Model.h"
+#include "View.h"
 
 namespace vta
 {
@@ -16,8 +17,7 @@ class Gui
 {
   public:
     // class constructor
-    // Gui(GLFWwindow* window, Controller* ctrl);
-    Gui(GLFWwindow* window, Model& model);
+    Gui(GLFWwindow* window, Model& model, View& view);
 
     bool contains(double x, double y);
     void search_box(glm::vec3 pos, int width, int height);
@@ -35,8 +35,8 @@ class Gui
 
     float _threshold;
   protected:
-    // Controller* _ctrl;
     Model& _model;
+    View& _view;
     GLFWwindow* _glfwWindow;
 
     nanogui::Screen* _screen;

@@ -6,9 +6,10 @@ namespace vta
 using namespace nanogui;
 
 // Gui::Gui(GLFWwindow* window, Controller* ctrl):
-Gui::Gui(GLFWwindow* window, Model& model):
+Gui::Gui(GLFWwindow* window, Model& model, View& view):
     _glfwWindow(window),
     _threshold(model._threshold),
+    _view(view),
     _model(model)
     // _ctrl(ctrl)
 {
@@ -86,6 +87,7 @@ Gui::search_box(glm::vec3 pos, int width, int height)
             _model.initIDDFS(cat, depth);
             _model.layout(cat, _width, _height, depth, _model._r);
             _model._dirty = true;
+            _view.label_free_tree();
             b->setBackgroundColor(default_col);
             return true;
         } else {
