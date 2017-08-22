@@ -155,6 +155,27 @@ Model::in_graph(Graph& g, uint32_t index) const
 }
 
 void
+Model::expand(int depth)
+{
+    while(_max_depth != depth)
+    {
+        for(auto vp = vertices(_graph); vp.first != vp.second; ++ vp.first) {
+            auto level = _graph[*vp.first].level;
+            if(level <= depth) {
+                auto index = _graph[*vp.first].index;
+                auto children = _wikidb.getCategoryChildren(index);
+                for(auto const& child : children) {
+                    if(_categories.find(child.index) == _categories.end()) {
+                        auto pair = add_cat(_graph, child, *vp.first);
+                    }
+                }
+            }
+        }
+        _max_depth++;
+    }
+}
+
+void
 Model::expandCat(Category const& cat)
 {
     auto pair = in_graph(_graph, cat);
