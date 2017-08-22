@@ -26,6 +26,7 @@ struct View
     void resize();
 
     //draw
+    void label_machine();
     void set_label(glm::vec3 const& pos, std::string const& title, float angle);
     void label_free_tree();
     void label_children(Category parent);
@@ -34,6 +35,8 @@ struct View
     glm::vec3 project(double x, double y);
 
     //member
+    std::map<uint32_t, std::tuple<glm::vec3, std::string, float>> labels;
+
     Model& _model;
     GLFWwindow* _window;
     NVGcontext* _vg;

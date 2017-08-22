@@ -55,6 +55,17 @@ View::resize()
 }
 
 void
+View::label_machine()
+{
+    for(auto label : labels) {
+        auto t = label.second;
+        auto pos = std::get<0>(t);
+        glm::vec3 view_pos = project(pos[0], pos[1]);
+        set_label(view_pos, std::get<1>(t), std::get<2>(t));
+    }
+}
+
+void
 View::set_label(glm::vec3 const& pos, std::string const& title, float angle)
 {
         nvgSave(_vg);
