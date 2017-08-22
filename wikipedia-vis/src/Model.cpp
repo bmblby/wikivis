@@ -175,27 +175,34 @@ Model::expand(int depth)
     }
 }
 
-void
+bool
 Model::expandCat(Category const& cat)
 {
     auto pair = in_graph(_graph, cat);
-    if(pair.first) {
-        auto parent_v = pair.second;
-        if(out_degree(parent_v, _graph) == 0) {
-            auto children = _wikidb.getCategoryChildren(cat.index);
-            if(children.size() > 0) {
-                for(auto child : children) {
-                    if(_categories.find(child.index) == _categories.end()) {
-                        auto pair = add_cat(_graph, child, parent_v);
-                    }
-                    else {std::cout << child.title << "already in tree";}
+    auto parent_v = pair.second;
+    if(out_degree(parent_v, _graph) == 0) {
+        auto children = _wikidb.getCategoryChildren(cat.index);
+        if(children.size() > 0) {
+            for(auto child : children) {
+                if(_categories.find(child.index) == _categories.end()) {
+                    auto pair = add_cat(_graph, child, parent_v);
+                }
+                else {
+                    std::cout << child.title << "already in tree";
+                    return false;
                 }
             }
-            else {std::cout << cat <<"\nno children!\n";}
+            return true;
         }
-        else {std::cout << cat.title << "\nnot expandable, only leaves!\n";}
+        else {
+            std::cout << cat <<"\nno children!\n";
+            return false;
+        }
     }
-    else {std::cout << cat.title << "\nnot in graph!\n";}
+    else {
+        std::cout << cat.title << "\nnot expandable, only leaves!\n";
+        return false;
+    }
 }
 
 void
