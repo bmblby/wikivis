@@ -85,22 +85,9 @@ View::label_free_tree()
         glm::vec3 view_pos = project(pos[0], pos[1]);
         size_t level = _model._graph[*vp.first].level;
         if(level == _model._max_depth or level == 1) {
-            nvgSave(_vg);
-            nvgTranslate(_vg, view_pos[0], view_pos[1]);
             float angle = atan2(pos_model[1], pos_model[0]);
-            nvgRotate(_vg, angle);
+            set_label(view_pos, title, angle);
 
-            nvgSave(_vg);
-            if(level == 1)
-                nvgFontSize(_vg, 20.0f);
-            else
-                nvgFontSize(_vg, 16.0f);
-            nvgFontFace(_vg, "verdana");
-            nvgFillColor(_vg, nvgRGBA(243,245,248,255));
-            nvgTextAlign(_vg, NVG_ALIGN_LEFT);
-            nvgText(_vg, 0, 0, title.c_str(), NULL);
-            nvgRestore(_vg);
-            nvgRestore(_vg);
             //debug
             // break;
         }
@@ -119,18 +106,8 @@ View::label_children(Category cat)
         auto title = _model._graph[child].title;
         auto pos_model = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
         glm::vec3 view_pos = project(pos[0], pos[1]);
-
-        nvgSave(_vg);
-        nvgTranslate(_vg, view_pos[0], view_pos[1]);
         float angle = atan2(pos_model[1], pos_model[0]);
-        nvgRotate(_vg, angle);
-        nvgFontSize(_vg, 16.0f);
-        nvgFontFace(_vg, "verdana");
-        nvgFillColor(_vg, nvgRGBA(243,245,248,255));
-        nvgTextAlign(_vg, NVG_ALIGN_LEFT);
-        nvgText(_vg, 0, 0, title.c_str(), NULL);
-        nvgRestore(_vg);
-        nvgRestore(_vg);
+        set_labe(view_pos, title, angle);
     }
 }
 
