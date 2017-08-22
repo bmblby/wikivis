@@ -76,6 +76,7 @@ Gui::search_box(glm::vec3 pos, int width, int height)
                 _model.expand_leaves(depth - _model._max_depth);
                 _model.relayout(_width, _height);
                 _model._dirty = true;
+                _view.label_free_tree();
             }
             else if(depth < _model._max_depth) {
                 std::cout << "hide categories!!\n";
