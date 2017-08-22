@@ -474,26 +474,24 @@ Model::threshold(float value)
 {
     _threshold = value;
     uint32_t sim_val = value *1000;
-    // std::cout << "current slider value: " << sim_val << std::endl;
+    std::cout << "current slider value: " << sim_val << std::endl;
 
     //reset all categories
     for(auto cat : _cat2art)
         _graph[cat.first].color = BLUE_0;
     _local_comp.clear();
     _global_comp.clear();
-    std::vector<std::pair<uint32_t, SimPair>> pair_vec;
 
     //find articles over threshold in simM
     for(auto it = _simM.begin(); it != _simM.end(); ++it) {
         for(auto sp : it->second) {
             if(sp.getSim() >= sim_val) {
                 if(_simM.find(sp.getIndex()) != _simM.end()) {
-                    pair_vec.push_back(std::make_pair(it->first, sp));
-                    _local_comp.insert(it->first);
+                    //it->first ^= refRevid
+                    _local_comp.insert(std::make_pair(it->first, sp));
                 }
                 else
-                //count comp outside cat space
-                    _global_comp.insert(sp.getIndex());
+                    _global_comp.insert(std::make_pair(it->first, sp));
             }
         }
     }
