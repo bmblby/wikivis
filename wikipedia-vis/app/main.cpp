@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
   << "\nlayout Graph took: " << duration_layout_graph.count() << std::endl;
 
   // dump graph layout to file
-  model.dump_graph("test_dump");
+  model.dump_graph("init_dump");
 
   vta::Renderer renderer(model, main_width, main_height);
   renderer_ptr = &renderer;
@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
   while (glfwGetKey(main_window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
     glfwWindowShouldClose(main_window) == 0);
 
+  model.dump_graph("closing_dump");
   // Cleanup
   view.cleanup();
   renderer.cleanup();
