@@ -55,59 +55,107 @@ View::resize()
 }
 
 void
+View::label_machine()
+{
+    for(auto label : labels) {
+        auto pair = label.second;
+        auto pos = pair.first;
+        if(_model._dirty = true) {
+            auto v = _model.in_graph(_model._graph, label.first).second;
+            auto p = _model._graph[v].pos;
+            pos.x = p[0];
+            pos.y = p[1];
+         }
+        glm::vec3 view_pos = project(pos[0], pos[1]);
+        auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+        float angle = atan2(posM[1], posM[0]);
+        set_label(view_pos, pair.second, angle);
+    }
+}
+
+void
+View::set_label(glm::vec3 const& pos, std::string const& title, float angle)
+{
+        nvgSave(_vg);
+        nvgTranslate(_vg, pos[0], pos[1]);
+        // float angle = atan2(pos_model[1], pos_model[0]);
+        nvgRotate(_vg, angle);
+        nvgFontSize(_vg, 16.0f);
+        nvgFontFace(_vg, "verdana");
+        nvgFillColor(_vg, nvgRGBA(243,245,248,255));
+        nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+        nvgText(_vg, 0, 0, title.c_str(), NULL);
+        nvgRestore(_vg);
+        nvgRestore(_vg);
+}
+
+void
 View::label_free_tree()
 {
     auto vp = boost::vertices(_model._graph);
     for(; vp.first != vp.second; vp.first++) {
-        auto title = _model._graph[*vp.first].title;
-        auto pos = _model._graph[*vp.first].pos;
-        auto pos_model = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
-        //debug
-        // std::cout << "title: " << title;
-        // std::cout << "local pos: " << pos[0] << " : " << pos[1] << std::endl;
-        // std::cout << "model pos: " << pos_model[0] << " : " << pos_model[1] << std::endl;
-        glm::vec3 view_pos = project(pos[0], pos[1]);
         size_t level = _model._graph[*vp.first].level;
         if(level == _model._max_depth or level == 1) {
-            nvgSave(_vg);
-            nvgTranslate(_vg, view_pos[0], view_pos[1]);
-            float angle = atan2(pos_model[1], pos_model[0]);
-            nvgRotate(_vg, angle);
+            auto title = _model._graph[*vp.first].title;
+            auto index = _model._graph[*vp.first].index;
+            auto pos = _model._graph[*vp.first].pos;
 
-            nvgSave(_vg);
-            if(level == 1)
-                nvgFontSize(_vg, 20.0f);
-            else
-                nvgFontSize(_vg, 16.0f);
-            nvgFontFace(_vg, "verdana");
-            nvgFillColor(_vg, nvgRGBA(243,245,248,255));
-            nvgTextAlign(_vg, NVG_ALIGN_LEFT);
-            nvgText(_vg, 0, 0, title.c_str(), NULL);
-            nvgRestore(_vg);
-            nvgRestore(_vg);
+            auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+            float angle = atan2(posM[1], posM[0]);
+
+            auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
+            labels.insert(std::make_pair(index, pair));
+
             //debug
             // break;
         }
     }
+}
 
+void
+View::label_children(Category cat)
+{
+    auto pair = _model.in_graph(_model._graph, cat);
+    auto parent = pair.second;
+    auto ep = out_edges(parent, _model._graph);
+    for(; ep.first != ep.second; ++ep.first) {
+        auto child = target(*ep.first, _model._graph);
+        auto pos = _model._graph[child].pos;
+        auto title = _model._graph[child].title;
+        auto index = _model._graph[child].index;
+
+        auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+        float angle = atan2(posM[1], posM[0]);
+
+        auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
+        labels.insert(std::make_pair(index, pair));
+
+        // remove parent label
+        auto index_p = _model._graph[parent].index;
+        auto search = labels.find(index_p);
+        if(search != labels.end())
+            labels.erase(search);
+    }
 }
 
 void
 View::HUD()
 {
-    std::string cat_num = std::to_string(_model._categories.size());
-    std::string cat = "categories: " + cat_num;
+    //string to show
+    std::string cat = "categories: " + std::to_string(_model._categories.size());;
     std::string art = "articles: " + std::to_string(_model._simM.size());
-    nvgTranslate(_vg, 5, 20);
+
     nvgFontSize(_vg, 20.0f);
     nvgFontFace(_vg, "verdana");
     nvgFillColor(_vg, nvgRGBA(243,245,248,255));
     nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+
+    nvgTranslate(_vg, 5, 20);
+    nvgText(_vg, 0, 0, _hover_cat.c_str(), NULL);
+    nvgTranslate(_vg, 0, 20);
     nvgText(_vg, 0, 0, cat.c_str(), NULL);
     nvgTranslate(_vg, 0, 20);
     nvgText(_vg, 0, 0, art.c_str(), NULL);
-    nvgTranslate(_vg, 0, 20);
-    nvgText(_vg, 0, 0, _hover_cat.c_str(), NULL);
 }
 
 glm::vec3

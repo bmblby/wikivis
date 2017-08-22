@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   // Graph init
   vta::Model model(wikidb);
   Category computer_science = wikidb.getCategoryByName("Computer science");
-  size_t depth = 3;
+  size_t depth = 1;
   float radius = 0.2f;
 
   auto t2  = std::chrono::high_resolution_clock::now();
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
   << "\nlayout Graph took: " << duration_layout_graph.count() << std::endl;
 
   // dump graph layout to file
-  model.dump_graph("test_dump");
+  model.dump_graph("init_dump");
 
   vta::Renderer renderer(model, main_width, main_height);
   renderer_ptr = &renderer;
@@ -153,6 +153,7 @@ int main(int argc, char *argv[])
     renderer._viewMatrix,
     renderer._projectionMatrix);
   view_ptr = &view;
+  view.label_free_tree();
 
   vta::Controller ctrl(model, renderer, view, gui);
   ctrl_ptr = &ctrl;
@@ -170,7 +171,7 @@ int main(int argc, char *argv[])
     // Main Window (Visualization)
     renderer.display();
     view.beginFrame();
-    view.label_free_tree();
+    view.label_machine();
     view.HUD();
     view.endFrame();
     gui.display();
@@ -180,6 +181,7 @@ int main(int argc, char *argv[])
   while (glfwGetKey(main_window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
     glfwWindowShouldClose(main_window) == 0);
 
+  model.dump_graph("closing_dump");
   // Cleanup
   view.cleanup();
   renderer.cleanup();
