@@ -189,7 +189,6 @@ Model::expandCat(Category const& cat)
                 }
                 else {
                     std::cout << child.title << "already in tree";
-                    return false;
                 }
             }
             return true;
