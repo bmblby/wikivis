@@ -155,54 +155,24 @@ Model::in_graph(Graph& g, uint32_t index) const
 }
 
 void
-Model::expandCat(Category const& cat)
+Model::expand(Category const& cat)
 {
-    // write fucntion to exapnd clicked category
-    // only expand leave categories
-
-    //search vertex of cat in graph
-    auto revid_map = get(&vta::CatProp::revid, _graph);
-    for(auto vp = boost::vertices(_graph); vp.first != vp.second; ++vp.first) {
-        auto vertex = *vp.first;
-        auto revid = get(revid_map, vertex);
-        if(revid == cat.revid and out_degree(vertex, _graph) == 0) {
-            std::cout << "title: " << _graph[vertex].title
-                << " out degree: "  << out_degree(vertex, _graph) << std::endl;
-
-            float radius = _r;
-            size_t i = 0;
-            int lvl = _graph[vertex].level + 1;
-            float dist = radius/_max_depth;
-            float last_cat_angle = 0.0f;
-            float deg_prev_cat = 0.0f;
-
-            double l_lim = std::min(_graph[vertex].l_bis_lim, _graph[vertex].l_tan_lim);
-            double r_lim = std::max(_graph[vertex].r_bis_lim, _graph[vertex].r_tan_lim);
-            radius += dist * (lvl - 1);
-            // double angle_space = (l_lim - r_lim)/out_degree(vertex, _graph);
-            double angle_space = (l_lim - r_lim);///_graph[vertex].num_categories;
-
-
-            // add vertex for every children to graph
+    auto pair = in_graph(_graph, cat);
+    if(pair.first) {
+        auto parent_v = pair.second;
+        if(out_degree(parent_v, _graph) == 0) {
             auto children = _wikidb.getCategoryChildren(cat.index);
-            std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
-            for(auto const& child : children) {
-                auto pair = add_cat(_graph, child, vertex);
-                _graph[pair.first].pos[0] += radius * cos(angle_space * i + r_lim);
-                _graph[pair.first].pos[1] += radius * sin(angle_space * i + r_lim);
-                std::cout << "radius: " << radius
-                            << " angle_space: " << angle_space
-                            << " l_lim: " << l_lim
-                            << " r_lim: " << r_lim << std::endl;
-                std::cout << "position: " << _graph[pair.first].pos[0] << " : "
-                << _graph[pair.first].pos[1] << std::endl;
-                ++i;
+            if(children.size() > 0) {
+                for(auto child : children) {
+                    std::cout << child.title << std::endl;
+                    auto p = add_cat(_graph, child, parent_v);
+                }
             }
-            break;
+            else {std::cout << cat <<"\nno children!\n";}
         }
+        else {std::cout << cat.title << "\nnot expandable, only leaves!\n";}
     }
-    std::cout << cat.title << std::endl;
-    std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
+    else {std::cout << cat.title << "\nnot in graph!\n";}
 }
 
 void
@@ -221,7 +191,6 @@ Model::expand_leaves(int depth)
         }
         depth--;
     } while (depth >= 1);
-
 }
 
 std::pair<Vertex, EdgePair>
