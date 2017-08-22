@@ -55,6 +55,22 @@ View::resize()
 }
 
 void
+View::set_label(glm::vec3 const& pos, std::string const& title, float angle)
+{
+        nvgSave(_vg);
+        nvgTranslate(_vg, pos[0], pos[1]);
+        // float angle = atan2(pos_model[1], pos_model[0]);
+        nvgRotate(_vg, angle);
+        nvgFontSize(_vg, 16.0f);
+        nvgFontFace(_vg, "verdana");
+        nvgFillColor(_vg, nvgRGBA(243,245,248,255));
+        nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+        nvgText(_vg, 0, 0, title.c_str(), NULL);
+        nvgRestore(_vg);
+        nvgRestore(_vg);
+}
+
+void
 View::label_free_tree()
 {
     auto vp = boost::vertices(_model._graph);

@@ -26,6 +26,7 @@ struct View
     void resize();
 
     //draw
+    void set_label(glm::vec3 const& pos, std::string const& title, float angle);
     void label_free_tree();
     void label_children(Category parent);
     void HUD();
