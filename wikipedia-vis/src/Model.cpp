@@ -558,6 +558,10 @@ struct width_visitor : public boost::default_dfs_visitor
 PosMap
 Model::layout(Category const& cat, size_t width, size_t height, size_t depth, float radius)
 {
+    //reset width for layout
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+        _graph[*vp.first].wideness = 0;
+    }
     _r = radius;
     _max_depth = depth;
     auto p = in_graph(_graph, cat);
