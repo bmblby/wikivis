@@ -58,10 +58,12 @@ void
 View::label_machine()
 {
     for(auto label : labels) {
-        auto t = label.second;
-        auto pos = std::get<0>(t);
+        auto pair = label.second;
+        auto pos = pair.first;
         glm::vec3 view_pos = project(pos[0], pos[1]);
-        set_label(view_pos, std::get<1>(t), std::get<2>(t));
+        auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+        float angle = atan2(posM[1], posM[0]);
+        set_label(view_pos, pair.second, angle);
     }
 }
 

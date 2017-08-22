@@ -35,7 +35,7 @@ struct View
     glm::vec3 project(double x, double y);
 
     //member
-    std::map<uint32_t, std::tuple<glm::vec3, std::string, float>> labels;
+    std::map<uint32_t, std::pair<glm::vec3, std::string>> labels;
 
     Model& _model;
     GLFWwindow* _window;
