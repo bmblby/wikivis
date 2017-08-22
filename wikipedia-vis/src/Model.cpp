@@ -502,6 +502,8 @@ Model::threshold(float value)
         }
     }
     _dirty = true;
+    //debug
+    print_comp();
 }
 
 void
@@ -647,6 +649,29 @@ Model::get_edges() const
         edge_vec.push_back(tuple);
     }
     return edge_vec;
+}
+
+void
+Model::print_comp() const
+{
+    std::cout << "\nlocal comps:\n";
+    for(auto i : _local_comp) {
+        auto art1 = _wikidb.getArticle(i.first);
+        auto art2 = _wikidb.getArticle(i.second.getIndex());
+        std::cout << art1.title << " ->\t"
+        << i.second.getSim()
+        << " ->\t" << art2.title
+        << std::endl;
+    }
+    std::cout << "global comps:\n";
+    for(auto i : _global_comp) {
+        auto art1 = _wikidb.getArticle(i.first);
+        auto art2 = _wikidb.getArticle(i.second.getIndex());
+        std::cout << art1.title << " ->\t"
+        << i.second.getSim()
+        << " ->\t" << art2.title
+        << std::endl;
+    }
 }
 
 uint32_t
