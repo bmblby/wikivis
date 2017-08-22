@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   // Graph init
   vta::Model model(wikidb);
   Category computer_science = wikidb.getCategoryByName("Computer science");
-  size_t depth = 3;
+  size_t depth = 1;
   float radius = 0.2f;
 
   auto t2  = std::chrono::high_resolution_clock::now();
