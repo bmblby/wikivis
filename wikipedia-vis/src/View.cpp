@@ -137,6 +137,30 @@ View::label_children(Category cat)
 }
 
 void
+View::label_leaves()
+{
+    auto vp = boost::vertices(_model._graph);
+    for(; vp.first != vp.second; ++vp.first) {
+        auto index = _model._graph[*vp.first].index;
+        if(out_degree(*vp.first, _model._graph) == 0) {
+            if(labels.find(index) == labels.end()) {
+                auto title = _model._graph[*vp.first].title;
+                auto pos = _model._graph[*vp.first].pos;
+
+                auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+                float angle = atan2(posM[1], posM[0]);
+
+                auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
+                labels.insert(std::make_pair(index, pair));
+            }
+        }
+        else {
+            labels.erase(index);
+        }
+    }
+}
+
+void
 View::HUD()
 {
     //string to show
