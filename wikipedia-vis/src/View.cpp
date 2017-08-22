@@ -116,10 +116,19 @@ View::label_children(Category cat)
         auto child = target(*ep.first, _model._graph);
         auto pos = _model._graph[child].pos;
         auto title = _model._graph[child].title;
-        auto pos_model = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
-        glm::vec3 view_pos = project(pos[0], pos[1]);
-        float angle = atan2(pos_model[1], pos_model[0]);
-        set_labe(view_pos, title, angle);
+        auto index = _model._graph[child].index;
+
+        auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+        float angle = atan2(posM[1], posM[0]);
+
+        auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
+        labels.insert(std::make_pair(index, pair));
+
+        // remove parent label
+        auto index_p = _model._graph[parent].index;
+        auto search = labels.find(index_p);
+        if(search != labels.end())
+            labels.erase(search);
     }
 }
 
