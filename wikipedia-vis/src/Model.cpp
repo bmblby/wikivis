@@ -291,6 +291,16 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
     }
 }
 
+
+void
+Model::relayout(size_t w, size_t h)
+{
+    auto index = _graph[_root].index;
+    auto root = _wikidb.getCategory(index);
+    layout(root , w, h, _max_depth, _r);
+    _dirty = true;
+}
+
 struct layout_visitor : public boost::default_bfs_visitor
 {
     template<typename PosMap>
