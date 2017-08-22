@@ -8,6 +8,7 @@ using namespace nanogui;
 // Gui::Gui(GLFWwindow* window, Controller* ctrl):
 Gui::Gui(GLFWwindow* window, Model& model):
     _glfwWindow(window),
+    _threshold(model._threshold),
     _model(model)
     // _ctrl(ctrl)
 {
@@ -109,22 +110,17 @@ Gui::slider_threshold(glm::vec3 pos, int width)
     Slider* s = new Slider(_sliderBox);
 
     auto textBox = new FloatBox<float>(_sliderBox);
-    // textBox->setEditable(true);
     textBox->setFixedSize(Eigen::Vector2i(50, 20));
     textBox->setValue(_model._threshold);
     textBox->setFontSize(16);
-    // textBox->setFormat("[1-9][0-9]*");
-    // textBox->setSpinnable(true);
-    // textBox->setMinMaxValues(0.2, 1.0);
-    // textBox->setValueIncrement(0.01);
 
     s->setValue(_model._threshold);
     s->setFixedWidth(width);
     s->setCallback([=](float value) {
+        _threshold = value;
         textBox->setValue(value);
         _model.threshold(value);
-        _model._threshold;
-        _threshold = value;
+        _model._dirty = true;
     });
     _screen->performLayout();
 }
