@@ -103,7 +103,7 @@ class Model
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
     std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
 
-    void expandCat(Category const& cat);
+    void expand(Category const& cat);
     void expand_leaves(int depth);
     std::pair<Vertex, EdgePair>
     add_cat(Graph& g,
@@ -120,6 +120,9 @@ class Model
     void write_layout(PosMap pos_map);
     //layout with visitor
     PosMap layout(Category const& cat, size_t width, size_t height, size_t depth, float radius);
+    void relayout(size_t w, size_t h);
+
+    //free tree
     glm::vec3 pol2cart(float, float);
     std::pair<float, float> cart2pol(glm::vec3 p);
     float tau(float);
@@ -145,6 +148,7 @@ class Model
     bool dump_graph(std::string filename) const;
 
     // Member
+    float _threshold;
     size_t _max_depth;
     float _r;
     Vertex _root;
