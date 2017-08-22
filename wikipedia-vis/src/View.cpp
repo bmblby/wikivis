@@ -60,6 +60,12 @@ View::label_machine()
     for(auto label : labels) {
         auto pair = label.second;
         auto pos = pair.first;
+        if(_model._dirty = true) {
+            auto v = _model.in_graph(_model._graph, label.first).second;
+            auto p = _model._graph[v].pos;
+            pos.x = p[0];
+            pos.y = p[1];
+         }
         glm::vec3 view_pos = project(pos[0], pos[1]);
         auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
         float angle = atan2(posM[1], posM[0]);
