@@ -72,7 +72,7 @@ Gui::search_box(glm::vec3 pos, int width, int height)
             std::cout << "don't build new graph\n";
             if(depth > _model._max_depth) {
                 _model.expand_leaves(depth - _model._max_depth);
-                _model.layout(cat, _width, _height, depth, _model._r);
+                _model.relayout(_width, _height);
                 _model._dirty = true;
             }
             else if(depth < _model._max_depth) {
