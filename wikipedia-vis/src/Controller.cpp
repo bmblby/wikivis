@@ -35,7 +35,7 @@ Controller::mousePress(int x, int y, int btn, int mods)
         // double click
         if(diff_ms > 10 and diff_ms < 200) {
             std::cout << "expand:" << cat.title;
-            _model.expand(cat);
+            _model.expandCat(cat);
             _model.relayout(_renderer._width, _renderer._height);
             _view.label_children(cat);
             //show underlying articles or expand to more categories!";

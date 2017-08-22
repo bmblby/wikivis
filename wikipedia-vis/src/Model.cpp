@@ -155,7 +155,7 @@ Model::in_graph(Graph& g, uint32_t index) const
 }
 
 void
-Model::expand(Category const& cat)
+Model::expandCat(Category const& cat)
 {
     auto pair = in_graph(_graph, cat);
     if(pair.first) {

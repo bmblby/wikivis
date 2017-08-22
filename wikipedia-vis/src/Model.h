@@ -103,7 +103,7 @@ class Model
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
     std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
 
-    void expand(Category const& cat);
+    void expandCat(Category const& cat);
     void expand_leaves(int depth);
     std::pair<Vertex, EdgePair>
     add_cat(Graph& g,
