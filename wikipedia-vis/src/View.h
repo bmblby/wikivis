@@ -27,6 +27,7 @@ struct View
 
     //draw
     void label_free_tree();
+    void label_children(Category parent);
     void HUD();
 
     glm::vec3 project(double x, double y);

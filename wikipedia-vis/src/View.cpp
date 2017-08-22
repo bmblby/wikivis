@@ -89,7 +89,33 @@ View::label_free_tree()
             // break;
         }
     }
+}
 
+void
+View::label_children(Category cat)
+{
+    auto pair = _model.in_graph(_model._graph, cat);
+    auto parent = pair.second;
+    auto ep = out_edges(parent, _model._graph);
+    for(; ep.first != ep.second; ++ep.first) {
+        auto child = target(*ep.first, _model._graph);
+        auto pos = _model._graph[child].pos;
+        auto title = _model._graph[child].title;
+        auto pos_model = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+        glm::vec3 view_pos = project(pos[0], pos[1]);
+
+        nvgSave(_vg);
+        nvgTranslate(_vg, view_pos[0], view_pos[1]);
+        float angle = atan2(pos_model[1], pos_model[0]);
+        nvgRotate(_vg, angle);
+        nvgFontSize(_vg, 16.0f);
+        nvgFontFace(_vg, "verdana");
+        nvgFillColor(_vg, nvgRGBA(243,245,248,255));
+        nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+        nvgText(_vg, 0, 0, title.c_str(), NULL);
+        nvgRestore(_vg);
+        nvgRestore(_vg);
+    }
 }
 
 void
