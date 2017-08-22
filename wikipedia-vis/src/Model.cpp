@@ -441,31 +441,36 @@ Model::free_tree(Vertex v, float rho, float a1, float a2)
 void
 Model::threshold(float value)
 {
+    _threshold = value;
     uint32_t sim_val = value *1000;
     // std::cout << "current slider value: " << sim_val << std::endl;
 
     //reset all categories
     for(auto cat : _cat2art)
         _graph[cat.first].color = BLUE_0;
+    _local_comp.clear();
+    _global_comp.clear();
     std::vector<std::pair<uint32_t, SimPair>> pair_vec;
-    std::set<uint32_t> target;
 
-    //find articles with over threshold
+    //find articles over threshold in simM
     for(auto it = _simM.begin(); it != _simM.end(); ++it) {
         for(auto sp : it->second) {
             if(sp.getSim() >= sim_val) {
                 if(_simM.find(sp.getIndex()) != _simM.end()) {
                     pair_vec.push_back(std::make_pair(it->first, sp));
-                    target.insert(sp.getIndex());
-                    target.insert(it->first);
+                    _local_comp.insert(it->first);
                 }
+                else
+                //count comp outside cat space
+                    _global_comp.insert(sp.getIndex());
             }
         }
     }
-    //color cat with article in set
+    //color cats containing article from _local_comp
     for(auto cat : _cat2art) {
-        if(target.find(cat.second) != target.end())
+        if(_local_comp.find(cat.second) != _local_comp.end()) {
             _graph[cat.first].color = YELLOW;
+        }
     }
     _dirty = true;
 }

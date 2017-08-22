@@ -144,6 +144,8 @@ View::HUD()
     //string to show
     std::string cat = "categories: " + std::to_string(_model._categories.size());;
     std::string art = "articles: " + std::to_string(_model._simM.size());
+    std::string comp = "comparisons: " + std::to_string(_model._global_comp.size());
+    comp += "/ " + std::to_string(_model._local_comp.size());
 
     nvgFontSize(_vg, 20.0f);
     nvgFontFace(_vg, "verdana");
@@ -156,6 +158,8 @@ View::HUD()
     nvgText(_vg, 0, 0, cat.c_str(), NULL);
     nvgTranslate(_vg, 0, 20);
     nvgText(_vg, 0, 0, art.c_str(), NULL);
+    nvgTranslate(_vg, 0, 20);
+    nvgText(_vg, 0, 0, comp.c_str(), NULL);
 }
 
 glm::vec3

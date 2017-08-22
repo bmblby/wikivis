@@ -160,6 +160,8 @@ class Model
     std::multimap<Vertex, uint32_t>  _cat2art;
     std::multimap<uint32_t, Vertex>  _art2cat;
     std::set<uint32_t> _categories;
+    std::set<uint32_t> _local_comp;
+    std::set<uint32_t> _global_comp;
     bool _dirty;
 
 };
