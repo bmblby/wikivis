@@ -153,6 +153,7 @@ int main(int argc, char *argv[])
     renderer._viewMatrix,
     renderer._projectionMatrix);
   view_ptr = &view;
+  view.label_free_tree();
 
   vta::Controller ctrl(model, renderer, view, gui);
   ctrl_ptr = &ctrl;
@@ -170,7 +171,7 @@ int main(int argc, char *argv[])
     // Main Window (Visualization)
     renderer.display();
     view.beginFrame();
-    view.label_free_tree();
+    view.label_machine();
     view.HUD();
     view.endFrame();
     gui.display();
