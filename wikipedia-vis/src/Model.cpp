@@ -665,25 +665,29 @@ Model::get_edges() const
 }
 
 void
-Model::print_comp() const
+Model::print_comp(bool local, bool global) const
 {
-    std::cout << "\nlocal comps:\n";
-    for(auto i : _local_comp) {
-        auto art1 = _wikidb.getArticle(i.first);
-        auto art2 = _wikidb.getArticle(i.second.getIndex());
-        std::cout << art1.title << " ->\t"
-        << i.second.getSim()
-        << " ->\t" << art2.title
-        << std::endl;
+    if(local) {
+        std::cout << "\nlocal comps:\n";
+        for(auto i : _local_comp) {
+            auto art1 = _wikidb.getArticle(i.first);
+            auto art2 = _wikidb.getArticle(i.second.getIndex());
+            std::cout << art1.title << " ->\t"
+            << i.second.getSim()
+            << " ->\t" << art2.title
+            << std::endl;
+        }
     }
-    std::cout << "global comps:\n";
-    for(auto i : _global_comp) {
-        auto art1 = _wikidb.getArticle(i.first);
-        auto art2 = _wikidb.getArticle(i.second.getIndex());
-        std::cout << art1.title << " ->\t"
-        << i.second.getSim()
-        << " ->\t" << art2.title
-        << std::endl;
+    if(global) {
+        std::cout << "global comps:\n";
+        for(auto i : _global_comp) {
+            auto art1 = _wikidb.getArticle(i.first);
+            auto art2 = _wikidb.getArticle(i.second.getIndex());
+            std::cout << art1.title << " ->\t"
+            << i.second.getSim()
+            << " ->\t" << art2.title
+            << std::endl;
+        }
     }
 }
 

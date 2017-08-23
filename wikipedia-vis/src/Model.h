@@ -144,7 +144,7 @@ class Model
     get_edges() const;
 
     //util
-    void print_comp() const;
+    void print_comp(bool local, bool global) const;
     uint32_t fill_data(Category const& cat, Vertex v);
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
