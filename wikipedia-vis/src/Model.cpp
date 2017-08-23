@@ -482,7 +482,7 @@ Model::threshold(float value)
     _local_comp.clear();
     _global_comp.clear();
 
-    //find articles over threshold in simM
+    //find article pairs over threshold in simM
     for(auto it = _simM.begin(); it != _simM.end(); ++it) {
         for(auto sp : it->second) {
             if(sp.getSim() >= sim_val) {
@@ -523,44 +523,64 @@ void
 Model::focus_cat(uint32_t index, float threshold)
 {
     uint32_t sim_val = threshold *1000;
-    std::cout << "current slider value: " << sim_val << std::endl;
+    // std::cout << "current slider value: " << sim_val << std::endl;
+
     //reset all categories
-    for(auto cat : _cat2art)
-        _graph[cat.first].color = BLUE_0;
-    std::vector<std::pair<uint32_t, SimPair>> pair_vec;
-    std::set<uint32_t> source;
-    std::set<uint32_t> target;
+    //bug update _cat2art not all nodes are cleared wen expandCat is called
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first)
+        _graph[*vp.first].color = BLUE_0;
+    _local_comp.clear();
+    _global_comp.clear();
 
     // find articles inside cat
-    auto p = in_graph(_graph, index);
-    auto articles = _cat2art.equal_range(p.second);
-    for(auto it = articles.first; it != articles.second; ++it) {
-        source.insert(it->second);
+    auto focus_cat = in_graph(_graph, index);
+    auto range = _cat2art.equal_range(focus_cat.second);
+    std::set<uint32_t> focus_cat_arts;
+    for(auto i = range.first; i != range.second; ++i) {
+        focus_cat_arts.insert(i->second);
     }
-    std::cout << "source size: " << source.size() << std::endl;
 
-    // find target_articles in simMatrix
+    // find arts from cat over threshold in simMatrix
     for(auto it = _simM.begin(); it != _simM.end(); ++it) {
-        for(auto sp : it->second) {
-            if(sp.getSim() >= sim_val) {
-                if(source.find(sp.getIndex()) != source.end()) {
-                    pair_vec.push_back(std::make_pair(it->first, sp));
-                    target.insert(sp.getIndex());
+        if(focus_cat_arts.find(it->first) != focus_cat_arts.end()) {
+            for(auto sp : it->second) {
+                if(sp.getSim() >= sim_val) {
+                    if(_simM.find(sp.getIndex()) != _simM.end()) {
+                        //it->first ^= refRevid
+                        _local_comp.insert(std::make_pair(it->first, sp));
+                    }
+                    else
+                        _global_comp.insert(std::make_pair(it->first, sp));
                 }
             }
         }
     }
-    std::cout << "target size: " << target.size() << std::endl;
 
-    //color categories with target_articles
-    for(auto i : target) {
-        if(_art2cat.find(i) != _art2cat.end()) {
-            auto cat = _art2cat.find(i)->second;
-            std::cout << _graph[cat].title << std::endl;
-            _graph[cat].color = YELLOW;
+    //color categories with comp to focused cat
+    for(auto i : _local_comp) {
+        auto art1 = i.first;
+        auto art2 = i.second.getIndex();
+
+        //color all cats containg first art
+        auto range = _art2cat.equal_range(art1);
+        for(auto i = range.first; i != range.second; ++i) {
+            auto cat_v = i->second;
+            _graph[cat_v].color = YELLOW;
+        }
+
+        //color all cats containg second art
+        range = _art2cat.equal_range(art2);
+        for(auto i = range.first; i != range.second; ++i) {
+            auto cat_v = i->second;
+            _graph[cat_v].color = YELLOW;
         }
     }
+    _graph[focus_cat.second].color = RED_NODE;
+    //add edges from focus_cat to compared cats
+
     _dirty = true;
+    //debug
+    // print_comp(true, true);
 }
 
 struct width_visitor : public boost::default_dfs_visitor
