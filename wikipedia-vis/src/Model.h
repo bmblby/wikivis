@@ -103,7 +103,8 @@ class Model
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
     std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
 
-    void expand(Category const& cat);
+    void expand(int depth);
+    bool expandCat(Category const& cat);
     void expand_leaves(int depth);
     std::pair<Vertex, EdgePair>
     add_cat(Graph& g,
@@ -142,6 +143,8 @@ class Model
                          const std::array<float, 4>>>
     get_edges() const;
 
+    //util
+    void print_comp(bool local, bool global) const;
     uint32_t fill_data(Category const& cat, Vertex v);
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
@@ -157,9 +160,12 @@ class Model
 
     //data
     std::map<uint32_t, std::vector<SimPair>> _simM;
+    //attetion mapping from index to vertices in graph
     std::multimap<Vertex, uint32_t>  _cat2art;
     std::multimap<uint32_t, Vertex>  _art2cat;
     std::set<uint32_t> _categories;
+    std::multimap<uint32_t, SimPair> _local_comp;
+    std::multimap<uint32_t, SimPair> _global_comp;
     bool _dirty;
 
 };

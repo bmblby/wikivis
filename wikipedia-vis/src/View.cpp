@@ -92,6 +92,7 @@ View::set_label(glm::vec3 const& pos, std::string const& title, float angle)
 void
 View::label_free_tree()
 {
+    labels.clear();
     auto vp = boost::vertices(_model._graph);
     for(; vp.first != vp.second; vp.first++) {
         size_t level = _model._graph[*vp.first].level;
@@ -105,9 +106,6 @@ View::label_free_tree()
 
             auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
             labels.insert(std::make_pair(index, pair));
-
-            //debug
-            // break;
         }
     }
 }
@@ -139,11 +137,37 @@ View::label_children(Category cat)
 }
 
 void
+View::label_leaves()
+{
+    auto vp = boost::vertices(_model._graph);
+    for(; vp.first != vp.second; ++vp.first) {
+        auto index = _model._graph[*vp.first].index;
+        if(out_degree(*vp.first, _model._graph) == 0) {
+            if(labels.find(index) == labels.end()) {
+                auto title = _model._graph[*vp.first].title;
+                auto pos = _model._graph[*vp.first].pos;
+
+                auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+                float angle = atan2(posM[1], posM[0]);
+
+                auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
+                labels.insert(std::make_pair(index, pair));
+            }
+        }
+        else {
+            labels.erase(index);
+        }
+    }
+}
+
+void
 View::HUD()
 {
     //string to show
     std::string cat = "categories: " + std::to_string(_model._categories.size());;
     std::string art = "articles: " + std::to_string(_model._simM.size());
+    std::string comp = "comparisons: " + std::to_string(_model._global_comp.size());
+    comp += "/ " + std::to_string(_model._local_comp.size());
 
     nvgFontSize(_vg, 20.0f);
     nvgFontFace(_vg, "verdana");
@@ -156,6 +180,8 @@ View::HUD()
     nvgText(_vg, 0, 0, cat.c_str(), NULL);
     nvgTranslate(_vg, 0, 20);
     nvgText(_vg, 0, 0, art.c_str(), NULL);
+    nvgTranslate(_vg, 0, 20);
+    nvgText(_vg, 0, 0, comp.c_str(), NULL);
 }
 
 glm::vec3

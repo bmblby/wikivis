@@ -155,37 +155,68 @@ Model::in_graph(Graph& g, uint32_t index) const
 }
 
 void
-Model::expand(Category const& cat)
+Model::expand(int depth)
 {
-    auto pair = in_graph(_graph, cat);
-    if(pair.first) {
-        auto parent_v = pair.second;
-        if(out_degree(parent_v, _graph) == 0) {
-            auto children = _wikidb.getCategoryChildren(cat.index);
-            if(children.size() > 0) {
-                for(auto child : children) {
-                    std::cout << child.title << std::endl;
-                    auto p = add_cat(_graph, child, parent_v);
+    while(_max_depth != depth)
+    {
+        for(auto vp = vertices(_graph); vp.first != vp.second; ++ vp.first) {
+            auto level = _graph[*vp.first].level;
+            if(level <= depth) {
+                auto index = _graph[*vp.first].index;
+                auto children = _wikidb.getCategoryChildren(index);
+                for(auto const& child : children) {
+                    if(_categories.find(child.index) == _categories.end()) {
+                        auto pair = add_cat(_graph, child, *vp.first);
+                    }
                 }
             }
-            else {std::cout << cat <<"\nno children!\n";}
         }
-        else {std::cout << cat.title << "\nnot expandable, only leaves!\n";}
+        _max_depth++;
     }
-    else {std::cout << cat.title << "\nnot in graph!\n";}
+}
+
+bool
+Model::expandCat(Category const& cat)
+{
+    auto pair = in_graph(_graph, cat);
+    auto parent_v = pair.second;
+    if(out_degree(parent_v, _graph) == 0) {
+        auto children = _wikidb.getCategoryChildren(cat.index);
+        if(children.size() > 0) {
+            for(auto child : children) {
+                if(_categories.find(child.index) == _categories.end()) {
+                    auto pair = add_cat(_graph, child, parent_v);
+                }
+                else {
+                    std::cout << child.title << "already in tree";
+                }
+            }
+            return true;
+        }
+        else {
+            std::cout << cat <<"\nno children!\n";
+            return false;
+        }
+    }
+    else {
+        std::cout << cat.title << "\nnot expandable, only leaves!\n";
+        return false;
+    }
 }
 
 void
 Model::expand_leaves(int depth)
 {
+    _max_depth += depth;
     do {
         for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
             if(out_degree(*vp.first, _graph) == 0) {
                 auto index = _graph[*vp.first].index;
                 auto children = _wikidb.getCategoryChildren(index);
-                // std::cout << "num vertices: " << num_vertices(_graph) << std::endl;
                 for(auto const& child : children) {
-                    auto pair = add_cat(_graph, child, *vp.first);
+                    if(_categories.find(child.index) == _categories.end()) {
+                        auto pair = add_cat(_graph, child, *vp.first);
+                    }
                 }
             }
         }
@@ -441,77 +472,115 @@ Model::free_tree(Vertex v, float rho, float a1, float a2)
 void
 Model::threshold(float value)
 {
+    _threshold = value;
     uint32_t sim_val = value *1000;
-    // std::cout << "current slider value: " << sim_val << std::endl;
+    std::cout << "current slider value: " << sim_val << std::endl;
 
     //reset all categories
-    for(auto cat : _cat2art)
-        _graph[cat.first].color = BLUE_0;
-    std::vector<std::pair<uint32_t, SimPair>> pair_vec;
-    std::set<uint32_t> target;
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first)
+        _graph[*vp.first].color = BLUE_0;
+    _local_comp.clear();
+    _global_comp.clear();
 
-    //find articles with over threshold
+    //find article pairs over threshold in simM
     for(auto it = _simM.begin(); it != _simM.end(); ++it) {
         for(auto sp : it->second) {
             if(sp.getSim() >= sim_val) {
                 if(_simM.find(sp.getIndex()) != _simM.end()) {
-                    pair_vec.push_back(std::make_pair(it->first, sp));
-                    target.insert(sp.getIndex());
-                    target.insert(it->first);
+                    //it->first ^= refRevid
+                    _local_comp.insert(std::make_pair(it->first, sp));
                 }
+                else
+                    _global_comp.insert(std::make_pair(it->first, sp));
             }
         }
     }
-    //color cat with article in set
-    for(auto cat : _cat2art) {
-        if(target.find(cat.second) != target.end())
-            _graph[cat.first].color = YELLOW;
+    //color cats containing article from _local_comp
+    for(auto i : _local_comp) {
+        auto art1 = i.first;
+        auto art2 = i.second.getIndex();
+
+        //color all cats containg first art
+        auto range = _art2cat.equal_range(art1);
+        for(auto i = range.first; i != range.second; ++i) {
+            auto cat_v = i->second;
+            _graph[cat_v].color = YELLOW;
+        }
+
+        //color all cats containg second art
+        range = _art2cat.equal_range(art2);
+        for(auto i = range.first; i != range.second; ++i) {
+            auto cat_v = i->second;
+            _graph[cat_v].color = YELLOW;
+        }
     }
     _dirty = true;
+    //debug
+    // print_comp(true, false);
 }
 
 void
 Model::focus_cat(uint32_t index, float threshold)
 {
     uint32_t sim_val = threshold *1000;
-    std::cout << "current slider value: " << sim_val << std::endl;
+    // std::cout << "current slider value: " << sim_val << std::endl;
+
     //reset all categories
-    for(auto cat : _cat2art)
-        _graph[cat.first].color = BLUE_0;
-    std::vector<std::pair<uint32_t, SimPair>> pair_vec;
-    std::set<uint32_t> source;
-    std::set<uint32_t> target;
+    //bug update _cat2art not all nodes are cleared wen expandCat is called
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first)
+        _graph[*vp.first].color = BLUE_0;
+    _local_comp.clear();
+    _global_comp.clear();
 
     // find articles inside cat
-    auto p = in_graph(_graph, index);
-    auto articles = _cat2art.equal_range(p.second);
-    for(auto it = articles.first; it != articles.second; ++it) {
-        source.insert(it->second);
+    auto focus_cat = in_graph(_graph, index);
+    auto range = _cat2art.equal_range(focus_cat.second);
+    std::set<uint32_t> focus_cat_arts;
+    for(auto i = range.first; i != range.second; ++i) {
+        focus_cat_arts.insert(i->second);
     }
-    std::cout << "source size: " << source.size() << std::endl;
 
-    // find target_articles in simMatrix
+    // find arts from cat over threshold in simMatrix
     for(auto it = _simM.begin(); it != _simM.end(); ++it) {
-        for(auto sp : it->second) {
-            if(sp.getSim() >= sim_val) {
-                if(source.find(sp.getIndex()) != source.end()) {
-                    pair_vec.push_back(std::make_pair(it->first, sp));
-                    target.insert(sp.getIndex());
+        if(focus_cat_arts.find(it->first) != focus_cat_arts.end()) {
+            for(auto sp : it->second) {
+                if(sp.getSim() >= sim_val) {
+                    if(_simM.find(sp.getIndex()) != _simM.end()) {
+                        //it->first ^= refRevid
+                        _local_comp.insert(std::make_pair(it->first, sp));
+                    }
+                    else
+                        _global_comp.insert(std::make_pair(it->first, sp));
                 }
             }
         }
     }
-    std::cout << "target size: " << target.size() << std::endl;
 
-    //color categories with target_articles
-    for(auto i : target) {
-        if(_art2cat.find(i) != _art2cat.end()) {
-            auto cat = _art2cat.find(i)->second;
-            std::cout << _graph[cat].title << std::endl;
-            _graph[cat].color = YELLOW;
+    //color categories with comp to focused cat
+    for(auto i : _local_comp) {
+        auto art1 = i.first;
+        auto art2 = i.second.getIndex();
+
+        //color all cats containg first art
+        auto range = _art2cat.equal_range(art1);
+        for(auto i = range.first; i != range.second; ++i) {
+            auto cat_v = i->second;
+            _graph[cat_v].color = YELLOW;
+        }
+
+        //color all cats containg second art
+        range = _art2cat.equal_range(art2);
+        for(auto i = range.first; i != range.second; ++i) {
+            auto cat_v = i->second;
+            _graph[cat_v].color = YELLOW;
         }
     }
+    _graph[focus_cat.second].color = RED_NODE;
+    //add edges from focus_cat to compared cats
+
     _dirty = true;
+    //debug
+    // print_comp(true, true);
 }
 
 struct width_visitor : public boost::default_dfs_visitor
@@ -613,6 +682,33 @@ Model::get_edges() const
         edge_vec.push_back(tuple);
     }
     return edge_vec;
+}
+
+void
+Model::print_comp(bool local, bool global) const
+{
+    if(local) {
+        std::cout << "\nlocal comps:\n";
+        for(auto i : _local_comp) {
+            auto art1 = _wikidb.getArticle(i.first);
+            auto art2 = _wikidb.getArticle(i.second.getIndex());
+            std::cout << art1.title << " ->\t"
+            << i.second.getSim()
+            << " ->\t" << art2.title
+            << std::endl;
+        }
+    }
+    if(global) {
+        std::cout << "global comps:\n";
+        for(auto i : _global_comp) {
+            auto art1 = _wikidb.getArticle(i.first);
+            auto art2 = _wikidb.getArticle(i.second.getIndex());
+            std::cout << art1.title << " ->\t"
+            << i.second.getSim()
+            << " ->\t" << art2.title
+            << std::endl;
+        }
+    }
 }
 
 uint32_t
