@@ -477,8 +477,8 @@ Model::threshold(float value)
     std::cout << "current slider value: " << sim_val << std::endl;
 
     //reset all categories
-    for(auto cat : _cat2art)
-        _graph[cat.first].color = BLUE_0;
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first)
+        _graph[*vp.first].color = BLUE_0;
     _local_comp.clear();
     _global_comp.clear();
 
