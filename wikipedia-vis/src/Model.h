@@ -160,6 +160,7 @@ class Model
 
     //data
     std::map<uint32_t, std::vector<SimPair>> _simM;
+    //attetion mapping from index to vertices in graph
     std::multimap<Vertex, uint32_t>  _cat2art;
     std::multimap<uint32_t, Vertex>  _art2cat;
     std::set<uint32_t> _categories;

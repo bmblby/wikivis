@@ -496,14 +496,27 @@ Model::threshold(float value)
         }
     }
     //color cats containing article from _local_comp
-    for(auto cat : _cat2art) {
-        if(_local_comp.find(cat.second) != _local_comp.end()) {
-            _graph[cat.first].color = YELLOW;
+    for(auto i : _local_comp) {
+        auto art1 = i.first;
+        auto art2 = i.second.getIndex();
+
+        //color all cats containg first art
+        auto range = _art2cat.equal_range(art1);
+        for(auto i = range.first; i != range.second; ++i) {
+            auto cat_v = i->second;
+            _graph[cat_v].color = YELLOW;
+        }
+
+        //color all cats containg second art
+        range = _art2cat.equal_range(art2);
+        for(auto i = range.first; i != range.second; ++i) {
+            auto cat_v = i->second;
+            _graph[cat_v].color = YELLOW;
         }
     }
     _dirty = true;
     //debug
-    print_comp();
+    // print_comp(true, false);
 }
 
 void
