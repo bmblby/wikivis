@@ -25,13 +25,16 @@ struct View
     void cleanup();
     void resize();
 
-    //draw
+    void HUD();
+
+    // labeling
     void label_machine();
     void set_label(glm::vec3 const& pos, std::string const& title, float angle);
     void label_free_tree();
     void label_children(Category parent);
-    void HUD();
+    void label_leaves();
 
+    //util
     glm::vec3 project(double x, double y);
 
     //member

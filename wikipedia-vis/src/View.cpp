@@ -55,6 +55,30 @@ View::resize()
 }
 
 void
+View::HUD()
+{
+    //string to show
+    std::string cat = "categories: " + std::to_string(_model._categories.size());;
+    std::string art = "articles: " + std::to_string(_model._simM.size());
+    std::string comp = "comparisons: " + std::to_string(_model._global_comp.size());
+    comp += "/ " + std::to_string(_model._local_comp.size());
+
+    nvgFontSize(_vg, 20.0f);
+    nvgFontFace(_vg, "verdana");
+    nvgFillColor(_vg, nvgRGBA(243,245,248,255));
+    nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+
+    nvgTranslate(_vg, 5, 20);
+    nvgText(_vg, 0, 0, _hover_cat.c_str(), NULL);
+    nvgTranslate(_vg, 0, 20);
+    nvgText(_vg, 0, 0, cat.c_str(), NULL);
+    nvgTranslate(_vg, 0, 20);
+    nvgText(_vg, 0, 0, art.c_str(), NULL);
+    nvgTranslate(_vg, 0, 20);
+    nvgText(_vg, 0, 0, comp.c_str(), NULL);
+}
+
+void
 View::label_machine()
 {
     for(auto label : labels) {
@@ -84,7 +108,7 @@ View::set_label(glm::vec3 const& pos, std::string const& title, float angle)
         nvgFontFace(_vg, "verdana");
         nvgFillColor(_vg, nvgRGBA(243,245,248,255));
         nvgTextAlign(_vg, NVG_ALIGN_LEFT);
-        nvgText(_vg, 0, 0, title.c_str(), NULL);
+        nvgText(_vg, 4, 4, title.c_str(), NULL);
         nvgRestore(_vg);
         nvgRestore(_vg);
 }
@@ -92,6 +116,7 @@ View::set_label(glm::vec3 const& pos, std::string const& title, float angle)
 void
 View::label_free_tree()
 {
+    labels.clear();
     auto vp = boost::vertices(_model._graph);
     for(; vp.first != vp.second; vp.first++) {
         size_t level = _model._graph[*vp.first].level;
@@ -105,9 +130,6 @@ View::label_free_tree()
 
             auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
             labels.insert(std::make_pair(index, pair));
-
-            //debug
-            // break;
         }
     }
 }
@@ -139,23 +161,27 @@ View::label_children(Category cat)
 }
 
 void
-View::HUD()
+View::label_leaves()
 {
-    //string to show
-    std::string cat = "categories: " + std::to_string(_model._categories.size());;
-    std::string art = "articles: " + std::to_string(_model._simM.size());
+    auto vp = boost::vertices(_model._graph);
+    for(; vp.first != vp.second; ++vp.first) {
+        auto index = _model._graph[*vp.first].index;
+        if(out_degree(*vp.first, _model._graph) == 0) {
+            if(labels.find(index) == labels.end()) {
+                auto title = _model._graph[*vp.first].title;
+                auto pos = _model._graph[*vp.first].pos;
 
-    nvgFontSize(_vg, 20.0f);
-    nvgFontFace(_vg, "verdana");
-    nvgFillColor(_vg, nvgRGBA(243,245,248,255));
-    nvgTextAlign(_vg, NVG_ALIGN_LEFT);
+                auto posM = _modelM * glm::vec4(pos[0], pos[1], 0, 0);
+                float angle = atan2(posM[1], posM[0]);
 
-    nvgTranslate(_vg, 5, 20);
-    nvgText(_vg, 0, 0, _hover_cat.c_str(), NULL);
-    nvgTranslate(_vg, 0, 20);
-    nvgText(_vg, 0, 0, cat.c_str(), NULL);
-    nvgTranslate(_vg, 0, 20);
-    nvgText(_vg, 0, 0, art.c_str(), NULL);
+                auto pair = std::make_pair(glm::vec3(pos[0],pos[1],0),title);
+                labels.insert(std::make_pair(index, pair));
+            }
+        }
+        else {
+            labels.erase(index);
+        }
+    }
 }
 
 glm::vec3

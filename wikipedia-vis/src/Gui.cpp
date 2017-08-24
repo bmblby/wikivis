@@ -6,8 +6,10 @@ namespace vta
 using namespace nanogui;
 
 // Gui::Gui(GLFWwindow* window, Controller* ctrl):
-Gui::Gui(GLFWwindow* window, Model& model):
+Gui::Gui(GLFWwindow* window, Model& model, View& view):
     _glfwWindow(window),
+    _threshold(model._threshold),
+    _view(view),
     _model(model)
     // _ctrl(ctrl)
 {
@@ -71,9 +73,10 @@ Gui::search_box(glm::vec3 pos, int width, int height)
             _model.find(name, cat);
             std::cout << "don't build new graph\n";
             if(depth > _model._max_depth) {
-                _model.expand_leaves(depth - _model._max_depth);
+                _model.expand(depth);
                 _model.relayout(_width, _height);
                 _model._dirty = true;
+                _view.label_leaves();
             }
             else if(depth < _model._max_depth) {
                 std::cout << "hide categories!!\n";
@@ -85,6 +88,7 @@ Gui::search_box(glm::vec3 pos, int width, int height)
             _model.initIDDFS(cat, depth);
             _model.layout(cat, _width, _height, depth, _model._r);
             _model._dirty = true;
+            _view.label_free_tree();
             b->setBackgroundColor(default_col);
             return true;
         } else {
@@ -109,22 +113,17 @@ Gui::slider_threshold(glm::vec3 pos, int width)
     Slider* s = new Slider(_sliderBox);
 
     auto textBox = new FloatBox<float>(_sliderBox);
-    // textBox->setEditable(true);
     textBox->setFixedSize(Eigen::Vector2i(50, 20));
     textBox->setValue(_model._threshold);
     textBox->setFontSize(16);
-    // textBox->setFormat("[1-9][0-9]*");
-    // textBox->setSpinnable(true);
-    // textBox->setMinMaxValues(0.2, 1.0);
-    // textBox->setValueIncrement(0.01);
 
     s->setValue(_model._threshold);
     s->setFixedWidth(width);
     s->setCallback([=](float value) {
+        _threshold = value;
         textBox->setValue(value);
         _model.threshold(value);
-        _model._threshold;
-        _threshold = value;
+        _model._dirty = true;
     });
     _screen->performLayout();
 }

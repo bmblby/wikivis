@@ -100,10 +100,10 @@ class Model
     Graph buildDFS(Graph& g, Category const& cat, size_t depth);
     void initIDDFS(Category const& root, size_t depth);
     Graph buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth);
-    std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
-    std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
 
-    void expand(Category const& cat);
+    //change tree
+    void expand(int depth);
+    bool expandCat(Category const& cat);
     void expand_leaves(int depth);
     std::pair<Vertex, EdgePair>
     add_cat(Graph& g,
@@ -112,17 +112,18 @@ class Model
                 std::array<float, 4> color = BLUE_SOFT
     );
 
-    //layouts with BGL
+    // standard layoutts from BGL
     using PosMap = boost::property_map<Graph, Point CatProp::*>::type;
     PosMap layout_circular(double const& radius);
     PosMap layout_FR();
     PosMap layout_random();
     void write_layout(PosMap pos_map);
-    //layout with visitor
+
+    //set layout with visitor
     PosMap layout(Category const& cat, size_t width, size_t height, size_t depth, float radius);
     void relayout(size_t w, size_t h);
 
-    //free tree
+    //free tree - EADES
     glm::vec3 pol2cart(float, float);
     std::pair<float, float> cart2pol(glm::vec3 p);
     float tau(float);
@@ -132,7 +133,7 @@ class Model
     void threshold(float v);
     void focus_cat(uint32_t index, float threshold);
 
-    //getter
+    //getter - for renderer
     std::vector<std::pair< glm::vec3,
                          std::array<float, 4> > >
     get_nodes() const;
@@ -142,10 +143,14 @@ class Model
                          const std::array<float, 4>>>
     get_edges() const;
 
+    //util
+    std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
+    std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
     uint32_t fill_data(Category const& cat, Vertex v);
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
     bool dump_graph(std::string filename) const;
+    void print_comp(bool local, bool global) const;
 
     // Member
     float _threshold;
@@ -155,11 +160,14 @@ class Model
     Graph _graph;
     WikiDB& _wikidb;
 
-    //data
+    //data structures
     std::map<uint32_t, std::vector<SimPair>> _simM;
+    //attetion mapping from index to vertices in graph
     std::multimap<Vertex, uint32_t>  _cat2art;
     std::multimap<uint32_t, Vertex>  _art2cat;
     std::set<uint32_t> _categories;
+    std::multimap<uint32_t, SimPair> _local_comp;
+    std::multimap<uint32_t, SimPair> _global_comp;
     bool _dirty;
 
 };

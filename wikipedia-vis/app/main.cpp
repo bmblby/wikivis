@@ -22,14 +22,14 @@
 #include "Gui.h"
 #include "View.h"
 
-using namespace nanogui;
-
 //pointer
 vta::Renderer* renderer_ptr;
 vta::Controller* ctrl_ptr;
 vta::View* view_ptr;
 vta::Gui* guip;
-Screen *screen = nullptr;
+nanogui::Screen *screen = nullptr;
+
+GLFWwindow* setup(int& main_width, int& main_height);
 
 // callback function declaration
 void resizefun(GLFWwindow* window, int width, int height);
@@ -42,66 +42,9 @@ void glfw_errorfun(int error, const char* description);
 
 int main(int argc, char *argv[])
 {
-  // GLFW window layout
-  #define nowall
-
-  // // GLFW
-  if (!glfwInit())
-      exit(EXIT_FAILURE);
-
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-  glfwWindowHint(GLFW_SAMPLES, 0);
-  glfwWindowHint(GLFW_RED_BITS, 8);
-  glfwWindowHint(GLFW_GREEN_BITS, 8);
-  glfwWindowHint(GLFW_BLUE_BITS, 8);
-  glfwWindowHint(GLFW_ALPHA_BITS, 8);
-  glfwWindowHint(GLFW_STENCIL_BITS, 8);
-  glfwWindowHint(GLFW_DEPTH_BITS, 24);
-  glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-
-  // GLFW main window init
-  #ifdef wall
-  int main_width = 3840;
-  int main_height = 2130;
-  GLFWwindow* main_window = glfwCreateWindow(main_width, main_height  * 2,
-                                "VisualTextAnalytics", NULL, NULL);
-  #else
-  int main_width = 3840/2 ;
-  int main_height = 2139;
-  GLFWwindow* main_window = glfwCreateWindow(main_width, main_height,
-                                "VisualTextAnalytics", NULL, NULL);
-  #endif
-  if (main_window == nullptr)
-  {
-    glfwTerminate();
-    std::cerr << "Failed to create glfwWindow. " << std::endl;
-    exit(EXIT_FAILURE);
-  }
-  glfwSetWindowPos(main_window, main_width, 0);
-  glfwGetFramebufferSize(main_window, &main_width, &main_height);
-
-  //callback functions for glfw main window
-  glfwMakeContextCurrent(main_window);
-  glfwSetFramebufferSizeCallback(main_window, resizefun);
-  glfwSetMouseButtonCallback(main_window, mousebuttonfun);
-  glfwSetScrollCallback(main_window, scrollfun);
-  glfwSetCursorPosCallback(main_window, cursorposfun);
-  glfwSetKeyCallback(main_window, keyfun);
-  glfwSetCharCallback(main_window, charfun);
-  glfwSetErrorCallback(glfw_errorfun);
-
-  glewExperimental = true;
-  if (GLEW_OK != glewInit())
-    {
-      std::cerr << "'glewInit()' failed." << std::endl;
-      exit(EXIT_FAILURE);
-  }
-  // used to catch escape key
-  glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
+    int main_width;
+    int main_height;
+    auto main_window = setup(main_width, main_height);
 
   auto t1  = std::chrono::high_resolution_clock::now();
   // WikiDB wikidb("/dev/shm/wiki-vis/enwiki2016no-comp");
@@ -142,18 +85,18 @@ int main(int argc, char *argv[])
   renderer.resize(main_width, main_height); // initial resize
 
 
-  glfwMakeContextCurrent(main_window);
-  vta::Gui gui(main_window, model);
-  guip = &gui;
-  gui.search_box(glm::vec3(main_width-370, 10, 0), 45, 25);
-  gui.slider_threshold(glm::vec3(main_width-220, 50, 0), 200);
-
   vta::View view(model, main_window,
     renderer._modelMatrix,
     renderer._viewMatrix,
     renderer._projectionMatrix);
   view_ptr = &view;
   view.label_free_tree();
+
+  glfwMakeContextCurrent(main_window);
+  vta::Gui gui(main_window, model, view);
+  guip = &gui;
+  gui.search_box(glm::vec3(main_width-370, 10, 0), 45, 25);
+  gui.slider_threshold(glm::vec3(main_width-220, 50, 0), 200);
 
   vta::Controller ctrl(model, renderer, view, gui);
   ctrl_ptr = &ctrl;
@@ -250,4 +193,70 @@ charfun(GLFWwindow* window, unsigned int codepoint)
 void glfw_errorfun(int error, const char* description)
 {
   fputs(description, stderr);
+}
+
+GLFWwindow*
+setup(int& main_width, int& main_height)
+{
+      // GLFW window layout
+  #define nowall
+
+  // // GLFW
+  if (!glfwInit())
+      exit(EXIT_FAILURE);
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  glfwWindowHint(GLFW_SAMPLES, 0);
+  glfwWindowHint(GLFW_RED_BITS, 8);
+  glfwWindowHint(GLFW_GREEN_BITS, 8);
+  glfwWindowHint(GLFW_BLUE_BITS, 8);
+  glfwWindowHint(GLFW_ALPHA_BITS, 8);
+  glfwWindowHint(GLFW_STENCIL_BITS, 8);
+  glfwWindowHint(GLFW_DEPTH_BITS, 24);
+  glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+
+  // GLFW main window init
+  #ifdef wall
+  main_width = 3840;
+  main_height = 2130;
+  GLFWwindow* main_window = glfwCreateWindow(main_width, main_height  * 2,
+                                "VisualTextAnalytics", NULL, NULL);
+  #else
+  main_width = 3840/2 ;
+  main_height = 2139;
+  GLFWwindow* main_window = glfwCreateWindow(main_width, main_height,
+                                "VisualTextAnalytics", NULL, NULL);
+  #endif
+  if (main_window == nullptr)
+  {
+    glfwTerminate();
+    std::cerr << "Failed to create glfwWindow. " << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  glfwSetWindowPos(main_window, main_width, 0);
+  glfwGetFramebufferSize(main_window, &main_width, &main_height);
+
+  //callback functions for glfw main window
+  glfwMakeContextCurrent(main_window);
+  glfwSetFramebufferSizeCallback(main_window, resizefun);
+  glfwSetMouseButtonCallback(main_window, mousebuttonfun);
+  glfwSetScrollCallback(main_window, scrollfun);
+  glfwSetCursorPosCallback(main_window, cursorposfun);
+  glfwSetKeyCallback(main_window, keyfun);
+  glfwSetCharCallback(main_window, charfun);
+  glfwSetErrorCallback(glfw_errorfun);
+
+  glewExperimental = true;
+  if (GLEW_OK != glewInit())
+    {
+      std::cerr << "'glewInit()' failed." << std::endl;
+      exit(EXIT_FAILURE);
+  }
+  // used to catch escape key
+  glfwSetInputMode(main_window, GLFW_STICKY_KEYS, GL_TRUE);
+  return main_window;
 }
