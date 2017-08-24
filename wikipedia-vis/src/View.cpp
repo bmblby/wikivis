@@ -108,7 +108,7 @@ View::set_label(glm::vec3 const& pos, std::string const& title, float angle)
         nvgFontFace(_vg, "verdana");
         nvgFillColor(_vg, nvgRGBA(243,245,248,255));
         nvgTextAlign(_vg, NVG_ALIGN_LEFT);
-        nvgText(_vg, 0, 0, title.c_str(), NULL);
+        nvgText(_vg, 4, 4, title.c_str(), NULL);
         nvgRestore(_vg);
         nvgRestore(_vg);
 }
