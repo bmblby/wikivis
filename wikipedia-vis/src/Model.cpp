@@ -129,31 +129,6 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
     }
 }
 
-std::pair<bool, Vertex>
-Model::in_graph(Graph& g, Category const& cat) const
-{
-    for(auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
-        if(g[*vp.first].index == cat.index
-            or g[*vp.first].revid == cat.revid
-            or g[*vp.first].title == cat.title) {
-                return std::make_pair(true, *vp.first);
-            }
-    }
-    Vertex v;
-    return std::make_pair(false, v);
-}
-
-std::pair<bool, Vertex>
-Model::in_graph(Graph& g, uint32_t index) const
-{
-    for(auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
-        if(g[*vp.first].index == index)
-            return std::make_pair(true, *vp.first);
-    }
-    Vertex v;
-    return std::make_pair(false, v);
-}
-
 void
 Model::expand(int depth)
 {
@@ -291,16 +266,6 @@ Model::write_layout(boost::property_map<Graph, Point CatProp::*>::type pos_map)
     }
 }
 
-
-void
-Model::relayout(size_t w, size_t h)
-{
-    auto index = _graph[_root].index;
-    auto root = _wikidb.getCategory(index);
-    layout(root , w, h, _max_depth, _r);
-    _dirty = true;
-}
-
 struct layout_visitor : public boost::default_bfs_visitor
 {
     template<typename PosMap>
@@ -421,6 +386,63 @@ struct layout_visitor : public boost::default_bfs_visitor
     float _r;
     PosMap& _pmap;
 };
+
+struct width_visitor : public boost::default_dfs_visitor
+{
+    width_visitor(){}
+    template<typename Vertex, typename Graph>
+    void discover_vertex(Vertex v, Graph& g)
+    {
+        if(out_degree(v, g) == 0)
+            g[v].wideness = 1;
+    }
+
+    template<typename Vertex, typename Graph>
+    void finish_vertex(Vertex v, Graph& g)
+    {
+        for(auto ep = out_edges(v, g); ep.first != ep.second; ++ep.first) {
+            Vertex child = target(*ep.first, g);
+            g[v].wideness += g[child].wideness;
+        }
+    }
+};
+
+PosMap
+Model::layout(Category const& cat, size_t width, size_t height, size_t depth, float radius)
+{
+    //reset width for layout
+    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
+        _graph[*vp.first].wideness = 0;
+    }
+    _r = radius;
+    _max_depth = depth;
+    auto p = in_graph(_graph, cat);
+    if(p.first) {
+        Vertex start = p.second;
+        PosMap pos_map;
+        width_visitor set_width;
+        depth_first_search(_graph, visitor(set_width));
+
+        free_tree(p.second, _graph[p.second].pos[0], _graph[p.second].pos[1], 2*M_PI);
+    }
+    return get(&vta::CatProp::pos, _graph);
+
+    // debug
+    // for(auto vp = vertices(_graph); vp.first != vp.second; vp.first++) {
+    //     std::cout << _graph[*vp.first].title
+    //     << " x: " << _graph[*vp.first].pos[0]
+    //     << " y: " << _graph[*vp.first].pos[1] << std::endl;
+    //  }
+}
+
+void
+Model::relayout(size_t w, size_t h)
+{
+    auto index = _graph[_root].index;
+    auto root = _wikidb.getCategory(index);
+    layout(root , w, h, _max_depth, _r);
+    _dirty = true;
+}
 
 glm::vec3
 Model::pol2cart(float r, float phi) {
@@ -583,54 +605,6 @@ Model::focus_cat(uint32_t index, float threshold)
     // print_comp(true, true);
 }
 
-struct width_visitor : public boost::default_dfs_visitor
-{
-    width_visitor(){}
-    template<typename Vertex, typename Graph>
-    void discover_vertex(Vertex v, Graph& g)
-    {
-        if(out_degree(v, g) == 0)
-            g[v].wideness = 1;
-    }
-
-    template<typename Vertex, typename Graph>
-    void finish_vertex(Vertex v, Graph& g)
-    {
-        for(auto ep = out_edges(v, g); ep.first != ep.second; ++ep.first) {
-            Vertex child = target(*ep.first, g);
-            g[v].wideness += g[child].wideness;
-        }
-    }
-};
-
-PosMap
-Model::layout(Category const& cat, size_t width, size_t height, size_t depth, float radius)
-{
-    //reset width for layout
-    for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
-        _graph[*vp.first].wideness = 0;
-    }
-    _r = radius;
-    _max_depth = depth;
-    auto p = in_graph(_graph, cat);
-    if(p.first) {
-        Vertex start = p.second;
-        PosMap pos_map;
-        width_visitor set_width;
-        depth_first_search(_graph, visitor(set_width));
-
-        free_tree(p.second, _graph[p.second].pos[0], _graph[p.second].pos[1], 2*M_PI);
-    }
-    return get(&vta::CatProp::pos, _graph);
-
-    // debug
-    // for(auto vp = vertices(_graph); vp.first != vp.second; vp.first++) {
-    //     std::cout << _graph[*vp.first].title
-    //     << " x: " << _graph[*vp.first].pos[0]
-    //     << " y: " << _graph[*vp.first].pos[1] << std::endl;
-    //  }
-}
-
 std::vector<std::pair<glm::vec3, std::array<float, 4> > >
 Model::get_nodes() const
 {
@@ -682,6 +656,31 @@ Model::get_edges() const
         edge_vec.push_back(tuple);
     }
     return edge_vec;
+}
+
+std::pair<bool, Vertex>
+Model::in_graph(Graph& g, Category const& cat) const
+{
+    for(auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
+        if(g[*vp.first].index == cat.index
+            or g[*vp.first].revid == cat.revid
+            or g[*vp.first].title == cat.title) {
+                return std::make_pair(true, *vp.first);
+            }
+    }
+    Vertex v;
+    return std::make_pair(false, v);
+}
+
+std::pair<bool, Vertex>
+Model::in_graph(Graph& g, uint32_t index) const
+{
+    for(auto vp = vertices(g); vp.first != vp.second; ++vp.first) {
+        if(g[*vp.first].index == index)
+            return std::make_pair(true, *vp.first);
+    }
+    Vertex v;
+    return std::make_pair(false, v);
 }
 
 void

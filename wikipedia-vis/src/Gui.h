@@ -13,6 +13,8 @@
 namespace vta
 {
 
+using namespace nanogui;
+
 class Gui
 {
   public:
