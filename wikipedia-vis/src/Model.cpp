@@ -724,6 +724,7 @@ Model::fill_data(Category const& cat, Vertex v)
         _cat2art.insert(std::make_pair(v, i));
         _art2cat.insert(std::make_pair(i, v));
     }
+    std::cout  << cat.title << " weight: " << std::fixed << weight << std::endl;
     return std::make_pair(articles.size(), weight);
 }
 
@@ -770,12 +771,12 @@ Model::pos2cat(glm::vec3 target, Category& cat) const
 }
 
 // Dump graph to file with graphviz
-template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
+template <class WeightMap, class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
 class vertex_writer
 {
     public:
-        vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm):
-        _tm(tm), _im(im), _rm(rm), _pm(pm), _level(lm), _wm(wm), _lbm(lbm), _rbm(rbm), _ltm(ltm),
+        vertex_writer(WeightMap wem, TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm):
+        _wem(wem), _tm(tm), _im(im), _rm(rm), _pm(pm), _level(lm), _wm(wm), _lbm(lbm), _rbm(rbm), _ltm(ltm),
         _rtm(rtm), _pdcm(pdcm)
         {}
 
@@ -786,6 +787,7 @@ class vertex_writer
             << "title=\"" << _tm(v) << "\", "
             << "position=\"" << point[0] << "," << point[1] << "\", "
             << "level=\"" << _level(v) << "\", "
+            << "weight=\"" << _wem(v) << "\", "
             << "width=\"" << _wm(v) << "\", "
             << "lbis=\"" << _lbm(v) << "\", "
             << "rbis=\"" << _rbm(v) << "\", "
@@ -798,6 +800,7 @@ class vertex_writer
         IndexMap _im;
         RevidMap _rm;
         PositionMap _pm;
+        WeightMap _wem;
         LevelMap _level;
         WidthMap _wm;
         LBisMap _lbm;
@@ -807,10 +810,10 @@ class vertex_writer
         PrevDegCatMap _pdcm;
 };
 
-template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
-inline vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap, LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>
-make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm) {
-    return vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap,  LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>(t, i, r, p, lm, wm, lbm, rbm, ltm, rtm, pdcm);
+template <class WeightMap, class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
+inline vertex_writer<WeightMap, TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap, LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>
+make_vertex_writer(WeightMap wem, TitleMap t, IndexMap i, RevidMap r, PositionMap p, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm) {
+    return vertex_writer<WeightMap, TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap,  LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>(wem, t, i, r, p, lm, wm, lbm, rbm, ltm, rtm, pdcm);
 }
 
 template <class TitleMap>
@@ -842,6 +845,7 @@ Model::dump_graph(std::string filename) const
   auto p_map = boost::get(&vta::CatProp::pos, _graph);
 
   auto level_map = boost::get(&vta::CatProp::level, _graph);
+  auto weight_map = boost::get(&vta::CatProp::weight, _graph);
   auto width_map = boost::get(&vta::CatProp::wideness, _graph);
   auto l_bis_map = boost::get(&vta::CatProp::l_bis_lim, _graph);
   auto r_bis_map = boost::get(&vta::CatProp::r_bis_lim, _graph);
@@ -853,7 +857,7 @@ Model::dump_graph(std::string filename) const
   std::ofstream file(filename);
   if(file.is_open()) {
     boost::write_graphviz(file, _graph,
-    make_vertex_writer(t_map, i_map, r_map, p_map, level_map, width_map, l_bis_map, r_bis_map, l_tan_map, r_tan_map, deg_prev_map),
+    make_vertex_writer(weight_map, t_map, i_map, r_map, p_map, level_map, width_map, l_bis_map, r_bis_map, l_tan_map, r_tan_map, deg_prev_map),
     //   make_edge_writer(t_map));
     dw);
     return  true;
