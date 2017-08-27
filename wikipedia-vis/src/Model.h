@@ -57,6 +57,7 @@ struct CatProp {
     //Layout properties
     size_t mutable level = 0;
     int mutable wideness = 0;
+    double mutable weight = 0;
     Point mutable pos;
     double mutable angle;
     double mutable r_bis_lim;
@@ -146,7 +147,7 @@ class Model
     //util
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
     std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
-    uint32_t fill_data(Category const& cat, Vertex v);
+    std::pair<uint32_t, float> fill_data(Category const& cat, Vertex v);
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
     bool dump_graph(std::string filename) const;

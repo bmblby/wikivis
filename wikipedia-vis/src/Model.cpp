@@ -104,8 +104,9 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].level = 0;
 
             // fill _art, _cat and _simM
-            auto art_size = fill_data(cat, v);
-            g[v].num_articles = art_size;
+            auto art_info = fill_data(cat, v);
+            g[v].num_articles = art_info.first;
+            g[v].weight = art_info.second;
             g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
             _root = v;
         }
@@ -214,8 +215,9 @@ Model::add_cat(Graph& g, Category const& cat,
     EdgePair ep0 = add_edge(parent, v, g);
 
     //fill _art, _cat and _simM
-    auto art_size = fill_data(cat, v);
-    g[v].num_articles = art_size;
+    auto art_info = fill_data(cat, v);
+    g[v].num_articles = art_info.first;
+    g[v].weight = art_info.second;
     g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
     std::pair<Vertex, EdgePair> p(v, ep0);
     return p;
@@ -710,17 +712,19 @@ Model::print_comp(bool local, bool global) const
     }
 }
 
-uint32_t
+std::pair<uint32_t, float>
 Model::fill_data(Category const& cat, Vertex v)
 {
     _categories.insert(cat.index);
     std::vector<uint32_t> articles = _wikidb.getChildrenArtID(cat.index);
+    double weight(0);
     for(auto i : articles) {
+        weight += (double)1/(double)_wikidb.getArticle(i).getParents().size();
         _simM[i] = _wikidb.getComparisons(i);
         _cat2art.insert(std::make_pair(v, i));
         _art2cat.insert(std::make_pair(i, v));
     }
-    return articles.size();
+    return std::make_pair(articles.size(), weight);
 }
 
 bool
