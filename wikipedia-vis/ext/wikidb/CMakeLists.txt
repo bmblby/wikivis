@@ -17,7 +17,7 @@ set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
   ${PROJECT_SOURCE_DIR}/contrib/lib)
 
 add_definitions(-DHAVE_CONFIG_H)
-find_library(FASTDB_LIBRARY NAMES libfastdb.a)
+find_library(FASTDB_LIBRARY NAMES libfastdb.so)
 
 set(FASTDB_LIBRARY_WHOLE -Wl,-whole-archive ${FASTDB_LIBRARY} -Wl,-no-whole-archive)
 
@@ -54,17 +54,17 @@ target_link_libraries(createdb ${Boost_LIBRARIES}
 
 
 # add testing
-enable_testing()
-
-set(GTEST_ROOT ${PROJECT_SOURCE_DIR}/contrib)
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
-file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/tests/*.cpp)
-add_executable(wikidb_test ${TEST_SRC_FILES})
-target_link_libraries(wikidb_test
-	${GTEST_BOTH_LIBRARIES}
-	${Boost_LIBRARIES}
-	wikidb
-	${CMAKE_THREAD_LIBS_INIT})
-
-GTEST_ADD_TESTS(wikidb_test "" ${TEST_SRC_FILES})
+# enable_testing()
+#
+# set(GTEST_ROOT ${PROJECT_SOURCE_DIR}/contrib)
+# find_package(GTest REQUIRED)
+# include_directories(${GTEST_INCLUDE_DIRS})
+# file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/tests/*.cpp)
+# add_executable(wikidb_test ${TEST_SRC_FILES})
+# target_link_libraries(wikidb_test
+# 	${GTEST_BOTH_LIBRARIES}
+# 	${Boost_LIBRARIES}
+# 	wikidb
+# 	${CMAKE_THREAD_LIBS_INIT})
+#
+# GTEST_ADD_TESTS(wikidb_test "" ${TEST_SRC_FILES})
