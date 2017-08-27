@@ -4,7 +4,7 @@ add_executable(app main.cpp)
 set(FASTDB_LIBRARY_SEARCH_DIR
   ${CMAKE_SOURCE_DIR}/ext/wikidb/contrib/lib
 )
-find_library(fastdb NAMES libfastdb.a
+find_library(fastdb NAMES libfastdb.so
                     PATHS ${FASTDB_LIBRARY_SEARCH_DIR})
 
 target_link_libraries(app
