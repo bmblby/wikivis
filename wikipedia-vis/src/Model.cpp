@@ -714,14 +714,14 @@ Model::fill_data(Category const& cat, Vertex v)
 {
     _categories.insert(cat.index);
     std::vector<uint32_t> articles = _wikidb.getChildrenArtID(cat.index);
-    double weight(0);
+    float weight(0);
     for(auto i : articles) {
-        weight += (double)1/(double)_wikidb.getArticle(i).getParents().size();
+        weight += (float)1/(float)_wikidb.getArticle(i).getParents().size();
         _simM[i] = _wikidb.getComparisons(i);
         _cat2art.insert(std::make_pair(v, i));
         _art2cat.insert(std::make_pair(i, v));
     }
-    std::cout  << cat.title << " weight: " << std::fixed << weight << std::endl;
+    // std::cout  << cat.title << " weight: " << std::fixed << weight << std::endl;
     return std::make_pair(articles.size(), weight);
 }
 
