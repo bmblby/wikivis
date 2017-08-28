@@ -108,10 +108,10 @@ Renderer::fill_vbos()
   glBindBuffer(GL_ARRAY_BUFFER, _vboNode);
   glBufferData(
     GL_ARRAY_BUFFER,
-    //pos=3 and color=4 => 7
-    nodes.size() * (sizeof(float) * 7),
+    //pos=3 and color=4 and weight=1 => 8
+    nodes.size() * (sizeof(float) * 8),
     nodes.data(),
-    GL_STATIC_DRAW
+    GL_STREAM_COPY
   );
 
   //bind edge buffer and push to gpu
@@ -120,21 +120,21 @@ Renderer::fill_vbos()
   glBindBuffer(GL_ARRAY_BUFFER, _vboEdge);
   glBufferData(
     GL_ARRAY_BUFFER,
-    //2 times pos=3 and color=4 => 14
+    //2 times pos=3 and 2 * color=4 => 14
     edges.size() * (sizeof(float) * 14),
     0,
     GL_STATIC_DRAW
   );
 
   std::vector<glm::vec3> edgePos;
-  std::vector<std::array<float, 4>> edgeCol;
+  std::vector<glm::vec4> edgeCol;
   for (auto i : edges) {
-    edgePos.push_back(std::get<0>(i));
-    edgePos.push_back(std::get<1>(i));
-    edgeCol.push_back(std::get<2>(i));
-    edgeCol.push_back(std::get<2>(i));
+    edgePos.push_back(i.source);
+    edgeCol.push_back(i.s_col);
+    edgePos.push_back(i.target);
+    edgeCol.push_back(i.t_col);
   };
-
+  
   glBufferSubData(
     GL_ARRAY_BUFFER,
     0,
@@ -185,9 +185,10 @@ void
 Renderer::draw()
 {
     auto nodes = _model.get_nodes();
-    size_t point_size = sizeof(nodes[0].first);
-    size_t color_size = sizeof(nodes[0].second);
-    size_t total_size = point_size + color_size;
+    size_t point_size = sizeof(nodes[0].pos);
+    size_t weight_size = sizeof(nodes[0].weight);
+    size_t color_size = sizeof(nodes[0].col);
+    size_t total_size = point_size + color_size + weight_size;
 
     // draw Nodes
     glBindVertexArray(_vaoNode);
@@ -203,8 +204,8 @@ Renderer::draw()
     glUniformMatrix4fv(viewID , 1, GL_FALSE, &_viewMatrix[0][0]);
     glUniformMatrix4fv(modelID , 1, GL_FALSE, &_modelMatrix[0][0]);
 
-    glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, _vboNode);
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0,
         point_size / sizeof(float),
@@ -217,15 +218,27 @@ Renderer::draw()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(
         1,
-        color_size / sizeof(float),
+        weight_size / sizeof(float),
         GL_FLOAT,
         GL_FALSE,
         total_size,
         (void*)(point_size)
     );
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(
+        2,
+        color_size / sizeof(float),
+        GL_FLOAT,
+        GL_FALSE,
+        total_size,
+        (void*)(point_size + weight_size)
+    );
+
     glDrawArrays(GL_POINTS, 0, _num_nodes);
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 
 
     // draw Edges
@@ -240,8 +253,8 @@ Renderer::draw()
     glUniformMatrix4fv(viewID , 1, GL_FALSE, &_viewMatrix[0][0]);
     glUniformMatrix4fv(modelID , 1, GL_FALSE, &_modelMatrix[0][0]);
 
-    glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, _vboEdge);
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0,
         point_size / sizeof(float),
