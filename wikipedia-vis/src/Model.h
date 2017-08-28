@@ -57,6 +57,7 @@ struct CatProp {
     //Layout properties
     size_t mutable level = 0;
     int mutable wideness = 0;
+    float mutable weight = 0;
     Point mutable pos;
     double mutable angle;
     double mutable r_bis_lim;
@@ -65,13 +66,33 @@ struct CatProp {
     double mutable l_tan_lim;
     double mutable deg_prev_cat;
     double mutable deg_next_cat;
-    std::array<float, 4> mutable color;
+    glm::vec4 mutable color;
 };
 
 struct EdgeProp {
   EdgeProp(): color(GREY_1) {}
   static uint32_t weight;
   std::array<float, 4> mutable color;
+};
+
+struct gl_vertex
+{
+    gl_vertex(glm::vec3 pos, float weight, glm::vec4 col)
+    : pos(pos), weight(weight), col(col) {}
+
+    glm::vec3 pos;
+    float weight;
+    glm::vec4 col;
+};
+
+struct gl_edge
+{
+    gl_edge(glm::vec3 source, glm::vec4 s_col, glm::vec3 target, glm::vec4 t_col)
+    : source(source), s_col(s_col), target(target), t_col(t_col) {}
+    glm::vec3 source = {0.0f,0.0f,0.0f};
+    glm::vec4 s_col = {0.0f,0.0f,0.0f,0.0f};
+    glm::vec3 target = {0.0f,0.0f,0.0f};
+    glm::vec4 t_col = {0.0f,0.0f,0.0f,0.0f};
 };
 
 //TODO:0 choose final graph params
@@ -109,7 +130,7 @@ class Model
     add_cat(Graph& g,
                 Category const& cat,
                 Vertex const& parent,
-                std::array<float, 4> color = BLUE_SOFT
+                glm::vec4 color = BLUE_SOFT
     );
 
     // standard layoutts from BGL
@@ -134,19 +155,14 @@ class Model
     void focus_cat(uint32_t index, float threshold);
 
     //getter - for renderer
-    std::vector<std::pair< glm::vec3,
-                         std::array<float, 4> > >
-    get_nodes() const;
-
-    std::vector<std::tuple<const glm::vec3,
-                         const glm::vec3,
-                         const std::array<float, 4>>>
-    get_edges() const;
+    std::vector<gl_vertex> get_nodes() const;
+    std::vector<gl_edge> get_edges() const;
 
     //util
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
     std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
-    uint32_t fill_data(Category const& cat, Vertex v);
+    std::pair<uint32_t, float> fill_data(Category const& cat, Vertex v);
+    float mapping(float) const;
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
     bool dump_graph(std::string filename) const;

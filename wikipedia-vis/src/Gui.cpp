@@ -122,6 +122,10 @@ Gui::slider_threshold(glm::vec3 pos, int width)
     s->setCallback([=](float value) {
         _threshold = value;
         textBox->setValue(value);
+    });
+    s->setFinalCallback([=](float value) {
+        _threshold = value;
+        textBox->setValue(value);
         _model.threshold(value);
         _model._dirty = true;
     });
