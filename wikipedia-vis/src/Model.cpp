@@ -104,8 +104,9 @@ Model::buildDLS(Graph& g, Category const& cat, Vertex& v, size_t depth)
             g[v].level = 0;
 
             // fill _art, _cat and _simM
-            auto art_size = fill_data(cat, v);
-            g[v].num_articles = art_size;
+            auto art_info = fill_data(cat, v);
+            g[v].num_articles = art_info.first;
+            g[v].weight = art_info.second;
             g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
             _root = v;
         }
@@ -201,7 +202,7 @@ Model::expand_leaves(int depth)
 
 std::pair<Vertex, EdgePair>
 Model::add_cat(Graph& g, Category const& cat,
-                        Vertex const& parent, std::array<float, 4> color)
+                        Vertex const& parent, glm::vec4 color)
 {
     Vertex v = add_vertex(g);
     g[v].index = cat.index;
@@ -214,8 +215,9 @@ Model::add_cat(Graph& g, Category const& cat,
     EdgePair ep0 = add_edge(parent, v, g);
 
     //fill _art, _cat and _simM
-    auto art_size = fill_data(cat, v);
-    g[v].num_articles = art_size;
+    auto art_info = fill_data(cat, v);
+    g[v].num_articles = art_info.first;
+    g[v].weight = art_info.second;
     g[v].num_categories = _wikidb.getChildrenCatID(cat.index).size();
     std::pair<Vertex, EdgePair> p(v, ep0);
     return p;
@@ -605,37 +607,30 @@ Model::focus_cat(uint32_t index, float threshold)
     // print_comp(true, true);
 }
 
-std::vector<std::pair<glm::vec3, std::array<float, 4> > >
+std::vector<gl_vertex>
 Model::get_nodes() const
 {
-  // using NodeIt = boost::graph_traits<Graph>::vertex_iterator;
-  // using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
-  // NodeIt vi, vi_end;
-  using Pair = std::pair< glm::vec3,
-                          std::array<float, 4> >;
-  std::vector<Pair> node_vec;
-
+  std::vector<gl_vertex> node_vec;
   for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
     Vertex vertex = *vp.first;
     glm::vec3 pos;
     pos[0] = (float)_graph[vertex].pos[0];
     pos[1] = (float)_graph[vertex].pos[1];
     pos[2] = 0.0f;
-    std::array<float, 4> color = _graph[vertex].color;
-    Pair node_prop(pos, color);
-    node_vec.push_back(node_prop);
+    float weight = mapping(_graph[vertex].weight);
+    auto col = _graph[vertex].color;
+    glm::vec4 color = glm::vec4(col[0], col[1], col[2], col[3]);
+
+    gl_vertex gl_vert(pos, weight, color);
+    node_vec.push_back(gl_vert);
   }
   return node_vec;
 }
 
-std::vector<std::tuple<const glm::vec3, const glm::vec3, const std::array<float, 4> > >
+std::vector<gl_edge>
 Model::get_edges() const
 {
-    using Tuple = std::tuple<const glm::vec3,
-                             const glm::vec3,
-                             const std::array<float, 4>>;
-
-    std::vector<Tuple> edge_vec;
+    std::vector<gl_edge> edge_vec;
     for(auto ep = edges(_graph); ep.first != ep.second; ++ep.first) {
         Edge edge = *ep.first;
         Vertex source = boost::source(edge, _graph);
@@ -647,13 +642,17 @@ Model::get_edges() const
         source_pos[0] = _graph[source].pos[0];
         source_pos[1] = _graph[source].pos[1];
         source_pos[2] = 0.0f;
+
         glm::vec3 target_pos;
         target_pos[0] = _graph[target].pos[0];
         target_pos[1] = _graph[target].pos[1];
         target_pos[2] = 0.0f;
-        auto edge_color = _graph[edge].color;
-        Tuple tuple(source_pos, target_pos, edge_color);
-        edge_vec.push_back(tuple);
+
+        auto edge_col = _graph[edge].color;
+        glm::vec4 col = glm::vec4(edge_col[0], edge_col[1], edge_col[2], edge_col[3]);
+
+        gl_edge gl_edge(source_pos, col, target_pos, col);
+        edge_vec.push_back(gl_edge);
     }
     return edge_vec;
 }
@@ -710,17 +709,28 @@ Model::print_comp(bool local, bool global) const
     }
 }
 
-uint32_t
+std::pair<uint32_t, float>
 Model::fill_data(Category const& cat, Vertex v)
 {
     _categories.insert(cat.index);
     std::vector<uint32_t> articles = _wikidb.getChildrenArtID(cat.index);
+    float weight(0);
     for(auto i : articles) {
+        weight += (float)1/(float)_wikidb.getArticle(i).getParents().size();
         _simM[i] = _wikidb.getComparisons(i);
         _cat2art.insert(std::make_pair(v, i));
         _art2cat.insert(std::make_pair(i, v));
     }
-    return articles.size();
+    // std::cout  << cat.title << " weight: " << std::fixed << weight << std::endl;
+    return std::make_pair(articles.size(), weight);
+}
+
+float
+Model::mapping(float val) const
+{
+    float min_size = 8.0f;
+    float m = 3.0f;
+    return m *std::sqrt(val) + min_size;
 }
 
 bool
@@ -766,12 +776,12 @@ Model::pos2cat(glm::vec3 target, Category& cat) const
 }
 
 // Dump graph to file with graphviz
-template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
+template <class WeightMap, class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
 class vertex_writer
 {
     public:
-        vertex_writer(TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm):
-        _tm(tm), _im(im), _rm(rm), _pm(pm), _level(lm), _wm(wm), _lbm(lbm), _rbm(rbm), _ltm(ltm),
+        vertex_writer(WeightMap wem, TitleMap tm, IndexMap im, RevidMap rm, PositionMap pm, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm):
+        _wem(wem), _tm(tm), _im(im), _rm(rm), _pm(pm), _level(lm), _wm(wm), _lbm(lbm), _rbm(rbm), _ltm(ltm),
         _rtm(rtm), _pdcm(pdcm)
         {}
 
@@ -782,6 +792,7 @@ class vertex_writer
             << "title=\"" << _tm(v) << "\", "
             << "position=\"" << point[0] << "," << point[1] << "\", "
             << "level=\"" << _level(v) << "\", "
+            << "weight=\"" << _wem(v) << "\", "
             << "width=\"" << _wm(v) << "\", "
             << "lbis=\"" << _lbm(v) << "\", "
             << "rbis=\"" << _rbm(v) << "\", "
@@ -794,6 +805,7 @@ class vertex_writer
         IndexMap _im;
         RevidMap _rm;
         PositionMap _pm;
+        WeightMap _wem;
         LevelMap _level;
         WidthMap _wm;
         LBisMap _lbm;
@@ -803,10 +815,10 @@ class vertex_writer
         PrevDegCatMap _pdcm;
 };
 
-template <class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
-inline vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap, LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>
-make_vertex_writer(TitleMap t, IndexMap i, RevidMap r, PositionMap p, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm) {
-    return vertex_writer<TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap,  LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>(t, i, r, p, lm, wm, lbm, rbm, ltm, rtm, pdcm);
+template <class WeightMap, class TitleMap, class IndexMap, class RevidMap, class PositionMap, class LevelMap, class WidthMap, class LBisMap, class RBisMap, class LTanMap, class RTanMap, class PrevDegCatMap>
+inline vertex_writer<WeightMap, TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap, LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>
+make_vertex_writer(WeightMap wem, TitleMap t, IndexMap i, RevidMap r, PositionMap p, LevelMap lm, WidthMap wm,  LBisMap lbm,  RBisMap rbm,  LTanMap ltm,  RTanMap rtm, PrevDegCatMap pdcm) {
+    return vertex_writer<WeightMap, TitleMap, IndexMap, RevidMap, PositionMap, LevelMap, WidthMap,  LBisMap,  RBisMap,  LTanMap,  RTanMap, PrevDegCatMap>(wem, t, i, r, p, lm, wm, lbm, rbm, ltm, rtm, pdcm);
 }
 
 template <class TitleMap>
@@ -838,6 +850,7 @@ Model::dump_graph(std::string filename) const
   auto p_map = boost::get(&vta::CatProp::pos, _graph);
 
   auto level_map = boost::get(&vta::CatProp::level, _graph);
+  auto weight_map = boost::get(&vta::CatProp::weight, _graph);
   auto width_map = boost::get(&vta::CatProp::wideness, _graph);
   auto l_bis_map = boost::get(&vta::CatProp::l_bis_lim, _graph);
   auto r_bis_map = boost::get(&vta::CatProp::r_bis_lim, _graph);
@@ -849,7 +862,7 @@ Model::dump_graph(std::string filename) const
   std::ofstream file(filename);
   if(file.is_open()) {
     boost::write_graphviz(file, _graph,
-    make_vertex_writer(t_map, i_map, r_map, p_map, level_map, width_map, l_bis_map, r_bis_map, l_tan_map, r_tan_map, deg_prev_map),
+    make_vertex_writer(weight_map, t_map, i_map, r_map, p_map, level_map, width_map, l_bis_map, r_bis_map, l_tan_map, r_tan_map, deg_prev_map),
     //   make_edge_writer(t_map));
     dw);
     return  true;
