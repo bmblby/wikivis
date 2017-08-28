@@ -202,7 +202,7 @@ Model::expand_leaves(int depth)
 
 std::pair<Vertex, EdgePair>
 Model::add_cat(Graph& g, Category const& cat,
-                        Vertex const& parent, std::array<float, 4> color)
+                        Vertex const& parent, glm::vec4 color)
 {
     Vertex v = add_vertex(g);
     g[v].index = cat.index;

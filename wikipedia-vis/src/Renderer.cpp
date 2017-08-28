@@ -74,6 +74,7 @@ Renderer::initialize()
 {
   std::string edge_v = "../../shaders/edge.vert";
   std::string edge_f = "../../shaders/edge.frag";
+  //BUG: opgnel error code 1280!
 
   // create shader program and attach all components
   _edgeShader = gloost::gl::ShaderProgram::create();
@@ -134,7 +135,7 @@ Renderer::fill_vbos()
     edgePos.push_back(i.target);
     edgeCol.push_back(i.t_col);
   };
-  
+
   glBufferSubData(
     GL_ARRAY_BUFFER,
     0,

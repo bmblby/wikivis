@@ -66,7 +66,7 @@ struct CatProp {
     double mutable l_tan_lim;
     double mutable deg_prev_cat;
     double mutable deg_next_cat;
-    std::array<float, 4> mutable color;
+    glm::vec4 mutable color;
 };
 
 struct EdgeProp {
@@ -130,7 +130,7 @@ class Model
     add_cat(Graph& g,
                 Category const& cat,
                 Vertex const& parent,
-                std::array<float, 4> color = BLUE_SOFT
+                glm::vec4 color = BLUE_SOFT
     );
 
     // standard layoutts from BGL
