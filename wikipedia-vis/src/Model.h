@@ -162,6 +162,7 @@ class Model
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
     std::pair<bool, Vertex> in_graph(Graph& g, uint32_t index) const;
     std::pair<uint32_t, float> fill_data(Category const& cat, Vertex v);
+    float mapping(float) const;
     bool find(std::string const& cat, Category& category) const;
     bool pos2cat(glm::vec3 target, Category& cat) const;
     bool dump_graph(std::string filename) const;

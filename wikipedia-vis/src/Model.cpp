@@ -617,7 +617,7 @@ Model::get_nodes() const
     pos[0] = (float)_graph[vertex].pos[0];
     pos[1] = (float)_graph[vertex].pos[1];
     pos[2] = 0.0f;
-    auto weight = _graph[vertex].weight;
+    float weight = mapping(_graph[vertex].weight);
     auto col = _graph[vertex].color;
     glm::vec4 color = glm::vec4(col[0], col[1], col[2], col[3]);
 
@@ -723,6 +723,14 @@ Model::fill_data(Category const& cat, Vertex v)
     }
     // std::cout  << cat.title << " weight: " << std::fixed << weight << std::endl;
     return std::make_pair(articles.size(), weight);
+}
+
+float
+Model::mapping(float val) const
+{
+    float min_size = 8.0f;
+    float m = 3.0f;
+    return m *std::sqrt(val) + min_size;
 }
 
 bool
