@@ -607,37 +607,30 @@ Model::focus_cat(uint32_t index, float threshold)
     // print_comp(true, true);
 }
 
-std::vector<std::pair<glm::vec3, std::array<float, 4> > >
+std::vector<gl_vertex>
 Model::get_nodes() const
 {
-  // using NodeIt = boost::graph_traits<Graph>::vertex_iterator;
-  // using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
-  // NodeIt vi, vi_end;
-  using Pair = std::pair< glm::vec3,
-                          std::array<float, 4> >;
-  std::vector<Pair> node_vec;
-
+  std::vector<gl_vertex> node_vec;
   for(auto vp = vertices(_graph); vp.first != vp.second; ++vp.first) {
     Vertex vertex = *vp.first;
     glm::vec3 pos;
     pos[0] = (float)_graph[vertex].pos[0];
     pos[1] = (float)_graph[vertex].pos[1];
     pos[2] = 0.0f;
-    std::array<float, 4> color = _graph[vertex].color;
-    Pair node_prop(pos, color);
-    node_vec.push_back(node_prop);
+    auto weight = _graph[vertex].weight;
+    auto col = _graph[vertex].color;
+    glm::vec4 color = glm::vec4(col[0], col[1], col[2], col[3]);
+
+    gl_vertex gl_vert(pos, weight, color);
+    node_vec.push_back(gl_vert);
   }
   return node_vec;
 }
 
-std::vector<std::tuple<const glm::vec3, const glm::vec3, const std::array<float, 4> > >
+std::vector<gl_edge>
 Model::get_edges() const
 {
-    using Tuple = std::tuple<const glm::vec3,
-                             const glm::vec3,
-                             const std::array<float, 4>>;
-
-    std::vector<Tuple> edge_vec;
+    std::vector<gl_edge> edge_vec;
     for(auto ep = edges(_graph); ep.first != ep.second; ++ep.first) {
         Edge edge = *ep.first;
         Vertex source = boost::source(edge, _graph);
@@ -649,13 +642,17 @@ Model::get_edges() const
         source_pos[0] = _graph[source].pos[0];
         source_pos[1] = _graph[source].pos[1];
         source_pos[2] = 0.0f;
+
         glm::vec3 target_pos;
         target_pos[0] = _graph[target].pos[0];
         target_pos[1] = _graph[target].pos[1];
         target_pos[2] = 0.0f;
-        auto edge_color = _graph[edge].color;
-        Tuple tuple(source_pos, target_pos, edge_color);
-        edge_vec.push_back(tuple);
+
+        auto edge_col = _graph[edge].color;
+        glm::vec4 col = glm::vec4(edge_col[0], edge_col[1], edge_col[2], edge_col[3]);
+
+        gl_edge gl_edge(source_pos, col, target_pos, col);
+        edge_vec.push_back(gl_edge);
     }
     return edge_vec;
 }

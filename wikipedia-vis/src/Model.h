@@ -155,14 +155,8 @@ class Model
     void focus_cat(uint32_t index, float threshold);
 
     //getter - for renderer
-    std::vector<std::pair< glm::vec3,
-                         std::array<float, 4> > >
-    get_nodes() const;
-
-    std::vector<std::tuple<const glm::vec3,
-                         const glm::vec3,
-                         const std::array<float, 4>>>
-    get_edges() const;
+    std::vector<gl_vertex> get_nodes() const;
+    std::vector<gl_edge> get_edges() const;
 
     //util
     std::pair<bool, Vertex> in_graph(Graph& g, Category const& cat) const;
