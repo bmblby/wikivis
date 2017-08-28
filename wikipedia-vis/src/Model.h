@@ -75,6 +75,26 @@ struct EdgeProp {
   std::array<float, 4> mutable color;
 };
 
+struct gl_vertex
+{
+    gl_vertex(glm::vec3 pos, float weight, glm::vec4 col)
+    : pos(pos), weight(weight), col(col) {}
+
+    glm::vec3 pos;
+    float weight;
+    glm::vec4 col;
+};
+
+struct gl_edge
+{
+    gl_edge(glm::vec3 source, glm::vec4 s_col, glm::vec3 target, glm::vec4 t_col)
+    : source(source), s_col(s_col), target(target), t_col(t_col) {}
+    glm::vec3 source = {0.0f,0.0f,0.0f};
+    glm::vec4 s_col = {0.0f,0.0f,0.0f,0.0f};
+    glm::vec3 target = {0.0f,0.0f,0.0f};
+    glm::vec4 t_col = {0.0f,0.0f,0.0f,0.0f};
+};
+
 //TODO:0 choose final graph params
 using Graph = boost::adjacency_list<
                  boost::setS
